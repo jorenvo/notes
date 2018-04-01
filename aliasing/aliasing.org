@@ -1,0 +1,82 @@
+#+TITLE: Aliasing
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://jorenvo.github.io/notes/css/solarized-light.css"/>
+* Introduction
+Imagine the following scene:
+
+#+CAPTION: 100x100px image with red and green alternating spheres, each with a diameter of 10px
+[[./jittered_spheres_10px.png]]
+
+Reducing the size of each sphere to 1px gives a predictable result. The resulting image has alternating green and red vertical lines:
+
+#+CAPTION: 100x100px image with red and green alternating spheres, each with a diameter of 1px (uniform sampling, 1 sample/px)
+[[./uniform_spheres_1px.png]]
+* Different sampling methods
+Depending on the sampling method used the lines may not have a uniform color. The same scene rendered with jittered sampling results in:
+
+#+CAPTION: 1px spheres rendered with jittered sampling (16 samples/px)
+[[./jittered_spheres_1px.png]]
+
+The end result however is still an image with vertical lines containing either shades of green *or* shades of red i.e. a vertical green line contains no shades of red and vice versa.
+* Aliasing artifacts
+When the size of the spheres varies slightly from the sampling frequency, aliasing artifacts occur. E.g. sampling 1.05px spheres uniformly (1 sample/px):
+
+#+CAPTION: Aliasing artifacts with spheres with a 1.05px diameter, rendered with uniform sampling (1 sample/px)
+#+NAME:    fig:uniform_spheres_1_05px.png
+[[./uniform_spheres_1_05px.png]]
+
+This shows a clear pattern that *does not exist in the scene*. Although usually more subtle, this demonstrates clearly why most rendering methods use various anti-aliasing techniques to avoid this.
+
+Jittered sampling is quite effective at eliminating most forms of aliasing. Although it looks better, for this case the end result is not acceptable:
+
+#+CAPTION: Aliasing artifacts with spheres with a 1.05px diameter, rendered with jittered sampling (16 samples/px)
+#+NAME:    fig:jittered_spheres_1_05px.png
+[[./jittered_spheres_1_05px.png]]
+* Analysis
+** Uniform
+When sampling spheres of 1px the sampling occurs in in lockstep:
+
+#+CAPTION: Lockstep uniform sampling (1 sample/px)
+[[./uniform_samples.svg]]
+
+Although different sampling techniques might sample these individual pixels differently, there is only either green *or* red in each pixel.
+
+When the sphere is slightly larger than the pixel size (1.05px) the sampling no longer occurs in lockstep:
+
+#+CAPTION: Non-lockstep uniform sampling (1 sample/px), sample points are given in blue
+#+NAME:    fig:uniform_samples_larger_spheres.png
+[[./uniform_samples_larger_spheres.png]]
+
+With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure [[fig:uniform_spheres_1_05px.png]]. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure [[fig:uniform_samples_larger_spheres.png]] happens in the bottom right pixels.
+** Jittered
+The core issue with this pattern is that every sampled /pixel/ will contain a varying amount of red and green. From left to right the pixels will contain:
+
+1. only green (+ background)
+2. mostly green, little bit of red (+ background)
+3. equal amounts green and red (+ background)
+4. mostly red, little bit of green (+ background)
+5. only red (+ background)
+6. etc...
+
+The jittered sampling in Figure [[fig:jittered_spheres_1_05px.png]] gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These /noisy bands/ occur when the pixels are being sampled as described in steps 2, 3 and 4.
+
+More advanced jittered sampling patterns like e.g. multi-jittered sampling won't do any better:
+
+#+CAPTION: Aliasing artifacts with spheres with a 1.05px diameter, rendered with multi-jittered sampling (16 samples/px)
+[[./multi_jittered_spheres_1_05px.png]]
+
+The core issue remains the same, namely that going left to right pixels contain a varying amount of red and green.
+* Conclusion
+Avoiding these vertical noise bands is not straight-forward. An ideal solution would necessarily have to result in uniform noise. There is simply not enough available resolution to do better. Therefore it is best to avoid this situation all together by either:
+
+- increasing the image resolution
+- changing the world-to-image scaling factor (pixel size)
+- modifying the scene
+
+Interestingly, the classic anti-aliasing checkerboard example side-steps this problem [fn:1]:
+
+#+CAPTION: Anti-aliased checkerboard
+[[./Reconstruction-Mitchell-Checkerboard.png]]
+
+The same bands appear, but because the square size decreases rapidly as the distance from the camera increases they are not noticeable.
+
+[fn:1] By Portsmouth (Own work) [Public domain], [[https://commons.wikimedia.org/wiki/File:Reconstruction-Mitchell-Checkerboard.png][via Wikimedia Commons]]

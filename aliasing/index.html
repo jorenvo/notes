@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Aliasing</title>
+<!-- 2018-04-01 Sun 00:54 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://jorenvo.github.io/notes/css/solarized-light.css"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Aliasing</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Introduction</a></li>
+<li><a href="#sec-2">2. Different sampling methods</a></li>
+<li><a href="#sec-3">3. Aliasing artifacts</a></li>
+<li><a href="#sec-4">4. Analysis</a>
+<ul>
+<li><a href="#sec-4-1">4.1. Uniform</a></li>
+<li><a href="#sec-4-2">4.2. Jittered</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Conclusion</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Imagine the following scene:
+</p>
+
+
+<div class="figure">
+<p><img src="./jittered_spheres_10px.png" alt="jittered_spheres_10px.png" />
+</p>
+<p><span class="figure-number">Figure 1:</span> 100x100px image with red and green alternating spheres, each with a diameter of 10px</p>
+</div>
+
+<p>
+Reducing the size of each sphere to 1px gives a predictable result. The resulting image has alternating green and red vertical lines:
+</p>
+
+
+<div class="figure">
+<p><img src="./uniform_spheres_1px.png" alt="uniform_spheres_1px.png" />
+</p>
+<p><span class="figure-number">Figure 2:</span> 100x100px image with red and green alternating spheres, each with a diameter of 1px (uniform sampling, 1 sample/px)</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Different sampling methods</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Depending on the sampling method used the lines may not have a uniform color. The same scene rendered with jittered sampling results in:
+</p>
+
+
+<div class="figure">
+<p><img src="./jittered_spheres_1px.png" alt="jittered_spheres_1px.png" />
+</p>
+<p><span class="figure-number">Figure 3:</span> 1px spheres rendered with jittered sampling (16 samples/px)</p>
+</div>
+
+<p>
+The end result however is still an image with vertical lines containing either shades of green <b>or</b> shades of red i.e. a vertical green line contains no shades of red and vice versa.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Aliasing artifacts</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+When the size of the spheres varies slightly from the sampling frequency, aliasing artifacts occur. E.g. sampling 1.05px spheres uniformly (1 sample/px):
+</p>
+
+
+<div id="fig:uniform_spheres_1_05px.png" class="figure">
+<p><img src="./uniform_spheres_1_05px.png" alt="uniform_spheres_1_05px.png" />
+</p>
+<p><span class="figure-number">Figure 4:</span> Aliasing artifacts with spheres with a 1.05px diameter, rendered with uniform sampling (1 sample/px)</p>
+</div>
+
+<p>
+This shows a clear pattern that <b>does not exist in the scene</b>. Although usually more subtle, this demonstrates clearly why most rendering methods use various anti-aliasing techniques to avoid this.
+</p>
+
+<p>
+Jittered sampling is quite effective at eliminating most forms of aliasing. Although it looks better, for this case the end result is not acceptable:
+</p>
+
+
+<div id="fig:jittered_spheres_1_05px.png" class="figure">
+<p><img src="./jittered_spheres_1_05px.png" alt="jittered_spheres_1_05px.png" />
+</p>
+<p><span class="figure-number">Figure 5:</span> Aliasing artifacts with spheres with a 1.05px diameter, rendered with jittered sampling (16 samples/px)</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Analysis</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Uniform</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+When sampling spheres of 1px the sampling occurs in in lockstep:
+</p>
+
+
+<div class="figure">
+<p><img src="./uniform_samples.svg" alt="uniform_samples.svg" />
+</p>
+<p><span class="figure-number">Figure 6:</span> Lockstep uniform sampling (1 sample/px)</p>
+</div>
+
+<p>
+Although different sampling techniques might sample these individual pixels differently, there is only either green <b>or</b> red in each pixel.
+</p>
+
+<p>
+When the sphere is slightly larger than the pixel size (1.05px) the sampling no longer occurs in lockstep:
+</p>
+
+
+<div id="fig:uniform_samples_larger_spheres.png" class="figure">
+<p><img src="./uniform_samples_larger_spheres.png" alt="uniform_samples_larger_spheres.png" />
+</p>
+<p><span class="figure-number">Figure 7:</span> Non-lockstep uniform sampling (1 sample/px), sample points are given in blue</p>
+</div>
+
+<p>
+With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure <a href="#fig:uniform_spheres_1_05px.png">4</a>. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure <a href="#fig:uniform_samples_larger_spheres.png">7</a> happens in the bottom right pixels.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> Jittered</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+The core issue with this pattern is that every sampled <i>pixel</i> will contain a varying amount of red and green. From left to right the pixels will contain:
+</p>
+
+<ol class="org-ol">
+<li>only green (+ background)
+</li>
+<li>mostly green, little bit of red (+ background)
+</li>
+<li>equal amounts green and red (+ background)
+</li>
+<li>mostly red, little bit of green (+ background)
+</li>
+<li>only red (+ background)
+</li>
+<li>etc&#x2026;
+</li>
+</ol>
+
+<p>
+The jittered sampling in Figure <a href="#fig:jittered_spheres_1_05px.png">5</a> gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These <i>noisy bands</i> occur when the pixels are being sampled as described in steps 2, 3 and 4.
+</p>
+
+<p>
+More advanced jittered sampling patterns like e.g. multi-jittered sampling won't do any better:
+</p>
+
+
+<div class="figure">
+<p><img src="./multi_jittered_spheres_1_05px.png" alt="multi_jittered_spheres_1_05px.png" />
+</p>
+<p><span class="figure-number">Figure 8:</span> Aliasing artifacts with spheres with a 1.05px diameter, rendered with multi-jittered sampling (16 samples/px)</p>
+</div>
+
+<p>
+The core issue remains the same, namely that going left to right pixels contain a varying amount of red and green.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Conclusion</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+Avoiding these vertical noise bands is not straight-forward. An ideal solution would necessarily have to result in uniform noise. There is simply not enough available resolution to do better. Therefore it is best to avoid this situation all together by either:
+</p>
+
+<ul class="org-ul">
+<li>increasing the image resolution
+</li>
+<li>changing the world-to-image scaling factor (pixel size)
+</li>
+<li>modifying the scene
+</li>
+</ul>
+
+<p>
+Interestingly, the classic anti-aliasing checkerboard example side-steps this problem <sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>:
+</p>
+
+
+<div class="figure">
+<p><img src="./Reconstruction-Mitchell-Checkerboard.png" alt="Reconstruction-Mitchell-Checkerboard.png" />
+</p>
+<p><span class="figure-number">Figure 9:</span> Anti-aliased checkerboard</p>
+</div>
+
+<p>
+The same bands appear, but because the square size decreases rapidly as the distance from the camera increases they are not noticeable.
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
+By Portsmouth (Own work) [Public domain], <a href="https://commons.wikimedia.org/wiki/File:Reconstruction-Mitchell-Checkerboard.png">via Wikimedia Commons</a>
+</p></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="date">Created: 2018-04-01 Sun 00:54</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
