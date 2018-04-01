@@ -1,4 +1,5 @@
 #+TITLE: Notes
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://jorenvo.github.io/notes/css/solarized-light.css"/>
+#+HTML_HEAD: <link rel="icon" href="https://jorenvo.github.io/notes/favicon.ico" type="image/x-icon"/>
 [[./aliasing/][Aliasing]]
 
