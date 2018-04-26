@@ -4,24 +4,24 @@
 * Introduction
 Imagine the following scene:
 
-#+CAPTION: 100x100px image with red and green alternating spheres, each with a diameter of 10px
+#+CAPTION: 100x100px image with red and green alternating circles, each with a diameter of 10px
 [[./jittered_spheres_10px.png]]
 
-Reducing the size of each sphere to 1px gives a predictable result. The resulting image has alternating green and red vertical lines:
+Reducing the size of each circle to 1px gives a predictable result. The resulting image has alternating green and red vertical lines:
 
-#+CAPTION: 100x100px image with red and green alternating spheres, each with a diameter of 1px (uniform sampling, 1 sample/px)
+#+CAPTION: 100x100px image with red and green alternating circles, each with a diameter of 1px (uniform sampling, 1 sample/px)
 [[./uniform_spheres_1px.png]]
 * Different sampling methods
 Depending on the sampling method used the lines may not have a uniform color. The same scene rendered with jittered sampling results in:
 
-#+CAPTION: 1px spheres rendered with jittered sampling (16 samples/px)
+#+CAPTION: 1px circles rendered with jittered sampling (16 samples/px)
 [[./jittered_spheres_1px.png]]
 
 The end result however is still an image with vertical lines containing either shades of green *or* shades of red i.e. a vertical green line contains no shades of red and vice versa.
 * Aliasing artifacts
-When the size of the spheres varies slightly from the sampling frequency, aliasing artifacts occur. E.g. sampling 1.05px spheres uniformly (1 sample/px):
+When the size of the circles varies slightly from the sampling frequency, aliasing artifacts occur. E.g. sampling 1.05px circles uniformly (1 sample/px):
 
-#+CAPTION: Aliasing artifacts with spheres with a 1.05px diameter, rendered with uniform sampling (1 sample/px)
+#+CAPTION: Aliasing artifacts with circles with a 1.05px diameter, rendered with uniform sampling (1 sample/px)
 #+NAME:    fig:uniform_spheres_1_05px.png
 [[./uniform_spheres_1_05px.png]]
 
@@ -29,19 +29,19 @@ This shows a clear pattern that *does not exist in the scene*. Although usually 
 
 Jittered sampling is quite effective at eliminating most forms of aliasing. Although it looks better, for this case the end result is not acceptable:
 
-#+CAPTION: Aliasing artifacts with spheres with a 1.05px diameter, rendered with jittered sampling (16 samples/px)
+#+CAPTION: Aliasing artifacts with circles with a 1.05px diameter, rendered with jittered sampling (16 samples/px)
 #+NAME:    fig:jittered_spheres_1_05px.png
 [[./jittered_spheres_1_05px.png]]
 * Analysis
 ** Uniform
-When sampling spheres of 1px the sampling occurs in in lockstep:
+When sampling circles of 1px the sampling occurs in in lockstep:
 
 #+CAPTION: Lockstep uniform sampling (1 sample/px)
 [[./uniform_samples.svg]]
 
 Although different sampling techniques might sample these individual pixels differently, there is only either green *or* red in each pixel.
 
-When the sphere is slightly larger than the pixel size (1.05px) the sampling no longer occurs in lockstep:
+When the circle is slightly larger than the pixel size (1.05px) the sampling no longer occurs in lockstep:
 
 #+CAPTION: Non-lockstep uniform sampling (1 sample/px), sample points are given in blue
 #+NAME:    fig:uniform_samples_larger_spheres.png
@@ -62,7 +62,7 @@ The jittered sampling in Figure [[fig:jittered_spheres_1_05px.png]] gets rid of 
 
 More advanced jittered sampling patterns like e.g. multi-jittered sampling won't do any better:
 
-#+CAPTION: Aliasing artifacts with spheres with a 1.05px diameter, rendered with multi-jittered sampling (16 samples/px)
+#+CAPTION: Aliasing artifacts with circles with a 1.05px diameter, rendered with multi-jittered sampling (16 samples/px)
 [[./multi_jittered_spheres_1_05px.png]]
 
 The core issue remains the same, namely that going left to right pixels contain a varying amount of red and green.
