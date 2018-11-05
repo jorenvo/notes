@@ -34,14 +34,12 @@ UDP and in those cases the router (ab)uses the source port
 fields[fn:icmp_nat]. It rewrites the source port of the packet and
 stores this in a NAT table:
 
-#+BEGIN_EXAMPLE
 |-------------------+--------------+----------|
-| ORIGINAL SRC PORT | NEW SRC PORT |   LAN IP |
+| Original src port | New src port |   LAN IP |
 |-------------------+--------------+----------|
 |              2456 |        19262 | 10.0.0.2 |
 |              2456 |        19263 | 10.0.0.3 |
 |-------------------+--------------+----------|
-#+END_EXAMPLE
 
 When the router receives a reply back it will be addressed to it's own
 IP, so it looks up the destination port in the NAT table. For our
@@ -72,34 +70,30 @@ the reverse NAT.
 Here an additional column exists in the NAT table specifying the
 destination IP:
 
-#+BEGIN_EXAMPLE
 |-------------------+--------------+----------+----------------|
-| ORIGINAL SRC PORT | NEW SRC PORT |   LAN IP |        DEST IP |
+| Original src port | New src port |   LAN IP |        Dest IP |
 |-------------------+--------------+----------+----------------|
 |              2456 |        19262 | 10.0.0.2 | 141.116.212.32 |
 |              2456 |        19263 | 10.0.0.3 |   178.33.40.43 |
 |-------------------+--------------+----------+----------------|
-#+END_EXAMPLE
 
-Whenever the router receives a packet it will not only use =NEW SRC
-PORT=, but also =DEST IP=. Essentially it means that a client can only
+Whenever the router receives a packet it will not only use =New src
+port=, but also =Dest IP=. Essentially it means that a client can only
 receive a packet from a host if it previously sent a packet to that
 host.
 *** Source port + destination address + destination port restricted
 This is identical to the previous one, there's just an additional
 destination port column:
 
-#+BEGIN_EXAMPLE
 |-------------------+--------------+----------+----------------+-----------|
-| ORIGINAL SRC PORT | NEW SRC PORT |   LAN IP |        DEST IP | DEST PORT |
+| Original src port | New src port |   LAN IP |        Dest IP | Dest port |
 |-------------------+--------------+----------+----------------+-----------|
 |              2456 |        19262 | 10.0.0.2 | 141.116.212.32 |     14888 |
 |              2456 |        19263 | 10.0.0.3 |   178.33.40.43 |     13212 |
 |-------------------+--------------+----------+----------------+-----------|
-#+END_EXAMPLE
 
-In this case the router will match 3 variables to do the routing: =NEW
-SRC PORT=, =DEST IP= and =DEST PORT=. It means that a client can only
+In this case the router will match 3 variables to do the routing: =New
+src port=, =Dest IP= and =Dest port=. It means that a client can only
 receive a packet from a host if it previously sent a packet to that
 host to the port it's now replying from.
 *** Symmetric
