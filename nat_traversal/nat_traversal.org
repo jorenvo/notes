@@ -193,8 +193,11 @@ edges with the same number contain the same message.
 * Conclusion
 The proposed solution successfully traverses NATs to set up a
 connection between two clients. It also works when clients are behind
-multiple NATs, as long as none of them are symmetric. This is because
-only the NAT closest to the broker matters to set up the connection.
+multiple NATs, as long as none of them are symmetric. The broker will
+use the IP and port of the closest NAT, but all messages described
+above would flow through all NATs. So even if there are multiple a
+similar type of entry is added to each one of them and the solution
+still works.
 * Possible improvements
 ** TCP
 For simplicity the implementations of [[https://github.com/jorenvo/p2p_client][p2p_client]] and [[https://github.com/jorenvo/p2p_broker][p2p_broker]] use
