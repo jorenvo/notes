@@ -1,0 +1,3 @@
+rankdir="LR";
+bob -> bob_nat [label="1."];
+bob_nat -> p2p_broker [label="1."];

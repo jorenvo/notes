@@ -1,0 +1,5 @@
+rankdir="RL";
+alice -> alice_nat [label="4."];
+alice_nat -> p2p_broker [label="4."];
+p2p_broker -> bob_nat [label="4."];
+bob_nat -> bob [label="4."];

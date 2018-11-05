@@ -1,0 +1,4 @@
+rankdir="LR";
+bob -> bob_nat [label="5."];
+bob_nat -> alice_nat [label="5."];
+alice_nat -> alice [label="5."];

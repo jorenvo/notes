@@ -1,0 +1,20 @@
+digraph flow_bob_alice {
+    bob -> bob_nat [label=" 1."];
+    bob_nat -> alice_nat [label=" 2."];
+}
+
+// digraph flow_bob_broker {
+//     bob -> bob_nat [label="3."];
+//     bob_nat -> p2p_broker [label="4."];
+// }
+
+// digraph flow_broker_alice {
+//     p2p_broker -> alice_nat [label="5."];
+//     alice_nat -> alice [label="6."];
+// }
+
+// digraph flow_alice_bob {
+//     alice -> alice_nat [label="7."];
+//     alice_nat -> bob_nat [label="8."];
+//     bob_nat -> bob [label="9."];
+// }

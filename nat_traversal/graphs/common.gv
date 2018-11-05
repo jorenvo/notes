@@ -1,0 +1,6 @@
+bgcolor="transparent";
+bob [label="Bob"];
+bob_nat [label="Bob's NAT"];
+alice [label="Alice"];
+alice_nat [label="Alice's NAT"];
+p2p_broker [label="Broker"];
