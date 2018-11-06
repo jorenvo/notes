@@ -211,7 +211,14 @@ Currently it's not possible for a client to unregister. This could be
 handled in conjunction with the above. When a broker sends a
 keep-alive message it could wait for a response from the client. If
 the client doesn't answer the broker could unregister it.
-
+** LAN
+When two clients are behind the same NAT they are not able to
+connect. When a packet is sent to the external IP of a router it
+doesn't seem to route it back in using the normal NAT table. One way
+this could be solved is by including the internal IP in the =REGISTER=
+message. When a client wants to connect to another and sees that their
+external IPs match it could instead directly connect to the internal
+IP.
 
 [fn:turn] Although TURN is not peer-to-peer, it uses a server that
 relays all traffic. It's usually only used when STUN doesn't work.
