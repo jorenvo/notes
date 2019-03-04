@@ -21,7 +21,7 @@ $.task("work", $.parallel("default", serve, watch));
 $.task("clean", clean);
 
 function clean() {
-    return del([`${css_build_dir}/*`]);
+    return del([`${css_build_dir}/*.css`]);
 }
 
 function reload(done) {
