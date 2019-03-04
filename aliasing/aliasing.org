@@ -1,6 +1,6 @@
 #+TITLE: Aliasing
 #+EXPORT_FILE_NAME: index.html
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/build/style.css"/>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
 #+HTML_HEAD: <link rel="icon" href="/notes/favicon.ico" type="image/x-icon"/>
 * Introduction
 Imagine the following scene:

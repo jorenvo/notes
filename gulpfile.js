@@ -14,13 +14,14 @@ const cssnano = require("cssnano");
 
 const files_org = "*/*.org";
 const files_css = "css/*.css";
+const css_build_dir = "assets";
 
 $.task("default", $.series(clean, styles, render_org));
 $.task("work", $.parallel("default", serve, watch));
 $.task("clean", clean);
 
 function clean() {
-    return del(["build/*"]);
+    return del([`${css_build_dir}/*`]);
 }
 
 function reload(done) {
@@ -59,7 +60,7 @@ function serve(done) {
 
 function styles() {
     return $.src("css/style.css")
-        .pipe($changed("build")) // only changed files will be passed on
+        .pipe($changed(css_build_dir)) // only changed files will be passed on
         .pipe($plumber()) // https://gist.github.com/floatdrop/8269868
         .pipe(
             $postcss([
@@ -72,5 +73,5 @@ function styles() {
                 })
             ])
         )
-        .pipe($.dest("build"));
+        .pipe($.dest(css_build_dir));
 }
