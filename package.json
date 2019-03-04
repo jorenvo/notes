@@ -1,0 +1,34 @@
+{
+  "name": "notes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "browser-sync": "^2.26.3",
+    "cssnano": "^4.1.10",
+    "del": "^4.0.0",
+    "fancy-log": "^1.3.3",
+    "gulp": "^4.0.0",
+    "gulp-cached": "^1.1.1",
+    "gulp-changed": "^3.2.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
+    "gulp-tap": "^1.0.1",
+    "npm-run": "^5.0.1",
+    "precss": "^4.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorenvo/notes.git"
+  },
+  "author": "Joren Van Onder",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/jorenvo/notes/issues"
+  },
+  "homepage": "https://github.com/jorenvo/notes#readme"
+}

@@ -1,7 +1,7 @@
 #+TITLE: Aliasing
 #+EXPORT_FILE_NAME: index.html
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://jorenvo.github.io/notes/css/solarized-light.css"/>
-#+HTML_HEAD: <link rel="icon" href="https://jorenvo.github.io/notes/favicon.ico" type="image/x-icon"/>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/build/style.css"/>
+#+HTML_HEAD: <link rel="icon" href="/notes/favicon.ico" type="image/x-icon"/>
 * Introduction
 Imagine the following scene:
 
