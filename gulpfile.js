@@ -12,7 +12,7 @@ const server = require("browser-sync").create();
 const precss = require("precss");
 const cssnano = require("cssnano");
 
-const files_org = "*/*.org";
+const files_org = ["index.org", "*/*.org"];
 const files_css = "css/*.css";
 const css_build_dir = "assets";
 
