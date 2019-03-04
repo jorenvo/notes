@@ -4,6 +4,7 @@ const $cache = require("gulp-cached");
 const $tap = require("gulp-tap");
 const $plumber = require("gulp-plumber");
 const $postcss = require("gulp-postcss");
+const $sourcemaps = require("gulp-sourcemaps");
 
 const del = require("del");
 const log = require("fancy-log");
@@ -21,7 +22,7 @@ $.task("work", $.parallel("default", serve, watch));
 $.task("clean", clean);
 
 function clean() {
-    return del([`${css_build_dir}/*.css`]);
+    return del([`${css_build_dir}/*.css`, `${css_build_dir}/maps/*`]);
 }
 
 function reload(done) {
@@ -60,6 +61,7 @@ function serve(done) {
 
 function styles() {
     return $.src("css/style.css")
+        .pipe($sourcemaps.init())
         .pipe($changed(css_build_dir)) // only changed files will be passed on
         .pipe($plumber()) // https://gist.github.com/floatdrop/8269868
         .pipe(
@@ -73,5 +75,6 @@ function styles() {
                 })
             ])
         )
+        .pipe($sourcemaps.write("maps"))
         .pipe($.dest(css_build_dir));
 }
