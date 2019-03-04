@@ -17,8 +17,8 @@ const files_org = ["index.org", "*/*.org"];
 const files_css = "css/*.css";
 const css_build_dir = "assets";
 
-$.task("default", $.series(clean, styles, render_org));
-$.task("work", $.parallel("default", serve, watch));
+$.task("default", $.series(clean, $.parallel(styles, render_org)));
+$.task("work", $.series("default", $.parallel(serve, watch)));
 $.task("clean", clean);
 
 function clean() {
