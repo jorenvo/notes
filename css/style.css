@@ -110,7 +110,7 @@ a:hover {
     border-bottom: 1px dotted;
 }
 
-figure {
+.figure {
     padding: 0px;
     margin: 1em auto;
     text-align: center;
