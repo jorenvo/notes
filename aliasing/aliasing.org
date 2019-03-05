@@ -9,7 +9,7 @@
 #+OPTIONS: html-preamble:t
 #+HTML_DOCTYPE: html5
 #+HTML_CONTAINER: div
-#+DESCRIPTION:
+#+DESCRIPTION: Aliasing oddities
 #+KEYWORDS:
 #+HTML_LINK_HOME:
 #+HTML_LINK_UP:
