@@ -116,8 +116,12 @@ a:hover {
     text-align: center;
 }
 
-img {
-    max-width: 100%;
+.figure > p {
+    font-size: 15px;
+}
+
+img,.org-svg {
+    max-width: 95%;
     vertical-align: middle;
 }
 
