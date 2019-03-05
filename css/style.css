@@ -620,7 +620,6 @@ p.verse {
 
 @media screen and (min-width: 600px) {
     .creator {
-        display: inline;
         float: right;
     }
 }

@@ -16,6 +16,8 @@ const cssnano = require("cssnano");
 const files_org = ["index.org", "*/*.org"];
 const files_css = "css/*.css";
 const css_build_dir = "assets";
+const emacs_eval =
+    '(setq org-html-postamble-format \'(("en" "<p class=\\"creator\\">%c</p><p class=\\"author\\">Author: %a</p>")))';
 
 $.task("default", $.series(clean, $.parallel(styles, render_org)));
 $.task("work", $.series("default", $.parallel(serve, watch)));
@@ -42,9 +44,10 @@ function render_org() {
             $tap(file => {
                 log(`Rebuilding ${file.path}`);
                 run.execSync(
-                    `emacs ${
-                        file.path
-                    } --batch -f org-html-export-to-html --kill`
+                    `emacs ${file.path} --batch --eval '${emacs_eval.replace(
+                        "'",
+                        "'\"'\"'"
+                    )}' -f org-html-export-to-html --kill`
                 );
             })
         );

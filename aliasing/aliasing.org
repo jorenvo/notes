@@ -2,6 +2,25 @@
 #+EXPORT_FILE_NAME: index.html
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
 #+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.ico" type="image/x-icon"/>
+#+OPTIONS: html-scripts:t
+#+OPTIONS: html-style:t
+#+OPTIONS: html5-fancy:t
+#+OPTIONS: html-postamble:t
+#+OPTIONS: html-preamble:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+AUTHOR: Joren Van Onder
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
+#+LATEX_HEADER:
 * Introduction
 Imagine the following scene:
 
@@ -82,3 +101,7 @@ Interestingly, the classic anti-aliasing checkerboard example side-steps this pr
 The same bands appear, but because the square size decreases rapidly as the distance from the camera increases they are not noticeable.
 
 [fn:1] By Portsmouth (Own work) [Public domain], [[https://commons.wikimedia.org/wiki/File:Reconstruction-Mitchell-Checkerboard.png][via Wikimedia Commons]]
+* COMMENT Local variables
+# local variables:
+# org-html-postamble-format: (("en" "<p class=\"author\">Author: %a</p><p class=\"creator\">%c</p>"))
+# end:
