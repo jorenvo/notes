@@ -7,7 +7,7 @@
 #+OPTIONS: html5-fancy:t
 #+OPTIONS: html-postamble:t
 #+OPTIONS: html-preamble:t
-#+HTML_DOCTYPE: xhtml-strict
+#+HTML_DOCTYPE: html5
 #+HTML_CONTAINER: div
 #+DESCRIPTION:
 #+KEYWORDS:
