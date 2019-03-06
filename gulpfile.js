@@ -7,6 +7,7 @@ const $postcss = require("gulp-postcss");
 const $sourcemaps = require("gulp-sourcemaps");
 
 const del = require("del");
+const filename = require("file-name");
 const log = require("fancy-log");
 const run = require("npm-run");
 const server = require("browser-sync").create();
@@ -16,7 +17,7 @@ const cssnano = require("cssnano");
 const files_org = ["index.org", "*/*.org"];
 const files_css = "css/*.css";
 const css_build_dir = "assets";
-const emacs_eval =
+const emacs_eval_postamble =
     '(setq org-html-postamble-format \'(("en" "<p class=\\"creator\\">%c</p><p class=\\"author\\">Author: %a</p>")))';
 
 $.task("default", $.series(clean, $.parallel(styles, render_org)));
@@ -37,6 +38,19 @@ function watch() {
     $.watch(files_org, $.series(render_org, reload));
 }
 
+function shell_escape_quote(s) {
+    return s.replace(/'/g, "'\"'\"'");
+}
+
+function get_emacs_org_preamble(file_path) {
+    // don't show breadcrumb for index
+    if(file_path.endsWith('index.org')) {
+        return 't';
+    } else {
+        return `(setq org-html-preamble-format '(("en" "<a href=\\"/notes\\">notes</a> / ${filename(file_path).replace(/_/g, ' ')}")))`;
+    }
+}
+
 function render_org() {
     return $.src(files_org)
         .pipe($cache("org"))
@@ -44,9 +58,10 @@ function render_org() {
             $tap(file => {
                 log(`Rebuilding ${file.path}`);
                 run.execSync(
-                    `emacs ${file.path} --batch --eval '${emacs_eval.replace(
-                        "'",
-                        "'\"'\"'"
+                    `emacs ${file.path} --batch --eval '${shell_escape_quote(
+                        get_emacs_org_preamble(file.path)
+                    )}' --eval '${shell_escape_quote(
+                        emacs_eval_postamble
                     )}' -f org-html-export-to-html --kill`
                 );
             })
