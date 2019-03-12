@@ -42,12 +42,16 @@ function shell_escape_quote(s) {
     return s.replace(/'/g, "'\"'\"'");
 }
 
+function get_preamble(file_path) {
+    return `<a href="notes">notes</a> / ${filename(file_path).replace(/_/g, ' ')}`;
+}
+
 function get_emacs_org_preamble(file_path) {
     // don't show breadcrumb for index
     if(file_path.endsWith('index.org')) {
         return 't';
     } else {
-        return `(setq org-html-preamble-format '(("en" "<a href=\\"/notes\\">notes</a> / ${filename(file_path).replace(/_/g, ' ')}")))`;
+        return `(setq org-html-preamble-format '(("en" "${get_preamble(file_path).replace(/"/g, '\\"')}")))`;
     }
 }
 
