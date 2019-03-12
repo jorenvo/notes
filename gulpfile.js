@@ -43,7 +43,29 @@ function shell_escape_quote(s) {
 }
 
 function get_preamble(file_path) {
-    return `<a href="notes">notes</a> / ${filename(file_path).replace(/_/g, ' ')}`;
+    return `
+<div class="breadcrumb">
+  <a href="notes">notes</a> / ${filename(file_path).replace(/_/g, ' ')}
+</div>
+
+<aside class="sidebar">
+  <p>
+    github:<br/>
+    <a href="https://github.com/jorenvo">jorenvo</a>
+  </p>
+  <p>
+    email:<br/>
+    <a href="mailto:joren.vanonder@gmail.com">joren.vanonder@gmail.com</a>
+  </p>
+  <p>
+    PGP:<br/>
+    <a href="/publickey.txt">E42D 0F1A 0863 32F3</a>
+  </p>
+  <p>
+    keybase:<br/>
+    <a href="https://keybase.io/jvo">jvo</a>
+  </p>
+</aside>`;
 }
 
 function get_emacs_org_preamble(file_path) {

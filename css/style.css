@@ -75,11 +75,6 @@ dl {
     white-space: pre;
 }
 
-.status {
-    font-size: $smaller;
-    margin: 2em auto;
-}
-
 [class^="section-number-"] {
     margin-right: .5em;
 }
@@ -275,6 +270,19 @@ kbd {
     font-family: $monospace;
 }
 
+/* sidebar */
+.sidebar {
+    position: absolute;
+    top: 100px;
+    right: 150px;
+}
+
+/* @media screen and (min-width: $medium-display) { */
+/*     .sidebar { */
+/*         display: none; */
+/*     } */
+/* } */
+
 /* Because tag span is set to float.  This is more like a hacking.  Maybe we
    need a cleaner solution. */
 #table-of-contents li {
@@ -330,7 +338,7 @@ kbd {
     text-decoration: underline;
 }
 
-#postamble p, #preamble p {
+#postamble p, .breadcrumb {
     font-size: $smaller;
     margin: .2em;
 }
