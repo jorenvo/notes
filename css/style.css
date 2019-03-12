@@ -270,18 +270,9 @@ kbd {
     font-family: $monospace;
 }
 
-/* sidebar */
-.sidebar {
-    position: absolute;
-    top: 100px;
-    right: 150px;
+.contact {
+    float: right;
 }
-
-/* @media screen and (min-width: $medium-display) { */
-/*     .sidebar { */
-/*         display: none; */
-/*     } */
-/* } */
 
 /* Because tag span is set to float.  This is more like a hacking.  Maybe we
    need a cleaner solution. */
@@ -338,7 +329,7 @@ kbd {
     text-decoration: underline;
 }
 
-#postamble p, .breadcrumb {
+#postamble p, .top {
     font-size: $smaller;
     margin: .2em;
 }
