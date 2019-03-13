@@ -45,7 +45,7 @@ function shell_escape_quote(s) {
 function get_preamble(file_path) {
     return `
 <div class="top">
-  <a href="notes">notes</a> / ${filename(file_path).replace(/_/g, ' ')}
+  <a href="/notes">notes</a> / ${filename(file_path).replace(/_/g, ' ')}
   <div class="contact">
       github: <a href="https://github.com/jorenvo">jorenvo</a> |
       email: <a href="mailto:joren.vanonder@gmail.com">joren.vanonder@gmail.com</a> |
