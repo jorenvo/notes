@@ -1,11 +1,12 @@
 const $ = require("gulp");
-const $changed = require("gulp-changed"); // todo replace with gulp-cached
-const $cache = require("gulp-cached");
+const $changed = require("gulp-changed");
 const $tap = require("gulp-tap");
 const $plumber = require("gulp-plumber");
 const $postcss = require("gulp-postcss");
 const $sourcemaps = require("gulp-sourcemaps");
 
+const fs = require("fs");
+const path = require("path");
 const del = require("del");
 const filename = require("file-name");
 const log = require("fancy-log");
@@ -13,8 +14,9 @@ const run = require("npm-run");
 const server = require("browser-sync").create();
 const precss = require("precss");
 const cssnano = require("cssnano");
+const merge = require("merge-stream");
 
-const files_org = ["index.org", "*/*.org"];
+const files_org = "*/*.org";
 const files_css = "css/*.css";
 const css_build_dir = "assets";
 const emacs_eval_postamble =
@@ -45,7 +47,7 @@ function shell_escape_quote(s) {
 function get_preamble(file_path) {
     return `
 <div class="top">
-  <a href="/notes">notes</a> / ${filename(file_path).replace(/_/g, ' ')}
+  <a href="/notes">notes</a> / ${filename(file_path).replace(/_/g, " ")}
   <div class="contact">
       github: <a href="https://github.com/jorenvo">jorenvo</a> |
       email: <a href="mailto:joren.vanonder@gmail.com">joren.vanonder@gmail.com</a> |
@@ -57,28 +59,51 @@ function get_preamble(file_path) {
 
 function get_emacs_org_preamble(file_path) {
     // don't show breadcrumb for index
-    if(file_path.endsWith('index.org')) {
-        return 't';
+    if (file_path.endsWith("index.org")) {
+        return "t";
     } else {
-        return `(setq org-html-preamble-format '(("en" "${get_preamble(file_path).replace(/"/g, '\\"')}")))`;
+        return `(setq org-html-preamble-format '(("en" "${get_preamble(
+            file_path
+        ).replace(/"/g, '\\"')}")))`;
     }
 }
 
-function render_org() {
-    return $.src(files_org)
-        .pipe($cache("org"))
-        .pipe(
-            $tap(file => {
-                log(`Rebuilding ${file.path}`);
-                run.execSync(
-                    `emacs ${file.path} --batch --eval '${shell_escape_quote(
-                        get_emacs_org_preamble(file.path)
-                    )}' --eval '${shell_escape_quote(
-                        emacs_eval_postamble
-                    )}' -f org-html-export-to-html --kill`
-                );
-            })
-        );
+function getFolders(dir) {
+    return fs.readdirSync(dir).filter(function(file) {
+        return fs.statSync(path.join(dir, file)).isDirectory();
+    });
+}
+
+function render_org(done) {
+    var folders = getFolders(".");
+    if (folders.length === 0) {
+        return done();
+    }
+    var tasks = folders.map(function(folder) {
+        return $.src(path.join(folder, "*.org"))
+            .pipe(
+                $changed(folder, {
+                    transformPath: newPath =>
+                        path.join(path.dirname(newPath), "index.html")
+                })
+            )
+            .pipe(
+                $tap(file => {
+                    log(`Rebuilding ${file.path}`);
+                    run.execSync(
+                        `emacs ${
+                            file.path
+                        } --batch --eval '${shell_escape_quote(
+                            get_emacs_org_preamble(file.path)
+                        )}' --eval '${shell_escape_quote(
+                            emacs_eval_postamble
+                        )}' -f org-html-export-to-html --kill`
+                    );
+                })
+            );
+    });
+
+    return merge(tasks);
 }
 
 function serve(done) {
