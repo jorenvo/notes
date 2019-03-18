@@ -76,6 +76,8 @@ function getFolders(dir) {
 
 function render_org(done) {
     var folders = getFolders(".");
+    folders.push(".");  // add current dir for index.org
+
     if (folders.length === 0) {
         return done();
     }
