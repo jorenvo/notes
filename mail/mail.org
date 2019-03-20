@@ -1,0 +1,171 @@
+#+TITLE: Mail
+#+EXPORT_FILE_NAME: index.html
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
+#+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.ico" type="image/x-icon"/>
+#+OPTIONS: html-scripts:t
+#+OPTIONS: html-style:nil
+#+OPTIONS: html5-fancy:t
+#+OPTIONS: html-postamble:t
+#+OPTIONS: html-preamble:t
+#+OPTIONS: ^:nil
+#+HTML_DOCTYPE: html5
+#+HTML_CONTAINER: div
+#+DESCRIPTION: NAT traversal
+#+KEYWORDS: notmuch emacs gmail
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+AUTHOR: Joren Van Onder
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
+#+LATEX_HEADER:
+* GMail has become slow
+The [[https://www.theverge.com/2018/4/25/17277360/gmail-redesign-live-features-google-update][GMail redesign was a while ago]]. I don't care much about the visual
+changes. The main thing I dislike is how sluggish the interface has
+become. Interacting with it no longer feels snappy and regularly I run
+into blocking =beforeunload= handlers warning me I might lose data
+when attempting to close the tab.
+
+#+CAPTION: Archiving an email seemingly takes about a second before you can close the tab
+[[./gmail_archive.png]]
+
+Since the place I work at uses GSuite and there's a lot of email to go
+through in the morning I decided to stop using the GMail webclient.
+
+The rest of this page describes my personal email setup.
+
+* Have you accepted GNU Emacs as your lord and savior?
+I have and therefore decided on using [[https://notmuchmail.org/][Notmuch]][fn:1]. It has an
+official GNU Emacs client and it's simplicity makes it interesting and
+fun to use and configure. Because it's pretty minimalist in it's
+design an additional program is needed to synchronize your mail. The
+most popular choice for this is probably [[https://www.offlineimap.org/][OfflineIMAP]].
+
+* Approach
+** OfflineIMAP
+ OfflineIMAP will synchronize mail between GMail and a local
+ maildir. Plenty can be found online on how to configure OfflineIMAP
+ with GMail. Here's a basic configuration that downloads a couple of
+ IMAP folders.
+
+ #+BEGIN_EXPORT html
+ <script src="https://gist.github.com/jorenvo/38747b3a321d629e23c081b86bc28503.js"></script>
+ #+END_EXPORT
+
+ The referenced Python file is responsible for parsing my PGP encrypted
+ [[https://www.emacswiki.org/emacs/GnusAuthinfo][Gnus authinfo]] file. This contains the password used to connect to
+ IMAP.
+
+ #+BEGIN_EXPORT html
+ <script src="https://gist.github.com/jorenvo/3b6b7689809db80374adb5490e0b495c.js"></script>
+ #+END_EXPORT
+
+ So I don't have to type my password often I set
+
+ #+BEGIN_EXAMPLE
+ # cache for 24 hours
+ default-cache-ttl 86400
+ max-cache-ttl 86400
+ #+END_EXAMPLE
+
+ in my =~/.gnupg= file.
+
+** Indexing
+ Now that OfflineIMAP has downloaded a copy of my mail into a local
+ maildir we need to index it with Notmuch. This makes it
+ searchable. Indexing is accomplished by simply running
+
+ #+BEGIN_EXAMPLE
+ $ notmuch new
+ #+END_EXAMPLE
+
+** Tagging
+In Notmuch email is organized by tags. We can tell Notmuch to tag all
+emails that match some search query:
+
+#+BEGIN_EXAMPLE
+$ notmuch tag +inbox -archived -- folder:INBOX
+#+END_EXAMPLE
+
+This goes through all mail in the INBOX folder, removes the =archived=
+tag and adds the =inbox= tag. This way we essentially put all mail in
+our GMail INBOX (from here on when I refer to INBOX I mean the remote
+GMail INBOX) in our Notmuch "inbox".
+
+I try to achieve basic 2-way sync. Meaning that if I archive mail in
+the GMail webclient it will sync locally as well. Hence the
+=-archived=.
+
+** Avoiding the huge INBOX of death
+Notmuch does not modify your local mail[fn:2]. You may be removing
+=inbox= tags from local emails but your remote inbox will never be
+modified. This eventually leads to a huge INBOX.
+
+In order to avoid this and keep our INBOX clean we can:
+
+1. search for mail tagged with =archived= and move it to the archived
+   maildir folder
+2. search for mail tagged with =inbox= and move it to the inbox
+   maildir folder
+3. run OfflineIMAP
+
+* Putting it all together
+I implement the previous concepts in a Bash script. Whenever I want to
+download mail I run the script manually.
+
+#+BEGIN_EXPORT html
+<script src="https://gist.github.com/jorenvo/7a03bdd44a32474af051fce558cc2968.js"></script>
+#+END_EXPORT
+
+The script
+
+1. moves mail to the correct maildirs
+2. runs =offlineimap=
+3. removes deleted mail
+4. indexes mail with =notmuch new=
+5. tags mail based on what maildir folder they're in
+6. tags mail low-priority mail, i.e. mailing lists
+
+Moving mail to the correct maildirs ensures that when mail is archived
+in Notmuch it's also archived remotely when =offlineimap=
+runs.
+
+Removing mail tagged with =deleted= is necessary because when
+composing a draft Notmuch creates a new =draft= when saving and adds
+=deleted= to previously saved drafts. This gives some sort of
+rudimentary version control but as someone who saves draft mail often
+often it leads to a lot of clutter.
+
+The last steps in the script tags mail based on what maildir they're
+in and their content. The =--lastmod= trick allows this tag operation
+to happen quickly. Without it Notmuch would reapply the tags to all
+mail. This can take a while with a large amount of mail. Every time
+Notmuch makes some modification to its database it increments a
+revision number. By storing the revision number before running
+=notmuch new= we can make Notmuch tag only new mail.
+
+* GNU Emacs
+#+BEGIN_EXPORT html
+<script src="https://gist.github.com/jorenvo/b7e1f8907dae1a8e8e37d5a4dbfe1e89.js"></script>
+#+END_EXPORT
+
+My Emacs configuration is not very special. We have software that
+sends email with non-break spaces which doesn't render nicely in
+Emacs. =replace-unicode-no-break-space= replaces those with regular
+spaces before displaying the message.
+
+=notmuch-fcc-dirs= defines what folder sent mail gets put into and how
+it's tagged.
+
+Setting =notmuch-mua-user-agent-function= to
+=notmuch-mua-user-agent-full= puts back the user-agent string which
+removed for dubious "security" reasons. This way people know they're
+nowhere near as cool as you are when they are reading your mail.
+
+* Footnotes
+[fn:1] Previously I tried out [[https://www.djcbsoftware.nl/code/mu/][mu]]. It was okay but I wanted to try
+something different.
+[fn:2] Except for [[https://notmuchmail.org/howto/#sync_maildir_flags][maildir flags]].

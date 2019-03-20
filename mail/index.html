@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2019-04-20 Sat 20:29 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mail</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="Joren Van Onder">
+<meta name="description" content="NAT traversal"
+>
+<meta name="keywords" content="notmuch emacs gmail">
+<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-71440a4164.css"/>
+<link rel="icon" href="/notes/revisioned/assets/favicon-24ae7fa3eb.ico" type="image/x-icon"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div class="top">
+  <a href="/notes/">notes</a> / mail
+  <div class="contact">
+      github: <a href="https://github.com/jorenvo">jorenvo</a> |
+      email: <a href="mailto:joren.vanonder@gmail.com">joren.vanonder@gmail.com</a> |
+      PGP: <a href="/publickey.txt">E42D 0F1A 0863 32F3</a> |
+      keybase: <a href="https://keybase.io/jvo">jvo</a>
+  </div>
+</div>
+</div>
+<div id="content">
+<header>
+<h1 class="title">Mail</h1>
+</header><nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb70ea40">1. GMail has become slow</a></li>
+<li><a href="#org3ac3bac">2. Have you accepted GNU Emacs as your lord and savior?</a></li>
+<li><a href="#org6e6ffe6">3. Approach</a>
+<ul>
+<li><a href="#orgd756754">3.1. OfflineIMAP</a></li>
+<li><a href="#org115ab46">3.2. Indexing</a></li>
+<li><a href="#org07c8495">3.3. Tagging</a></li>
+<li><a href="#org4f9d745">3.4. Avoiding the huge INBOX of death</a></li>
+</ul>
+</li>
+<li><a href="#org0976786">4. Putting it all together</a></li>
+<li><a href="#orgb39954c">5. GNU Emacs</a></li>
+</ul>
+</div>
+</nav>
+<div id="outline-container-orgb70ea40" class="outline-2">
+<h2 id="orgb70ea40"><span class="section-number-2">1</span> GMail has become slow</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The <a href="https://www.theverge.com/2018/4/25/17277360/gmail-redesign-live-features-google-update">GMail redesign was a while ago</a>. I don't care much about the visual
+changes. The main thing I dislike is how sluggish the interface has
+become. Interacting with it no longer feels snappy and regularly I run
+into blocking <code>beforeunload</code> handlers warning me I might lose data
+when attempting to close the tab.
+</p>
+
+
+<figure>
+<img src="./gmail_archive.png" alt="gmail_archive.png">
+
+<figcaption><span class="figure-number">Figure 1: </span>Archiving an email seemingly takes about a second before you can close the tab</figcaption>
+</figure>
+
+<p>
+Since the place I work at uses GSuite and there's a lot of email to go
+through in the morning I decided to stop using the GMail webclient.
+</p>
+
+<p>
+The rest of this page describes my personal email setup.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3ac3bac" class="outline-2">
+<h2 id="org3ac3bac"><span class="section-number-2">2</span> Have you accepted GNU Emacs as your lord and savior?</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+I have and therefore decided on using <a href="https://notmuchmail.org/">Notmuch</a><sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. It has an
+official GNU Emacs client and it's simplicity makes it interesting and
+fun to use and configure. Because it's pretty minimalist in it's
+design an additional program is needed to synchronize your mail. The
+most popular choice for this is probably <a href="https://www.offlineimap.org/">OfflineIMAP</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6e6ffe6" class="outline-2">
+<h2 id="org6e6ffe6"><span class="section-number-2">3</span> Approach</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-orgd756754" class="outline-3">
+<h3 id="orgd756754"><span class="section-number-3">3.1</span> OfflineIMAP</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+OfflineIMAP will synchronize mail between GMail and a local
+maildir. Plenty can be found online on how to configure OfflineIMAP
+with GMail. Here's a basic configuration that downloads a couple of
+IMAP folders.
+</p>
+
+<script src="https://gist.github.com/jorenvo/38747b3a321d629e23c081b86bc28503.js"></script>
+
+<p>
+The referenced Python file is responsible for parsing my PGP encrypted
+<a href="https://www.emacswiki.org/emacs/GnusAuthinfo">Gnus authinfo</a> file. This contains the password used to connect to
+IMAP.
+</p>
+
+<script src="https://gist.github.com/jorenvo/3b6b7689809db80374adb5490e0b495c.js"></script>
+
+<p>
+So I don't have to type my password often I set
+</p>
+
+<pre class="example">
+# cache for 24 hours
+default-cache-ttl 86400
+max-cache-ttl 86400
+</pre>
+
+<p>
+in my <code>~/.gnupg</code> file.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org115ab46" class="outline-3">
+<h3 id="org115ab46"><span class="section-number-3">3.2</span> Indexing</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Now that OfflineIMAP has downloaded a copy of my mail into a local
+maildir we need to index it with Notmuch. This makes it
+searchable. Indexing is accomplished by simply running
+</p>
+
+<pre class="example">
+$ notmuch new
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org07c8495" class="outline-3">
+<h3 id="org07c8495"><span class="section-number-3">3.3</span> Tagging</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+In Notmuch email is organized by tags. We can tell Notmuch to tag all
+emails that match some search query:
+</p>
+
+<pre class="example">
+$ notmuch tag +inbox -archived -- folder:INBOX
+</pre>
+
+<p>
+This goes through all mail in the INBOX folder, removes the <code>archived</code>
+tag and adds the <code>inbox</code> tag. This way we essentially put all mail in
+our GMail INBOX (from here on when I refer to INBOX I mean the remote
+GMail INBOX) in our Notmuch "inbox".
+</p>
+
+<p>
+I try to achieve basic 2-way sync. Meaning that if I archive mail in
+the GMail webclient it will sync locally as well. Hence the
+<code>-archived</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4f9d745" class="outline-3">
+<h3 id="org4f9d745"><span class="section-number-3">3.4</span> Avoiding the huge INBOX of death</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+Notmuch does not modify your local mail<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>. You may be removing
+<code>inbox</code> tags from local emails but your remote inbox will never be
+modified. This eventually leads to a huge INBOX.
+</p>
+
+<p>
+In order to avoid this and keep our INBOX clean we can:
+</p>
+
+<ol class="org-ol">
+<li>search for mail tagged with <code>archived</code> and move it to the archived
+maildir folder</li>
+<li>search for mail tagged with <code>inbox</code> and move it to the inbox
+maildir folder</li>
+<li>run OfflineIMAP</li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0976786" class="outline-2">
+<h2 id="org0976786"><span class="section-number-2">4</span> Putting it all together</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+I implement the previous concepts in a Bash script. Whenever I want to
+download mail I run the script manually.
+</p>
+
+<script src="https://gist.github.com/jorenvo/7a03bdd44a32474af051fce558cc2968.js"></script>
+
+<p>
+The script
+</p>
+
+<ol class="org-ol">
+<li>moves mail to the correct maildirs</li>
+<li>runs <code>offlineimap</code></li>
+<li>removes deleted mail</li>
+<li>indexes mail with <code>notmuch new</code></li>
+<li>tags mail based on what maildir folder they're in</li>
+<li>tags mail low-priority mail, i.e. mailing lists</li>
+</ol>
+
+<p>
+Moving mail to the correct maildirs ensures that when mail is archived
+in Notmuch it's also archived remotely when <code>offlineimap</code>
+runs.
+</p>
+
+<p>
+Removing mail tagged with <code>deleted</code> is necessary because when
+composing a draft Notmuch creates a new <code>draft</code> when saving and adds
+<code>deleted</code> to previously saved drafts. This gives some sort of
+rudimentary version control but as someone who saves draft mail often
+often it leads to a lot of clutter.
+</p>
+
+<p>
+The last steps in the script tags mail based on what maildir they're
+in and their content. The <code>--lastmod</code> trick allows this tag operation
+to happen quickly. Without it Notmuch would reapply the tags to all
+mail. This can take a while with a large amount of mail. Every time
+Notmuch makes some modification to its database it increments a
+revision number. By storing the revision number before running
+<code>notmuch new</code> we can make Notmuch tag only new mail.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb39954c" class="outline-2">
+<h2 id="orgb39954c"><span class="section-number-2">5</span> GNU Emacs</h2>
+<div class="outline-text-2" id="text-5">
+<script src="https://gist.github.com/jorenvo/b7e1f8907dae1a8e8e37d5a4dbfe1e89.js"></script>
+
+<p>
+My Emacs configuration is not very special. We have software that
+sends email with non-break spaces which doesn't render nicely in
+Emacs. <code>replace-unicode-no-break-space</code> replaces those with regular
+spaces before displaying the message.
+</p>
+
+<p>
+<code>notmuch-fcc-dirs</code> defines what folder sent mail gets put into and how
+it's tagged.
+</p>
+
+<p>
+Setting <code>notmuch-mua-user-agent-function</code> to
+<code>notmuch-mua-user-agent-full</code> puts back the user-agent string which
+removed for dubious "security" reasons. This way people know they're
+nowhere near as cool as you are when they are reading your mail.
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+Previously I tried out <a href="https://www.djcbsoftware.nl/code/mu/">mu</a>. It was okay but I wanted to try
+something different.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+Except for <a href="https://notmuchmail.org/howto/#sync_maildir_flags">maildir flags</a>.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="author">Author: Joren Van Onder</p>
+</div>
+</body>
+</html>
