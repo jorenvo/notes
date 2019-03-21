@@ -147,7 +147,7 @@ Bob sends a =REGISTER= message to the broker. This is possible because
 the broker is not behind NAT. The broker will remember Bob's username,
 external IP and port. 
 
-[[./graphs/flow_bob_register.png]]
+[[/notes/nat_traversal/graphs/flow_bob_register.png]]
 
 <<broker_can_talk_to_bob>>
 Note that this message goes through Bob's NAT. This causes an entry to
@@ -160,7 +160,7 @@ he's all alone.
 *** Alice registers
 Alice registers with the broker:
 
-[[./graphs/flow_alice_register.png]]
+[[/notes/nat_traversal/graphs/flow_alice_register.png]]
 
 Just like before, the message goes through Alice's NAT. This means the
 broker can now reply back to Alice.
@@ -172,7 +172,7 @@ Alice wants to set up a connection to Bob. The first thing she does is
 send a message to Bob using the external IP and port returned by the
 broker.
 
-[[./graphs/flow_alice_bob.png]]
+[[/notes/nat_traversal/graphs/flow_alice_bob.png]]
 
 Doing this establishes an entry in Alice's NAT that allows incoming
 packets coming from Bob's external IP and port.
@@ -185,7 +185,7 @@ packets from Alice. For this Alice will use an =ASK= message to tell
 the broker to ask Bob to send a message to her. Remember that [[broker_can_talk_to_bob][the
 broker can send messages directly to Bob]].
 
-[[./graphs/flow_alice_broker_bob.png]]
+[[/notes/nat_traversal/graphs/flow_alice_broker_bob.png]]
 *** Bob talks to Alice
 When Bob receives the request from the broker to talk to Alice he
 sends her a message. He uses her external IP and port that were
@@ -194,7 +194,7 @@ in Bob's NAT that will allow incoming packets from Alice. The message
 will also successfully reach Alice, [[sec:bob_entry_alice_nat][since an entry allowing packets
 from Bob was added before]].
 
-[[./graphs/flow_bob_alice.png]]
+[[/notes/nat_traversal/graphs/flow_bob_alice.png]]
 
 At this point the connection is set up and Bob and Alice can continue
 sending messages directly to each other.
@@ -202,7 +202,7 @@ sending messages directly to each other.
 For completeness here's a (quite confusing) flowchart of messages,
 edges with the same number contain the same message.
 
-[[./graphs/flow_full.png]]
+[[/notes/nat_traversal/graphs/flow_full.png]]
 * Conclusion
 The proposed solution successfully traverses NATs to set up a
 connection between two clients. It also works when clients are behind

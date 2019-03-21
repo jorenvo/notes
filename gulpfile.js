@@ -4,6 +4,10 @@ const $tap = require("gulp-tap");
 const $plumber = require("gulp-plumber");
 const $postcss = require("gulp-postcss");
 const $sourcemaps = require("gulp-sourcemaps");
+const $rev = require("gulp-rev");
+const $filter = require("gulp-filter");
+const $revRewrite = require("gulp-rev-rewrite");
+const $replace = require("gulp-replace");
 
 const fs = require("fs");
 const path = require("path");
@@ -19,15 +23,63 @@ const merge = require("merge-stream");
 const files_org = "*/*.org";
 const files_css = "css/*.css";
 const css_build_dir = "assets";
+const revisioned_assets_dir = "revisioned";
 const emacs_eval_postamble =
     '(setq org-html-postamble-format \'(("en" "<p class=\\"creator\\">%c</p><p class=\\"author\\">Author: %a</p>")))';
 
-$.task("default", $.series(clean, $.parallel(styles, render_org)));
+$.task("default", $.series(clean, $.parallel(styles, render_org), rev));
 $.task("work", $.series("default", $.parallel(serve, watch)));
-$.task("clean", clean);
+$.task("org", render_org);
+$.task("clean", () => clean("clean_all"));
+$.task("rev", rev);
 
-function clean() {
-    return del([`${css_build_dir}/*.css`, `${css_build_dir}/maps/*`]);
+function rev() {
+    const assetFilter = $filter(["**/*", "!**/index.html"], { restore: true });
+    const assetsRegex = `\\/notes\\/`;
+
+    return $.src([
+        "**/*.png",
+        "**/*.svg",
+        `**/${css_build_dir}/*.css`,
+        `**/${css_build_dir}/*.ico`,
+        "**/index.html",
+        "*/index.html",
+        "!node_modules/**"
+    ])
+        .pipe(assetFilter)
+        .pipe($rev()) // Rename all files except index.html
+        .pipe(assetFilter.restore)
+        .pipe($revRewrite()) // Substitute in new filenames
+        .pipe(
+            $replace(
+                new RegExp(assetsRegex, "g"),
+                `/notes/${revisioned_assets_dir}/`
+            )
+        )
+        .pipe($replace("file://", ""))
+        .pipe(
+            $.dest(file => {
+                if (file.extname === ".html") {
+                    return file.base;
+                } else {
+                    return revisioned_assets_dir;
+                }
+            })
+        );
+}
+
+function clean(all) {
+    let to_delete = [
+        `${css_build_dir}/*.css`,
+        `${css_build_dir}/maps/*`,
+        revisioned_assets_dir
+    ];
+
+    if (all) {
+        to_delete.push("*.html", "*/*.html");
+    }
+
+    return del(to_delete);
 }
 
 function reload(done) {
@@ -36,8 +88,9 @@ function reload(done) {
 }
 
 function watch() {
-    $.watch(files_css, $.series(styles, reload));
-    $.watch(files_org, $.series(render_org, reload));
+    $.watch(files_css, $.series(styles, rev, reload));
+    $.watch(files_org, $.series(render_org, rev, reload));
+    return Promise.resolve();
 }
 
 function shell_escape_quote(s) {
@@ -76,7 +129,7 @@ function getFolders(dir) {
 
 function render_org(done) {
     var folders = getFolders(".");
-    folders.push(".");  // add current dir for index.org
+    folders.push("."); // add current dir for index.org
 
     if (folders.length === 0) {
         return done();
