@@ -41,6 +41,7 @@ function rev() {
         "**/*.png",
         "**/*.svg",
         `**/${css_build_dir}/*.css`,
+        `**/${css_build_dir}/maps/*.map`,
         `**/${css_build_dir}/*.ico`,
         "**/index.html",
         "*/index.html",
@@ -70,7 +71,7 @@ function rev() {
 }
 
 function clean_html() {
-    const to_delete = ("*.html", "*/*.html");
+    const to_delete = ["*.html", "*/*.html"];
     return del(to_delete);
 }
 
@@ -187,6 +188,6 @@ function styles() {
                 })
             ])
         )
-        .pipe($sourcemaps.write("maps"))
+        .pipe($sourcemaps.write("maps", {sourceMappingURLPrefix: "/notes/assets"}))
         .pipe($.dest(css_build_dir));
 }
