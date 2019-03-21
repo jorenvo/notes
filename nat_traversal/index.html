@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2019-03-21 Thu 16:22 -->
+<!-- 2019-03-21 Thu 16:52 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NAT Traversal</title>
@@ -9,7 +9,7 @@
 <meta name="author" content="Joren Van Onder">
 <meta name="description" content="NAT traversal"
 >
-<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-626a6b8c8d.css"/>
+<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-221818e2b1.css"/>
 <link rel="icon" href="/notes/revisioned/assets/favicon-24ae7fa3eb.ico" type="image/x-icon"/>
 <script type="text/javascript">
 /*
@@ -78,48 +78,48 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org6362e80">1. Introduction</a></li>
-<li><a href="#org5893ecd">2. Problem</a>
+<li><a href="#orgb43ea6b">1. Introduction</a></li>
+<li><a href="#org0ceba78">2. Problem</a>
 <ul>
-<li><a href="#orga5450f0">2.1. NAT basics</a></li>
-<li><a href="#org0aa5127">2.2. NAT variations</a>
+<li><a href="#org0a7e237">2.1. NAT basics</a></li>
+<li><a href="#orga999aeb">2.2. NAT variations</a>
 <ul>
-<li><a href="#org0e6bfd5">2.2.1. Source port restricted</a></li>
-<li><a href="#orgda49e6b">2.2.2. Source port + destination address restricted</a></li>
-<li><a href="#org84e7c7e">2.2.3. Source port + destination address + destination port restricted</a></li>
-<li><a href="#org38a7790">2.2.4. Symmetric</a></li>
+<li><a href="#org9305689">2.2.1. Source port restricted</a></li>
+<li><a href="#orgbf89fc9">2.2.2. Source port + destination address restricted</a></li>
+<li><a href="#org276014d">2.2.3. Source port + destination address + destination port restricted</a></li>
+<li><a href="#orge588158">2.2.4. Symmetric</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgb175c53">3. Solution</a>
+<li><a href="#org75a4c1e">3. Solution</a>
 <ul>
-<li><a href="#org9f7a4ad">3.1. Individual steps</a>
+<li><a href="#orgb26b5de">3.1. Individual steps</a>
 <ul>
-<li><a href="#org2fd5d03">3.1.1. Bob registers</a></li>
-<li><a href="#org18972d5">3.1.2. Alice registers</a></li>
-<li><a href="#org6d27588">3.1.3. Set entry for Bob in Alice's NAT </a></li>
-<li><a href="#org98cbde2">3.1.4. Ask broker to ask Bob to send a message to Alice</a></li>
-<li><a href="#org0cfd007">3.1.5. Bob talks to Alice</a></li>
+<li><a href="#org96d1916">3.1.1. Bob registers</a></li>
+<li><a href="#orgcb3b065">3.1.2. Alice registers</a></li>
+<li><a href="#orga1ffc9d">3.1.3. Set entry for Bob in Alice's NAT </a></li>
+<li><a href="#orgbb9fd00">3.1.4. Ask broker to ask Bob to send a message to Alice</a></li>
+<li><a href="#orgf671a71">3.1.5. Bob talks to Alice</a></li>
 </ul>
 </li>
-<li><a href="#org1b0d8d0">3.2. Full flow</a></li>
+<li><a href="#org5dd92ad">3.2. Full flow</a></li>
 </ul>
 </li>
-<li><a href="#orgf12a44f">4. Conclusion</a></li>
-<li><a href="#orgc35ef62">5. Possible improvements</a>
+<li><a href="#org7eb8c9c">4. Conclusion</a></li>
+<li><a href="#org6b5621e">5. Possible improvements</a>
 <ul>
-<li><a href="#orgf542e84">5.1. TCP</a></li>
-<li><a href="#org2e36f2f">5.2. NAT persistence</a></li>
-<li><a href="#orgbff7401">5.3. Unregister</a></li>
-<li><a href="#orgf441e3a">5.4. LAN</a></li>
+<li><a href="#org4819932">5.1. TCP</a></li>
+<li><a href="#org4a3daf0">5.2. NAT persistence</a></li>
+<li><a href="#org028c72c">5.3. Unregister</a></li>
+<li><a href="#orge5c58fd">5.4. LAN</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org6362e80" class="outline-2">
-<h2 id="org6362e80"><span class="section-number-2">1</span> Introduction</h2>
+<div id="outline-container-orgb43ea6b" class="outline-2">
+<h2 id="orgb43ea6b"><span class="section-number-2">1</span> Introduction</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Most communication on the internet happens between an end-client and a
@@ -148,12 +148,12 @@ of concept is most similar to ICE in combination with STUN.
 </p>
 </div>
 </div>
-<div id="outline-container-org5893ecd" class="outline-2">
-<h2 id="org5893ecd"><span class="section-number-2">2</span> Problem</h2>
+<div id="outline-container-org0ceba78" class="outline-2">
+<h2 id="org0ceba78"><span class="section-number-2">2</span> Problem</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orga5450f0" class="outline-3">
-<h3 id="orga5450f0"><span class="section-number-3">2.1</span> NAT basics</h3>
+<div id="outline-container-org0a7e237" class="outline-3">
+<h3 id="org0a7e237"><span class="section-number-3">2.1</span> NAT basics</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 Most business and residential routers will perform NAT. This means
@@ -228,16 +228,16 @@ that we have to take into account.
 </p>
 </div>
 </div>
-<div id="outline-container-org0aa5127" class="outline-3">
-<h3 id="org0aa5127"><span class="section-number-3">2.2</span> NAT variations</h3>
+<div id="outline-container-orga999aeb" class="outline-3">
+<h3 id="orga999aeb"><span class="section-number-3">2.2</span> NAT variations</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 There are different variations of NAT<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>. Each
 type restricts who exactly can send packets that will be routed by it.
 </p>
 </div>
-<div id="outline-container-org0e6bfd5" class="outline-4">
-<h4 id="org0e6bfd5"><span class="section-number-4">2.2.1</span> Source port restricted</h4>
+<div id="outline-container-org9305689" class="outline-4">
+<h4 id="org9305689"><span class="section-number-4">2.2.1</span> Source port restricted</h4>
 <div class="outline-text-4" id="text-2-2-1">
 <p>
 This is the simplest type and it works as described above. When the
@@ -246,8 +246,8 @@ the reverse NAT.
 </p>
 </div>
 </div>
-<div id="outline-container-orgda49e6b" class="outline-4">
-<h4 id="orgda49e6b"><span class="section-number-4">2.2.2</span> Source port + destination address restricted</h4>
+<div id="outline-container-orgbf89fc9" class="outline-4">
+<h4 id="orgbf89fc9"><span class="section-number-4">2.2.2</span> Source port + destination address restricted</h4>
 <div class="outline-text-4" id="text-2-2-2">
 <p>
 Here an additional column exists in the NAT table specifying the
@@ -299,8 +299,8 @@ host.
 </p>
 </div>
 </div>
-<div id="outline-container-org84e7c7e" class="outline-4">
-<h4 id="org84e7c7e"><span class="section-number-4">2.2.3</span> Source port + destination address + destination port restricted</h4>
+<div id="outline-container-org276014d" class="outline-4">
+<h4 id="org276014d"><span class="section-number-4">2.2.3</span> Source port + destination address + destination port restricted</h4>
 <div class="outline-text-4" id="text-2-2-3">
 <p>
 This is identical to the previous one, there's just an additional
@@ -357,8 +357,8 @@ host to the port it's now replying from.
 </p>
 </div>
 </div>
-<div id="outline-container-org38a7790" class="outline-4">
-<h4 id="org38a7790"><span class="section-number-4">2.2.4</span> Symmetric</h4>
+<div id="outline-container-orge588158" class="outline-4">
+<h4 id="orge588158"><span class="section-number-4">2.2.4</span> Symmetric</h4>
 <div class="outline-text-4" id="text-2-2-4">
 <p>
 Symmetric NAT is only used for very large networks and is thus not
@@ -373,8 +373,8 @@ below solution doesn't work for this type.
 </div>
 </div>
 </div>
-<div id="outline-container-orgb175c53" class="outline-2">
-<h2 id="orgb175c53"><span class="section-number-2">3</span> Solution</h2>
+<div id="outline-container-org75a4c1e" class="outline-2">
+<h2 id="org75a4c1e"><span class="section-number-2">3</span> Solution</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Let's assume two clients, Bob and Alice, each behind their own NAT
@@ -404,12 +404,12 @@ In order to allow both of them to talk to each other the following
 steps are executed.
 </p>
 </div>
-<div id="outline-container-org9f7a4ad" class="outline-3">
-<h3 id="org9f7a4ad"><span class="section-number-3">3.1</span> Individual steps</h3>
+<div id="outline-container-orgb26b5de" class="outline-3">
+<h3 id="orgb26b5de"><span class="section-number-3">3.1</span> Individual steps</h3>
 <div class="outline-text-3" id="text-3-1">
 </div>
-<div id="outline-container-org2fd5d03" class="outline-4">
-<h4 id="org2fd5d03"><span class="section-number-4">3.1.1</span> Bob registers</h4>
+<div id="outline-container-org96d1916" class="outline-4">
+<h4 id="org96d1916"><span class="section-number-4">3.1.1</span> Bob registers</h4>
 <div class="outline-text-4" id="text-3-1-1">
 <p>
 Bob sends a <code>REGISTER</code> message to the broker. This is possible because
@@ -424,7 +424,7 @@ external IP and port.
 </figure>
 
 <p>
-<a id="org9702c80"></a>
+<a id="orgd0e8f99"></a>
 Note that this message goes through Bob's NAT. This causes an entry to
 be added for the broker meaning that now the broker can send messages
 back to Bob.
@@ -437,8 +437,8 @@ he's all alone.
 </p>
 </div>
 </div>
-<div id="outline-container-org18972d5" class="outline-4">
-<h4 id="org18972d5"><span class="section-number-4">3.1.2</span> Alice registers</h4>
+<div id="outline-container-orgcb3b065" class="outline-4">
+<h4 id="orgcb3b065"><span class="section-number-4">3.1.2</span> Alice registers</h4>
 <div class="outline-text-4" id="text-3-1-2">
 <p>
 Alice registers with the broker:
@@ -461,8 +461,8 @@ username, external IP and port.
 </p>
 </div>
 </div>
-<div id="outline-container-org6d27588" class="outline-4">
-<h4 id="org6d27588"><span class="section-number-4">3.1.3</span> Set entry for Bob in Alice's NAT <a id="org34ca522"></a></h4>
+<div id="outline-container-orga1ffc9d" class="outline-4">
+<h4 id="orga1ffc9d"><span class="section-number-4">3.1.3</span> Set entry for Bob in Alice's NAT <a id="org964b8c0"></a></h4>
 <div class="outline-text-4" id="text-3-1-3">
 <p>
 Alice wants to set up a connection to Bob. The first thing she does is
@@ -487,13 +487,13 @@ NAT the router will drop it, as it doesn't know where to route it.
 </p>
 </div>
 </div>
-<div id="outline-container-org98cbde2" class="outline-4">
-<h4 id="org98cbde2"><span class="section-number-4">3.1.4</span> Ask broker to ask Bob to send a message to Alice</h4>
+<div id="outline-container-orgbb9fd00" class="outline-4">
+<h4 id="orgbb9fd00"><span class="section-number-4">3.1.4</span> Ask broker to ask Bob to send a message to Alice</h4>
 <div class="outline-text-4" id="text-3-1-4">
 <p>
 The last thing missing is an entry in Bob's NAT that allows incoming
 packets from Alice. For this Alice will use an <code>ASK</code> message to tell
-the broker to ask Bob to send a message to her. Remember that <a href="#org9702c80">the
+the broker to ask Bob to send a message to her. Remember that <a href="#orgd0e8f99">the
 broker can send messages directly to Bob</a>.
 </p>
 
@@ -504,15 +504,15 @@ broker can send messages directly to Bob</a>.
 </figure>
 </div>
 </div>
-<div id="outline-container-org0cfd007" class="outline-4">
-<h4 id="org0cfd007"><span class="section-number-4">3.1.5</span> Bob talks to Alice</h4>
+<div id="outline-container-orgf671a71" class="outline-4">
+<h4 id="orgf671a71"><span class="section-number-4">3.1.5</span> Bob talks to Alice</h4>
 <div class="outline-text-4" id="text-3-1-5">
 <p>
 When Bob receives the request from the broker to talk to Alice he
 sends her a message. He uses her external IP and port that were
 registered with the broker. The message causes an entry to be created
 in Bob's NAT that will allow incoming packets from Alice. The message
-will also successfully reach Alice, <a href="#org34ca522">since an entry allowing packets
+will also successfully reach Alice, <a href="#org964b8c0">since an entry allowing packets
 from Bob was added before</a>.
 </p>
 
@@ -529,8 +529,8 @@ sending messages directly to each other.
 </div>
 </div>
 </div>
-<div id="outline-container-org1b0d8d0" class="outline-3">
-<h3 id="org1b0d8d0"><span class="section-number-3">3.2</span> Full flow</h3>
+<div id="outline-container-org5dd92ad" class="outline-3">
+<h3 id="org5dd92ad"><span class="section-number-3">3.2</span> Full flow</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 For completeness here's a (quite confusing) flowchart of messages,
@@ -545,8 +545,8 @@ edges with the same number contain the same message.
 </div>
 </div>
 </div>
-<div id="outline-container-orgf12a44f" class="outline-2">
-<h2 id="orgf12a44f"><span class="section-number-2">4</span> Conclusion</h2>
+<div id="outline-container-org7eb8c9c" class="outline-2">
+<h2 id="org7eb8c9c"><span class="section-number-2">4</span> Conclusion</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 The proposed solution successfully traverses NATs to set up a
@@ -559,12 +559,12 @@ still works.
 </p>
 </div>
 </div>
-<div id="outline-container-orgc35ef62" class="outline-2">
-<h2 id="orgc35ef62"><span class="section-number-2">5</span> Possible improvements</h2>
+<div id="outline-container-org6b5621e" class="outline-2">
+<h2 id="org6b5621e"><span class="section-number-2">5</span> Possible improvements</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-orgf542e84" class="outline-3">
-<h3 id="orgf542e84"><span class="section-number-3">5.1</span> TCP</h3>
+<div id="outline-container-org4819932" class="outline-3">
+<h3 id="org4819932"><span class="section-number-3">5.1</span> TCP</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 For simplicity the implementations of <a href="https://github.com/jorenvo/p2p_client">p2p_client</a> and <a href="https://github.com/jorenvo/p2p_broker">p2p_broker</a> use
@@ -577,8 +577,8 @@ depending on the application.
 </p>
 </div>
 </div>
-<div id="outline-container-org2e36f2f" class="outline-3">
-<h3 id="org2e36f2f"><span class="section-number-3">5.2</span> NAT persistence</h3>
+<div id="outline-container-org4a3daf0" class="outline-3">
+<h3 id="org4a3daf0"><span class="section-number-3">5.2</span> NAT persistence</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 How long an entry remains in a NAT table is implementation
@@ -588,8 +588,8 @@ should prevent the NAT entry from being removed by the router.
 </p>
 </div>
 </div>
-<div id="outline-container-orgbff7401" class="outline-3">
-<h3 id="orgbff7401"><span class="section-number-3">5.3</span> Unregister</h3>
+<div id="outline-container-org028c72c" class="outline-3">
+<h3 id="org028c72c"><span class="section-number-3">5.3</span> Unregister</h3>
 <div class="outline-text-3" id="text-5-3">
 <p>
 Currently it's not possible for a client to unregister. This could be
@@ -599,8 +599,8 @@ the client doesn't answer the broker could unregister it.
 </p>
 </div>
 </div>
-<div id="outline-container-orgf441e3a" class="outline-3">
-<h3 id="orgf441e3a"><span class="section-number-3">5.4</span> LAN</h3>
+<div id="outline-container-orge5c58fd" class="outline-3">
+<h3 id="orge5c58fd"><span class="section-number-3">5.4</span> LAN</h3>
 <div class="outline-text-3" id="text-5-4">
 <p>
 When two clients are behind the same NAT they are not able to
