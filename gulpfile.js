@@ -30,12 +30,12 @@ const emacs_eval_postamble =
 $.task("default", $.series(clean, $.parallel(styles, render_org), rev));
 $.task("work", $.series("default", $.parallel(serve, watch)));
 $.task("org", render_org);
-$.task("clean", () => clean("clean_all"));
+$.task("clean", $.parallel(clean, clean_html));
 $.task("rev", rev);
 
 function rev() {
     const assetFilter = $filter(["**/*", "!**/index.html"], { restore: true });
-    const assetsRegex = `\\/notes\\/`;
+    const assetsRegex = `\\/notes\\/(?!${revisioned_assets_dir})`;
 
     return $.src([
         "**/*.png",
@@ -44,7 +44,8 @@ function rev() {
         `**/${css_build_dir}/*.ico`,
         "**/index.html",
         "*/index.html",
-        "!node_modules/**"
+        "!node_modules/**",
+        `!${revisioned_assets_dir}/**`,
     ])
         .pipe(assetFilter)
         .pipe($rev()) // Rename all files except index.html
@@ -68,17 +69,17 @@ function rev() {
         );
 }
 
-function clean(all) {
-    let to_delete = [
+function clean_html() {
+    const to_delete = ("*.html", "*/*.html");
+    return del(to_delete);
+}
+
+function clean() {
+    const to_delete = [
         `${css_build_dir}/*.css`,
         `${css_build_dir}/maps/*`,
         revisioned_assets_dir
     ];
-
-    if (all) {
-        to_delete.push("*.html", "*/*.html");
-    }
-
     return del(to_delete);
 }
 
@@ -88,7 +89,7 @@ function reload(done) {
 }
 
 function watch() {
-    $.watch(files_css, $.series(styles, rev, reload));
+    $.watch(files_css, $.series(clean_html, render_org, styles, rev, reload));
     $.watch(files_org, $.series(render_org, rev, reload));
     return Promise.resolve();
 }
