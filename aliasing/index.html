@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2019-03-21 Thu 23:19 -->
+<!-- 2019-03-21 Thu 23:49 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aliasing</title>
@@ -32,21 +32,21 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org8b82022">1. Introduction</a></li>
-<li><a href="#org9fc9eac">2. Different sampling methods</a></li>
-<li><a href="#orga81445c">3. Aliasing artifacts</a></li>
-<li><a href="#org9c45209">4. Analysis</a>
+<li><a href="#org50a64ef">1. Introduction</a></li>
+<li><a href="#orgb432ecf">2. Different sampling methods</a></li>
+<li><a href="#orge104bd8">3. Aliasing artifacts</a></li>
+<li><a href="#org5f29188">4. Analysis</a>
 <ul>
-<li><a href="#org31d09b3">4.1. Uniform</a></li>
-<li><a href="#org3246c84">4.2. Jittered</a></li>
+<li><a href="#org6167a3f">4.1. Uniform</a></li>
+<li><a href="#orga580a49">4.2. Jittered</a></li>
 </ul>
 </li>
-<li><a href="#orgbae2548">5. Conclusion</a></li>
+<li><a href="#org29e7517">5. Conclusion</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org8b82022" class="outline-2">
-<h2 id="org8b82022"><span class="section-number-2">1</span> Introduction</h2>
+<div id="outline-container-org50a64ef" class="outline-2">
+<h2 id="org50a64ef"><span class="section-number-2">1</span> Introduction</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Imagine the following scene:
@@ -54,7 +54,7 @@ Imagine the following scene:
 
 
 <figure>
-<img src="/notes/revisioned/aliasing/jittered_spheres_10px-666d4e739c.png" alt="jittered_spheres_10px.png">
+<img src="/notes/revisioned/aliasing/jittered_spheres_10px-9c149c15d3.png" alt="jittered_spheres_10px.png">
 
 <figcaption><span class="figure-number">Figure 1: </span>100x100px image with red and green alternating circles, each with a diameter of 10px</figcaption>
 </figure>
@@ -65,14 +65,14 @@ Reducing the size of each circle to 1px gives a predictable result. The resultin
 
 
 <figure>
-<img src="/notes/revisioned/aliasing/uniform_spheres_1px-3186fffeec.png" alt="uniform_spheres_1px.png">
+<img src="/notes/revisioned/aliasing/uniform_spheres_1px-9a1b889fc3.png" alt="uniform_spheres_1px.png">
 
 <figcaption><span class="figure-number">Figure 2: </span>100x100px image with red and green alternating circles, each with a diameter of 1px (uniform sampling, 1 sample/px)</figcaption>
 </figure>
 </div>
 </div>
-<div id="outline-container-org9fc9eac" class="outline-2">
-<h2 id="org9fc9eac"><span class="section-number-2">2</span> Different sampling methods</h2>
+<div id="outline-container-orgb432ecf" class="outline-2">
+<h2 id="orgb432ecf"><span class="section-number-2">2</span> Different sampling methods</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Depending on the sampling method used the lines may not have a uniform color. The same scene rendered with jittered sampling results in:
@@ -80,7 +80,7 @@ Depending on the sampling method used the lines may not have a uniform color. Th
 
 
 <figure>
-<img src="/notes/revisioned/aliasing/jittered_spheres_1px-f2d27767e7.png" alt="jittered_spheres_1px.png">
+<img src="/notes/revisioned/aliasing/jittered_spheres_1px-3583b882a1.png" alt="jittered_spheres_1px.png">
 
 <figcaption><span class="figure-number">Figure 3: </span>1px circles rendered with jittered sampling (16 samples/px)</figcaption>
 </figure>
@@ -90,16 +90,16 @@ The end result however is still an image with vertical lines containing either s
 </p>
 </div>
 </div>
-<div id="outline-container-orga81445c" class="outline-2">
-<h2 id="orga81445c"><span class="section-number-2">3</span> Aliasing artifacts</h2>
+<div id="outline-container-orge104bd8" class="outline-2">
+<h2 id="orge104bd8"><span class="section-number-2">3</span> Aliasing artifacts</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 When the size of the circles varies slightly from the sampling frequency, aliasing artifacts occur. E.g. sampling 1.05px circles uniformly (1 sample/px):
 </p>
 
 
-<figure id="orgb5a3cca">
-<img src="/notes/revisioned/aliasing/uniform_spheres_1_05px-9bd664cac2.png" alt="uniform_spheres_1_05px.png">
+<figure id="orge108745">
+<img src="/notes/revisioned/aliasing/uniform_spheres_1_05px-777279d15d.png" alt="uniform_spheres_1_05px.png">
 
 <figcaption><span class="figure-number">Figure 4: </span>Aliasing artifacts with circles with a 1.05px diameter, rendered with uniform sampling (1 sample/px)</figcaption>
 </figure>
@@ -113,19 +113,19 @@ Jittered sampling is quite effective at eliminating most forms of aliasing. Alth
 </p>
 
 
-<figure id="org7a22cb7">
-<img src="/notes/revisioned/aliasing/jittered_spheres_1_05px-a40e1dc206.png" alt="jittered_spheres_1_05px.png">
+<figure id="orgdb6fac5">
+<img src="/notes/revisioned/aliasing/jittered_spheres_1_05px-8e01b9a8b7.png" alt="jittered_spheres_1_05px.png">
 
 <figcaption><span class="figure-number">Figure 5: </span>Aliasing artifacts with circles with a 1.05px diameter, rendered with jittered sampling (16 samples/px)</figcaption>
 </figure>
 </div>
 </div>
-<div id="outline-container-org9c45209" class="outline-2">
-<h2 id="org9c45209"><span class="section-number-2">4</span> Analysis</h2>
+<div id="outline-container-org5f29188" class="outline-2">
+<h2 id="org5f29188"><span class="section-number-2">4</span> Analysis</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-org31d09b3" class="outline-3">
-<h3 id="org31d09b3"><span class="section-number-3">4.1</span> Uniform</h3>
+<div id="outline-container-org6167a3f" class="outline-3">
+<h3 id="org6167a3f"><span class="section-number-3">4.1</span> Uniform</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 When sampling circles of 1px the sampling occurs in in lockstep:
@@ -148,19 +148,19 @@ When the circle is slightly larger than the pixel size (1.05px) the sampling no 
 </p>
 
 
-<figure id="orge6f9009">
-<img src="/notes/revisioned/aliasing/uniform_samples_larger_spheres-88e66b0f8e.png" alt="uniform_samples_larger_spheres.png">
+<figure id="orgdb194a2">
+<img src="/notes/revisioned/aliasing/uniform_samples_larger_spheres-4d8ebdfcac.png" alt="uniform_samples_larger_spheres.png">
 
 <figcaption><span class="figure-number">Figure 7: </span>Non-lockstep uniform sampling (1 sample/px), sample points are given in blue</figcaption>
 </figure>
 
 <p>
-With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure <a href="#orgb5a3cca">4</a>. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure <a href="#orge6f9009">7</a> happens in the bottom right pixels.
+With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure <a href="#orge108745">4</a>. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure <a href="#orgdb194a2">7</a> happens in the bottom right pixels.
 </p>
 </div>
 </div>
-<div id="outline-container-org3246c84" class="outline-3">
-<h3 id="org3246c84"><span class="section-number-3">4.2</span> Jittered</h3>
+<div id="outline-container-orga580a49" class="outline-3">
+<h3 id="orga580a49"><span class="section-number-3">4.2</span> Jittered</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 The core issue with this pattern is that every sampled <i>pixel</i> will contain a varying amount of red and green. From left to right the pixels will contain:
@@ -176,7 +176,7 @@ The core issue with this pattern is that every sampled <i>pixel</i> will contain
 </ol>
 
 <p>
-The jittered sampling in Figure <a href="#org7a22cb7">5</a> gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These <i>noisy bands</i> occur when the pixels are being sampled as described in steps 2, 3 and 4.
+The jittered sampling in Figure <a href="#orgdb6fac5">5</a> gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These <i>noisy bands</i> occur when the pixels are being sampled as described in steps 2, 3 and 4.
 </p>
 
 <p>
@@ -185,7 +185,7 @@ More advanced jittered sampling patterns like e.g. multi-jittered sampling won't
 
 
 <figure>
-<img src="/notes/revisioned/aliasing/multi_jittered_spheres_1_05px-04c63b1164.png" alt="multi_jittered_spheres_1_05px.png">
+<img src="/notes/revisioned/aliasing/multi_jittered_spheres_1_05px-ea76482930.png" alt="multi_jittered_spheres_1_05px.png">
 
 <figcaption><span class="figure-number">Figure 8: </span>Aliasing artifacts with circles with a 1.05px diameter, rendered with multi-jittered sampling (16 samples/px)</figcaption>
 </figure>
@@ -196,8 +196,8 @@ The core issue remains the same, namely that going left to right pixels contain 
 </div>
 </div>
 </div>
-<div id="outline-container-orgbae2548" class="outline-2">
-<h2 id="orgbae2548"><span class="section-number-2">5</span> Conclusion</h2>
+<div id="outline-container-org29e7517" class="outline-2">
+<h2 id="org29e7517"><span class="section-number-2">5</span> Conclusion</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Avoiding these vertical noise bands is not straight-forward. An ideal solution would necessarily have to result in uniform noise. There is simply not enough available resolution to do better. Therefore it is best to avoid this situation all together by either:
@@ -215,7 +215,7 @@ Interestingly, the classic anti-aliasing checkerboard example side-steps this pr
 
 
 <figure>
-<img src="/notes/revisioned/aliasing/Reconstruction-Mitchell-Checkerboard-2ad6b195c0.png" alt="Reconstruction-Mitchell-Checkerboard.png">
+<img src="/notes/revisioned/aliasing/Reconstruction-Mitchell-Checkerboard-925f574d7c.png" alt="Reconstruction-Mitchell-Checkerboard.png">
 
 <figcaption><span class="figure-number">Figure 9: </span>Anti-aliased checkerboard</figcaption>
 </figure>
