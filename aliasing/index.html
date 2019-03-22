@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2019-03-21 Thu 17:10 -->
+<!-- 2019-03-21 Thu 23:19 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aliasing</title>
@@ -11,52 +11,6 @@
 >
 <link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-71440a4164.css"/>
 <link rel="icon" href="/notes/revisioned/assets/favicon-24ae7fa3eb.ico" type="image/x-icon"/>
-<script type="text/javascript">
-/*
-@licstart  The following is the entire license notice for the
-JavaScript code in this tag.
-
-Copyright (C) 2012-2018 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
-@licend  The above is the entire license notice
-for the JavaScript code in this tag.
-*/
-<!--/*--><![CDATA[/*><!--*/
- function CodeHighlightOn(elem, id)
- {
-   var target = document.getElementById(id);
-   if(null != target) {
-     elem.cacheClassElem = elem.className;
-     elem.cacheClassTarget = target.className;
-     target.className = "code-highlighted";
-     elem.className   = "code-highlighted";
-   }
- }
- function CodeHighlightOff(elem, id)
- {
-   var target = document.getElementById(id);
-   if(elem.cacheClassElem)
-     elem.className = elem.cacheClassElem;
-   if(elem.cacheClassTarget)
-     target.className = elem.cacheClassTarget;
- }
-/*]]>*///-->
-</script>
 </head>
 <body>
 <div id="preamble" class="status">
@@ -78,21 +32,21 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org7b4bc83">1. Introduction</a></li>
-<li><a href="#org5577c22">2. Different sampling methods</a></li>
-<li><a href="#org8407530">3. Aliasing artifacts</a></li>
-<li><a href="#orgdba0cd0">4. Analysis</a>
+<li><a href="#org8b82022">1. Introduction</a></li>
+<li><a href="#org9fc9eac">2. Different sampling methods</a></li>
+<li><a href="#orga81445c">3. Aliasing artifacts</a></li>
+<li><a href="#org9c45209">4. Analysis</a>
 <ul>
-<li><a href="#orgc01615e">4.1. Uniform</a></li>
-<li><a href="#org3b54ac9">4.2. Jittered</a></li>
+<li><a href="#org31d09b3">4.1. Uniform</a></li>
+<li><a href="#org3246c84">4.2. Jittered</a></li>
 </ul>
 </li>
-<li><a href="#org2123a51">5. Conclusion</a></li>
+<li><a href="#orgbae2548">5. Conclusion</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org7b4bc83" class="outline-2">
-<h2 id="org7b4bc83"><span class="section-number-2">1</span> Introduction</h2>
+<div id="outline-container-org8b82022" class="outline-2">
+<h2 id="org8b82022"><span class="section-number-2">1</span> Introduction</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Imagine the following scene:
@@ -117,8 +71,8 @@ Reducing the size of each circle to 1px gives a predictable result. The resultin
 </figure>
 </div>
 </div>
-<div id="outline-container-org5577c22" class="outline-2">
-<h2 id="org5577c22"><span class="section-number-2">2</span> Different sampling methods</h2>
+<div id="outline-container-org9fc9eac" class="outline-2">
+<h2 id="org9fc9eac"><span class="section-number-2">2</span> Different sampling methods</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Depending on the sampling method used the lines may not have a uniform color. The same scene rendered with jittered sampling results in:
@@ -136,15 +90,15 @@ The end result however is still an image with vertical lines containing either s
 </p>
 </div>
 </div>
-<div id="outline-container-org8407530" class="outline-2">
-<h2 id="org8407530"><span class="section-number-2">3</span> Aliasing artifacts</h2>
+<div id="outline-container-orga81445c" class="outline-2">
+<h2 id="orga81445c"><span class="section-number-2">3</span> Aliasing artifacts</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 When the size of the circles varies slightly from the sampling frequency, aliasing artifacts occur. E.g. sampling 1.05px circles uniformly (1 sample/px):
 </p>
 
 
-<figure id="orga42f0fe">
+<figure id="orgb5a3cca">
 <img src="/notes/revisioned/aliasing/uniform_spheres_1_05px-9bd664cac2.png" alt="uniform_spheres_1_05px.png">
 
 <figcaption><span class="figure-number">Figure 4: </span>Aliasing artifacts with circles with a 1.05px diameter, rendered with uniform sampling (1 sample/px)</figcaption>
@@ -159,19 +113,19 @@ Jittered sampling is quite effective at eliminating most forms of aliasing. Alth
 </p>
 
 
-<figure id="org15bb6ac">
+<figure id="org7a22cb7">
 <img src="/notes/revisioned/aliasing/jittered_spheres_1_05px-a40e1dc206.png" alt="jittered_spheres_1_05px.png">
 
 <figcaption><span class="figure-number">Figure 5: </span>Aliasing artifacts with circles with a 1.05px diameter, rendered with jittered sampling (16 samples/px)</figcaption>
 </figure>
 </div>
 </div>
-<div id="outline-container-orgdba0cd0" class="outline-2">
-<h2 id="orgdba0cd0"><span class="section-number-2">4</span> Analysis</h2>
+<div id="outline-container-org9c45209" class="outline-2">
+<h2 id="org9c45209"><span class="section-number-2">4</span> Analysis</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-orgc01615e" class="outline-3">
-<h3 id="orgc01615e"><span class="section-number-3">4.1</span> Uniform</h3>
+<div id="outline-container-org31d09b3" class="outline-3">
+<h3 id="org31d09b3"><span class="section-number-3">4.1</span> Uniform</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 When sampling circles of 1px the sampling occurs in in lockstep:
@@ -194,19 +148,19 @@ When the circle is slightly larger than the pixel size (1.05px) the sampling no 
 </p>
 
 
-<figure id="orgdecf472">
+<figure id="orge6f9009">
 <img src="/notes/revisioned/aliasing/uniform_samples_larger_spheres-88e66b0f8e.png" alt="uniform_samples_larger_spheres.png">
 
 <figcaption><span class="figure-number">Figure 7: </span>Non-lockstep uniform sampling (1 sample/px), sample points are given in blue</figcaption>
 </figure>
 
 <p>
-With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure <a href="#orga42f0fe">4</a>. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure <a href="#orgdecf472">7</a> happens in the bottom right pixels.
+With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure <a href="#orgb5a3cca">4</a>. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure <a href="#orge6f9009">7</a> happens in the bottom right pixels.
 </p>
 </div>
 </div>
-<div id="outline-container-org3b54ac9" class="outline-3">
-<h3 id="org3b54ac9"><span class="section-number-3">4.2</span> Jittered</h3>
+<div id="outline-container-org3246c84" class="outline-3">
+<h3 id="org3246c84"><span class="section-number-3">4.2</span> Jittered</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 The core issue with this pattern is that every sampled <i>pixel</i> will contain a varying amount of red and green. From left to right the pixels will contain:
@@ -222,7 +176,7 @@ The core issue with this pattern is that every sampled <i>pixel</i> will contain
 </ol>
 
 <p>
-The jittered sampling in Figure <a href="#org15bb6ac">5</a> gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These <i>noisy bands</i> occur when the pixels are being sampled as described in steps 2, 3 and 4.
+The jittered sampling in Figure <a href="#org7a22cb7">5</a> gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These <i>noisy bands</i> occur when the pixels are being sampled as described in steps 2, 3 and 4.
 </p>
 
 <p>
@@ -242,8 +196,8 @@ The core issue remains the same, namely that going left to right pixels contain 
 </div>
 </div>
 </div>
-<div id="outline-container-org2123a51" class="outline-2">
-<h2 id="org2123a51"><span class="section-number-2">5</span> Conclusion</h2>
+<div id="outline-container-orgbae2548" class="outline-2">
+<h2 id="orgbae2548"><span class="section-number-2">5</span> Conclusion</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Avoiding these vertical noise bands is not straight-forward. An ideal solution would necessarily have to result in uniform noise. There is simply not enough available resolution to do better. Therefore it is best to avoid this situation all together by either:
