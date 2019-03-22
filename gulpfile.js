@@ -90,7 +90,7 @@ function reload(done) {
 }
 
 function watch() {
-    $.watch(files_css, $.series(clean_html, render_org, styles, rev, reload));
+    $.watch(files_css, $.series($.parallel(clean_html, clean, render_org, styles), rev, reload));
     $.watch(files_org, $.series(render_org, rev, reload));
     return Promise.resolve();
 }
