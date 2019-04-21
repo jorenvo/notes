@@ -30,7 +30,7 @@ into blocking =beforeunload= handlers warning me I might lose data
 when attempting to close the tab.
 
 #+CAPTION: Archiving an email seemingly takes about a second before you can close the tab
-[[./gmail_archive.png]]
+[[/notes/mail/gmail_archive.png]]
 
 Since the place I work at uses GSuite and there's a lot of email to go
 through in the morning I decided to stop using the GMail webclient.
