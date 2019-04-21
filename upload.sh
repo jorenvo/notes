@@ -3,6 +3,6 @@ set -euo pipefail
 
 rsync -zarRv\
       index.html\
-      {aliasing,nat_traversal}/index.html\
+      */index.html\
       revisioned\
       jvo:/var/www/html/notes/
