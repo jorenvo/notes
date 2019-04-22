@@ -41,6 +41,7 @@ function rev() {
         "**/*.png",
         "**/*.svg",
         `**/${css_build_dir}/*.css`,
+        `**/${css_build_dir}/sw-loader.js`,
         `**/${css_build_dir}/maps/*.map`,
         `**/${css_build_dir}/*.ico`,
         "**/index.html",
@@ -167,7 +168,7 @@ function serve(done) {
     server.init({
         startPath: "/notes", // mimic github pages
         server: { baseDir: ".", routes: { "/notes": "." } },
-        https: true
+        https: false
     });
     done();
 }
