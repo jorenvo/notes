@@ -35,7 +35,7 @@ $.task("rev", rev);
 
 function rev() {
     const assetFilter = $filter(["**/*", "!**/index.html"], { restore: true });
-    const assetsRegex = `\\/notes\\/(?!${revisioned_assets_dir})(?=[^"])`;
+    const assetsRegex = `\\/notes\\/(?!${revisioned_assets_dir})(?!sw.js)(?=[^"])`;
 
     return $.src([
         "**/*.png",
