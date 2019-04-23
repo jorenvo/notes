@@ -5,4 +5,5 @@ rsync -zarRv\
       index.html\
       */index.html\
       revisioned\
+      sw.js\
       jvo:/var/www/html/notes/
