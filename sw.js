@@ -1,9 +1,9 @@
 const cacheName = "jvo-sh-notes-cache";
 const urlsToCache = [
-    "./notes/",
-    "./notes/aliasing/",
-    "./notes/nat_traversal/",
-    "./notes/mail/"
+    "/notes/",
+    "/notes/aliasing/",
+    "/notes/nat_traversal/",
+    "/notes/mail/"
 ];
 
 self.addEventListener("install", event => {
