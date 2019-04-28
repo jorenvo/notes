@@ -1,7 +1,7 @@
 // when an asset changes:
 // - update urlsToCache
 // - update this cache name by appending a new date +%s
-const cacheName = "jvo-sh-notes-cache-1555996049";
+const cacheName = "jvo-sh-notes-cache-1556476931";
 const urlsToCache = [
     "/notes/",
     "/notes/aliasing/",
