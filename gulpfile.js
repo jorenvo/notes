@@ -106,8 +106,8 @@ function get_preamble(file_path) {
   <a href="/notes/">notes</a> / ${filename(file_path).replace(/_/g, " ")}
   <div class="contact">
       github: <a href="https://github.com/jorenvo">jorenvo</a> |
-      email: <a href="mailto:joren.vanonder@gmail.com">joren.vanonder@gmail.com</a> |
-      PGP: <a href="/publickey.txt">E42D 0F1A 0863 32F3</a> |
+      email: <a href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
+      PGP: <a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
       keybase: <a href="https://keybase.io/jvo">jvo</a>
   </div>
 </div>`;
