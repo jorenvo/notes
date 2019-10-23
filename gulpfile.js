@@ -43,7 +43,6 @@ function rev() {
         `**/${css_build_dir}/*.css`,
         `**/${css_build_dir}/sw-loader.js`,
         `**/${css_build_dir}/maps/*.map`,
-        `**/${css_build_dir}/*.ico`,
         "**/index.html",
         "*/index.html",
         "!node_modules/**",
