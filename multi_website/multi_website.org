@@ -1,0 +1,173 @@
+#+TITLE: Multi-website in Odoo v12
+#+EXPORT_FILE_NAME: index.html
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
+#+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>
+#+HTML_HEAD: <script src="/notes/assets/sw-loader.js" defer></script>
+#+OPTIONS: html-scripts:nil
+#+OPTIONS: html-style:nil
+#+OPTIONS: html5-fancy:t
+#+OPTIONS: html-postamble:t
+#+OPTIONS: html-preamble:t
+#+OPTIONS: ^:nil
+#+HTML_DOCTYPE: html5
+#+HTML_CONTAINER: div
+#+DESCRIPTION: NAT traversal
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+AUTHOR: Joren Van Onder
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
+#+LATEX_HEADER:
+* Multi-website
+The goal of this document is to give a thorough technical
+understanding of the standard multi-website feature in ≥v12. I will be
+focusing on v12 in this document, but everything should be applicable
+to v13 as well.
+
+** Basics
+*** Session
+Sessions are based on [[https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/][Werkzeug sessions]]. When a user visits Odoo a
+session cookie is created and stored in their browser. It's a unique
+ID that links every requests that browser makes to a session in
+Odoo. The session is persistent and is written to disk (by default
+=~/.local/share/Odoo/sessions/=). This contains data that needs to
+persist (e.g. whether or not the user is logged in). The session files
+are pickled, if you want to inspect them use:
+
+#+BEGIN_EXAMPLE
+$ python3 -m pickle ~/.local/share/Odoo/sessions/werkzeug_861d25cbe84e9841b907cad27bcca6dae543400d.sess
+#+END_EXAMPLE
+
+Stale sessions are automatically removed. A session is considered
+stale if it hasn't been modified for one week. The expiration date for
+the cookie on the browser side is 3 months. This is why after 3 months
+you need to login again.
+
+**** Tangent: whether a user is logged in
+Determined by the session token:
+
+def _compute_session_token(self, sid)
+
+Encrypts ={'id', 'login', 'password', 'active'}= and the db
+secret. The result is stored in the session. What's in the session is
+compared to this to determine when to invalidate (e.g. when a user is
+set to inactive).
+*** Request
+*** Assets
+JS and SCSS assets in Odoo are compiled, minimized and combined into
+asset bundles. In the case of SCSS it's a necessary step; it needs to
+be compiled to CSS for the browser to understand. But this is not the
+only reason, reducing the number of files the browser needs to load
+also reduces the amount of HTTP requests. On top of that the
+minimization reduces the filesize which speeds up each HTTP
+request. To skip the minimization and bundling you can use
+=?debug=assets=. It's useful when working on the frontend and also
+demonstrates how much faster the asset bundling process makes Odoo.
+
+Each bundle is a single file, saved as an =ir.attachment= record. You
+can find them like this:
+
+#+BEGIN_EXAMPLE
+SELECT id, url
+FROM ir_attachment
+WHERE name LIKE '/web/content%'
+ORDER BY id;
+#+END_EXAMPLE
+
+New bundles are defined in templates as regular QWEB templates and
+called in the appropriate locations as follows:
+
+#+BEGIN_EXAMPLE
+<t t-call-assets="web.assets_common"...
+#+END_EXAMPLE
+
+This leads to =_get_asset_nodes= being called which eventually calls
+=get_asset_bundle=. This creates objects that inherit from
+=AssetsBundle= (like =JavascriptAsset= and =StylesheetAsset=). The
+unique key of the asset is computed in the =checksum= property and is
+a hash of:
+
+- the metadata of the files (filename, type, url, ...) it contains, and
+- the last time a file in the asset bundle was modified
+
+This causes recompilation of an asset bundle when a file in it changes
+or new files are added. This checksum is saved in the URL of the
+=ir.attachment= and looks like this:
+
+=/web/content/1002-0d0afe0/web.assets_common.js=
+
+- =1002= :: the =ir.attachment= ID
+- =0d0afe0= :: the first 7 characters of the =checksum=
+
+This leads to issues with >1 website, because every website will have
+its own assets. To avoid the assets constantly recompiling the
+=website= module adds the website ID to the URL:
+
+=/web/content/1012-0d0afe0/2/web.assets_common.0.js=
+
+- =2= :: the website ID
+
+This allows Odoo to maintain separate compiled asset bundles per
+website.
+*** Themes
+
+** Website Selection
+*** Forced
+You can force Odoo to load a specific website ID with a GET parameter,
+like is done by the website switcher:
+
+#+BEGIN_EXAMPLE
+?fw=2
+#+END_EXAMPLE
+
+This is set on the session, so it will persist for as long as the user
+is logged in.
+*** Normal
+To figure out what website you're on always use
+=self.env["website"].get_current_website()=. There's a lot of cases
+that are handled by it (fw= overrides, geoip, domain names, ...).
+
+** Copy-on-write (COW)
+The simplest way to implement multiple websites is to create specific
+views for each website. But this has multiple issues.
+
+First of all, it complicates module upgrades and thus migrations. What
+do we do when a bugfix in a view was merged? The module upgrade
+mechanism would need to duplicate this view write to the copied
+views. This is further complicated by the fact that =web_editor=
+modifies the views themselves, it doesn't create inherited views like
+Studio. So this bugfix can not blindly be applied to copied views when
+a module is upgraded because customizations would be lost.
+
+Second of all, how do we ensure that newly created websites contain
+the default pages (e.g. contact us)?
+
+To avoid these issues a [[https://en.wikipedia.org/wiki/Copy-on-write][copy-on-write]] mechanism was implemented. It
+defers duplicating views until necessary. Views are created without a
+=website_id= and rendered as usual. When a user modifies it a website
+specific copy is created with the appropriate =website_id= and the
+same =key=. This only happens for writes that happen via the frontend
+(not in /web). With this mechanism bugfixes to non-edited views are
+applied as usual and newly created websites will contain all the
+necessary views.
+
+From a technical POV this is mostly implemented in the =write= of
+=ir.ui.view= in the website module, note that it will also handle:
+
+- creating website-specific inherited views if they exist,
+- creating website-specific inactive views (TODO options website),
+- creating website-specific pages for these views,
+
+Also this way new websites contain default views.
+
+Copy-on-write is implemented on the following models:
+- =ir.ui.view=
+
+=ir.ui.menu= is always copied, generic one is created if it's part of the main menu.
+
+TODO website specific =website.published.mixin=, =website.multi.mixin=
