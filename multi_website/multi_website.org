@@ -114,7 +114,7 @@ its own assets. To avoid the assets constantly recompiling the
 
 This allows Odoo to maintain separate compiled asset bundles per
 website.
-*** Themes
+*** Themes (TODO)
 
 ** Website Selection
 *** Forced
@@ -133,22 +133,16 @@ To figure out what website you're on always use
 that are handled by it (fw= overrides, geoip, domain names, ...).
 
 ** Copy-on-write (COW)
-The simplest way to implement multiple websites is to create specific
-views for each website. But this has multiple issues.
+Multi-website was implemented in a way that keeps module upgrades and
+migrations easy. What do we do when a bugfix in a view was merged? It
+needs to ensure this view change is applied to all websites. It also
+makes sure that we retain the ability for a user to create a brand
+new, unmodified website at all times (with e.g. an unmodified Contact
+Us page). When naively duplicating views for each website you clutter
+the database with a lot of unnecessary records.
 
-First of all, it complicates module upgrades and thus migrations. What
-do we do when a bugfix in a view was merged? The module upgrade
-mechanism would need to duplicate this view write to the copied
-views. This is further complicated by the fact that =web_editor=
-modifies the views themselves, it doesn't create inherited views like
-Studio. So this bugfix can not blindly be applied to copied views when
-a module is upgraded because customizations would be lost.
-
-Second of all, how do we ensure that newly created websites contain
-the default pages (e.g. contact us)?
-
-To avoid these issues a [[https://en.wikipedia.org/wiki/Copy-on-write][copy-on-write]] mechanism was implemented. It
-defers duplicating views until necessary. Views are created without a
+In most cases Odoo will use a [[https://en.wikipedia.org/wiki/Copy-on-write][copy-on-write]] mechanism. It defers
+duplicating views until necessary. Views are created without a
 =website_id= and rendered as usual. When a user modifies it a website
 specific copy is created with the appropriate =website_id= and the
 same =key=. This only happens for writes that happen via the frontend
@@ -165,9 +159,59 @@ From a technical POV this is mostly implemented in the =write= of
 
 Also this way new websites contain default views.
 
-Copy-on-write is implemented on the following models:
-- =ir.ui.view=
+THis means that it's possible there are multiple views with the same
+XML ID. Since this isn't possible we instead use the =key= field as
+identifiers for the views.
 
-=ir.ui.menu= is always copied, generic one is created if it's part of the main menu.
+For unlinking a Copy-on-unlink [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161][is implemented]]. Website-specific copies
+are created when a generic view is deleted from the frontend.
 
-TODO website specific =website.published.mixin=, =website.multi.mixin=
+On top of this there is a mechanism that duplicates writes during
+module updates. It's implemented in [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126][_load_records_write()]]. During a
+module upgrade it will duplicate writes on views to website-specific
+views. This only happens when the field on on the website-specific
+view was not edited.
+
+When views are rendered [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205][filter_duplicate()]] ensures that for each =key=
+a website specific view is preferred over a generic one if it exists.
+
+** Mixins
+Multiple mixins are available to publish models on the website:
+
+*** website.published.multi.mixin
+This inherits both =website.published.mixin= and =website.multi.mixin=
+and is probably what you want to use in most cases. It allows records
+in a model to be published on all or one website. When rendering a
+QWeb view on the website make sure to wrap it in =website.layout= and
+set =main_object= in the rendering context. It should be the main
+record you're rendering, the website module will use this record to
+make the publish/unpublish work:
+
+[[/notes/multi_website/published_unpublished.png]]
+
+Unfortunately you need to manually check in your controllers whether
+or not the record is accessible from the current website. This mixin
+provides =can_access_from_current_website()= for that:
+
+#+BEGIN_EXAMPLE
+from werkzeug.exceptions import NotFound
+# ...
+if not record.can_access_from_current_website():
+    raise NotFound()
+#+END_EXAMPLE
+
+*** website.published.mixin
+This makes it possible to publish/unpublish your model through
+=website_publish_button()=. It only supports publishing your record on
+all websites. Records using this will also be publishable from the
+website via the toggle.
+
+*** website.multi.mixin
+In practice this only provides a =website_id= field and the
+=can_access_from_current_website= function.  Use this if you want to
+restrict the visibility of records in a model to one specific website,
+but you want to handle this manually via
+=can_access_from_current_website()= in a controller manually and you
+don't want users to be able to publish/unpublish these records
+themselves via the frontend.
+
