@@ -1,4 +1,5 @@
 #+TITLE: Multi-website in Odoo v12
+#+DATE: <2020-05-14 Thu>
 #+EXPORT_FILE_NAME: index.html
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
 #+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>
@@ -48,16 +49,6 @@ stale if it hasn't been modified for one week. The expiration date for
 the cookie on the browser side is 3 months. This is why after 3 months
 you need to login again.
 
-**** Tangent: whether a user is logged in
-Determined by the session token:
-
-def _compute_session_token(self, sid)
-
-Encrypts ={'id', 'login', 'password', 'active'}= and the db
-secret. The result is stored in the session. What's in the session is
-compared to this to determine when to invalidate (e.g. when a user is
-set to inactive).
-*** Request
 *** Assets
 JS and SCSS assets in Odoo are compiled, minimized and combined into
 asset bundles. In the case of SCSS it's a necessary step; it needs to
@@ -114,7 +105,6 @@ its own assets. To avoid the assets constantly recompiling the
 
 This allows Odoo to maintain separate compiled asset bundles per
 website.
-*** Themes (TODO)
 
 ** Website Selection
 *** Forced
@@ -215,3 +205,8 @@ but you want to handle this manually via
 don't want users to be able to publish/unpublish these records
 themselves via the frontend.
 
+** Themes
+Themes are handled in a special way. 
+
+automatically required via auto_install
+upgrade all vs upgrade only current

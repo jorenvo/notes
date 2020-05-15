@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2020-05-14 Thu 15:35 -->
+<!-- 2020-05-14 Thu 16:20 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Multi-website in Odoo v12</title>
@@ -33,29 +33,27 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgf404e45">1. Multi-website</a>
+<li><a href="#org6ee3247">1. Multi-website</a>
 <ul>
-<li><a href="#org5c3910f">1.1. Basics</a>
+<li><a href="#org4141e76">1.1. Basics</a>
 <ul>
-<li><a href="#org18cb085">1.1.1. Session</a></li>
-<li><a href="#org735d528">1.1.2. Request</a></li>
-<li><a href="#orgd5db7d0">1.1.3. Assets</a></li>
-<li><a href="#org5e262c8">1.1.4. Themes</a></li>
+<li><a href="#org9d15cea">1.1.1. Session</a></li>
+<li><a href="#orgc4ae07e">1.1.2. Assets</a></li>
+<li><a href="#org58da98a">1.1.3. Themes (TODO)</a></li>
 </ul>
 </li>
-<li><a href="#orgea0257f">1.2. Website Selection</a>
+<li><a href="#org5b08aa4">1.2. Website Selection</a>
 <ul>
-<li><a href="#org719899d">1.2.1. Forced</a></li>
-<li><a href="#orgb2787ff">1.2.2. Normal</a></li>
+<li><a href="#org389772c">1.2.1. Forced</a></li>
+<li><a href="#orgff57116">1.2.2. Normal</a></li>
 </ul>
 </li>
-<li><a href="#org00f4bc8">1.3. Copy-on-write (COW)</a></li>
-<li><a href="#org98a8719">1.4. Rendering (TODO)</a></li>
-<li><a href="#org90e5d90">1.5. Mixins</a>
+<li><a href="#org8be7c1a">1.3. Copy-on-write (COW)</a></li>
+<li><a href="#org41ff0bf">1.4. Mixins</a>
 <ul>
-<li><a href="#org1bd50f4">1.5.1. website.published.multi.mixin</a></li>
-<li><a href="#org2ef9027">1.5.2. website.published.mixin</a></li>
-<li><a href="#orgb1c2a92">1.5.3. website.multi.mixin</a></li>
+<li><a href="#orgfa94413">1.4.1. website.published.multi.mixin</a></li>
+<li><a href="#org549e86d">1.4.2. website.published.mixin</a></li>
+<li><a href="#org298924a">1.4.3. website.multi.mixin</a></li>
 </ul>
 </li>
 </ul>
@@ -63,8 +61,8 @@
 </ul>
 </div>
 </nav>
-<div id="outline-container-orgf404e45" class="outline-2">
-<h2 id="orgf404e45"><span class="section-number-2">1</span> Multi-website</h2>
+<div id="outline-container-org6ee3247" class="outline-2">
+<h2 id="org6ee3247"><span class="section-number-2">1</span> Multi-website</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The goal of this document is to give a thorough technical
@@ -74,12 +72,12 @@ to v13 as well.
 </p>
 </div>
 
-<div id="outline-container-org5c3910f" class="outline-3">
-<h3 id="org5c3910f"><span class="section-number-3">1.1</span> Basics</h3>
+<div id="outline-container-org4141e76" class="outline-3">
+<h3 id="org4141e76"><span class="section-number-3">1.1</span> Basics</h3>
 <div class="outline-text-3" id="text-1-1">
 </div>
-<div id="outline-container-org18cb085" class="outline-4">
-<h4 id="org18cb085"><span class="section-number-4">1.1.1</span> Session</h4>
+<div id="outline-container-org9d15cea" class="outline-4">
+<h4 id="org9d15cea"><span class="section-number-4">1.1.1</span> Session</h4>
 <div class="outline-text-4" id="text-1-1-1">
 <p>
 Sessions are based on <a href="https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/">Werkzeug sessions</a>. When a user visits Odoo a
@@ -102,34 +100,11 @@ the cookie on the browser side is 3 months. This is why after 3 months
 you need to login again.
 </p>
 </div>
-
-<ol class="org-ol">
-<li><a id="orgd7d6d67"></a>Tangent: whether a user is logged in<br>
-<div class="outline-text-5" id="text-1-1-1-1">
-<p>
-Determined by the session token:
-</p>
-
-<p>
-def _compute_session_token(self, sid)
-</p>
-
-<p>
-Encrypts <code>{'id', 'login', 'password', 'active'}</code> and the db
-secret. The result is stored in the session. What's in the session is
-compared to this to determine when to invalidate (e.g. when a user is
-set to inactive).
-</p>
 </div>
-</li>
-</ol>
-</div>
-<div id="outline-container-org735d528" class="outline-4">
-<h4 id="org735d528"><span class="section-number-4">1.1.2</span> Request</h4>
-</div>
-<div id="outline-container-orgd5db7d0" class="outline-4">
-<h4 id="orgd5db7d0"><span class="section-number-4">1.1.3</span> Assets</h4>
-<div class="outline-text-4" id="text-1-1-3">
+
+<div id="outline-container-orgc4ae07e" class="outline-4">
+<h4 id="orgc4ae07e"><span class="section-number-4">1.1.2</span> Assets</h4>
+<div class="outline-text-4" id="text-1-1-2">
 <p>
 JS and SCSS assets in Odoo are compiled, minimized and combined into
 asset bundles. In the case of SCSS it's a necessary step; it needs to
@@ -211,17 +186,17 @@ website.
 </p>
 </div>
 </div>
-<div id="outline-container-org5e262c8" class="outline-4">
-<h4 id="org5e262c8"><span class="section-number-4">1.1.4</span> Themes</h4>
+<div id="outline-container-org58da98a" class="outline-4">
+<h4 id="org58da98a"><span class="section-number-4">1.1.3</span> Themes (TODO)</h4>
 </div>
 </div>
 
-<div id="outline-container-orgea0257f" class="outline-3">
-<h3 id="orgea0257f"><span class="section-number-3">1.2</span> Website Selection</h3>
+<div id="outline-container-org5b08aa4" class="outline-3">
+<h3 id="org5b08aa4"><span class="section-number-3">1.2</span> Website Selection</h3>
 <div class="outline-text-3" id="text-1-2">
 </div>
-<div id="outline-container-org719899d" class="outline-4">
-<h4 id="org719899d"><span class="section-number-4">1.2.1</span> Forced</h4>
+<div id="outline-container-org389772c" class="outline-4">
+<h4 id="org389772c"><span class="section-number-4">1.2.1</span> Forced</h4>
 <div class="outline-text-4" id="text-1-2-1">
 <p>
 You can force Odoo to load a specific website ID with a GET parameter,
@@ -238,8 +213,8 @@ is logged in.
 </p>
 </div>
 </div>
-<div id="outline-container-orgb2787ff" class="outline-4">
-<h4 id="orgb2787ff"><span class="section-number-4">1.2.2</span> Normal</h4>
+<div id="outline-container-orgff57116" class="outline-4">
+<h4 id="orgff57116"><span class="section-number-4">1.2.2</span> Normal</h4>
 <div class="outline-text-4" id="text-1-2-2">
 <p>
 To figure out what website you're on always use
@@ -250,32 +225,22 @@ that are handled by it (fw= overrides, geoip, domain names, &#x2026;).
 </div>
 </div>
 
-<div id="outline-container-org00f4bc8" class="outline-3">
-<h3 id="org00f4bc8"><span class="section-number-3">1.3</span> Copy-on-write (COW)</h3>
+<div id="outline-container-org8be7c1a" class="outline-3">
+<h3 id="org8be7c1a"><span class="section-number-3">1.3</span> Copy-on-write (COW)</h3>
 <div class="outline-text-3" id="text-1-3">
 <p>
-The simplest way to implement multiple websites is to create specific
-views for each website. But this has multiple issues.
+Multi-website was implemented in a way that keeps module upgrades and
+migrations easy. What do we do when a bugfix in a view was merged? It
+needs to ensure this view change is applied to all websites. It also
+makes sure that we retain the ability for a user to create a brand
+new, unmodified website at all times (with e.g. an unmodified Contact
+Us page). When naively duplicating views for each website you clutter
+the database with a lot of unnecessary records.
 </p>
 
 <p>
-First of all, it complicates module upgrades and thus migrations. What
-do we do when a bugfix in a view was merged? The module upgrade
-mechanism would need to duplicate this view write to the copied
-views. This is further complicated by the fact that <code>web_editor</code>
-modifies the views themselves, it doesn't create inherited views like
-Studio. So this bugfix can not blindly be applied to copied views when
-a module is upgraded because customizations would be lost.
-</p>
-
-<p>
-Second of all, how do we ensure that newly created websites contain
-the default pages (e.g. contact us)?
-</p>
-
-<p>
-To avoid these issues a <a href="https://en.wikipedia.org/wiki/Copy-on-write">copy-on-write</a> mechanism was implemented. It
-defers duplicating views until necessary. Views are created without a
+In most cases Odoo will use a <a href="https://en.wikipedia.org/wiki/Copy-on-write">copy-on-write</a> mechanism. It defers
+duplicating views until necessary. Views are created without a
 <code>website_id</code> and rendered as usual. When a user modifies it a website
 specific copy is created with the appropriate <code>website_id</code> and the
 same <code>key</code>. This only happens for writes that happen via the frontend
@@ -300,27 +265,42 @@ Also this way new websites contain default views.
 </p>
 
 <p>
-<code>ir.ui.menu</code> is always copied, and a generic one is created if it's
-part of the main menu.
+THis means that it's possible there are multiple views with the same
+XML ID. Since this isn't possible we instead use the <code>key</code> field as
+identifiers for the views.
+</p>
+
+<p>
+For unlinking a Copy-on-unlink <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161">is implemented</a>. Website-specific copies
+are created when a generic view is deleted from the frontend.
+</p>
+
+<p>
+On top of this there is a mechanism that duplicates writes during
+module updates. It's implemented in <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126">_load_records_write()</a>. During a
+module upgrade it will duplicate writes on views to website-specific
+views. This only happens when the field on on the website-specific
+view was not edited.
+</p>
+
+<p>
+When views are rendered <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205">filter_duplicate()</a> ensures that for each <code>key</code>
+a website specific view is preferred over a generic one if it exists.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org98a8719" class="outline-3">
-<h3 id="org98a8719"><span class="section-number-3">1.4</span> Rendering (TODO)</h3>
-</div>
-
-<div id="outline-container-org90e5d90" class="outline-3">
-<h3 id="org90e5d90"><span class="section-number-3">1.5</span> Mixins</h3>
-<div class="outline-text-3" id="text-1-5">
+<div id="outline-container-org41ff0bf" class="outline-3">
+<h3 id="org41ff0bf"><span class="section-number-3">1.4</span> Mixins</h3>
+<div class="outline-text-3" id="text-1-4">
 <p>
 Multiple mixins are available to publish models on the website:
 </p>
 </div>
 
-<div id="outline-container-org1bd50f4" class="outline-4">
-<h4 id="org1bd50f4"><span class="section-number-4">1.5.1</span> website.published.multi.mixin</h4>
-<div class="outline-text-4" id="text-1-5-1">
+<div id="outline-container-orgfa94413" class="outline-4">
+<h4 id="orgfa94413"><span class="section-number-4">1.4.1</span> website.published.multi.mixin</h4>
+<div class="outline-text-4" id="text-1-4-1">
 <p>
 This inherits both <code>website.published.mixin</code> and <code>website.multi.mixin</code>
 and is probably what you want to use in most cases. It allows records
@@ -352,9 +332,9 @@ if not record.can_access_from_current_website():
 </div>
 </div>
 
-<div id="outline-container-org2ef9027" class="outline-4">
-<h4 id="org2ef9027"><span class="section-number-4">1.5.2</span> website.published.mixin</h4>
-<div class="outline-text-4" id="text-1-5-2">
+<div id="outline-container-org549e86d" class="outline-4">
+<h4 id="org549e86d"><span class="section-number-4">1.4.2</span> website.published.mixin</h4>
+<div class="outline-text-4" id="text-1-4-2">
 <p>
 This makes it possible to publish/unpublish your model through
 <code>website_publish_button()</code>. It only supports publishing your record on
@@ -364,9 +344,9 @@ website via the toggle.
 </div>
 </div>
 
-<div id="outline-container-orgb1c2a92" class="outline-4">
-<h4 id="orgb1c2a92"><span class="section-number-4">1.5.3</span> website.multi.mixin</h4>
-<div class="outline-text-4" id="text-1-5-3">
+<div id="outline-container-org298924a" class="outline-4">
+<h4 id="org298924a"><span class="section-number-4">1.4.3</span> website.multi.mixin</h4>
+<div class="outline-text-4" id="text-1-4-3">
 <p>
 In practice this only provides a <code>website_id</code> field and the
 <code>can_access_from_current_website</code> function.  Use this if you want to
