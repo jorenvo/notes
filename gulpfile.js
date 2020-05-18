@@ -109,7 +109,7 @@ function get_preamble(file_path) {
       email:&nbsp;<a href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
       PGP:&nbsp;<a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
       keybase:&nbsp;<a href="https://keybase.io/jvo">jvo</a>
-  </div>
+  </div><br/>
   <div class="right"><i>Published on %d</i></div>
 </div>`;
 }
