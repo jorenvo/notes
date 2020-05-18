@@ -59,6 +59,7 @@ function rev() {
             )
         )
         .pipe($replace("file://", ""))
+        .pipe($replace(/<a (href="[^#/\.])/g, "<a target=\"_blank\" $1"))
         .pipe(
             $.dest(file => {
                 if (file.extname === ".html") {
