@@ -1,7 +1,7 @@
 // when an asset changes:
 // - update urlsToCache
 // - update this cache name by appending a new date +%s
-const cacheName = "jvo-sh-notes-cache-1556492592";
+const cacheName = "jvo-sh-notes-cache-1589839080";
 const urlsToCache = [
     "/notes/",
     "/notes/aliasing/",
@@ -20,17 +20,20 @@ const urlsToCache = [
     "/notes/revisioned/aliasing/uniform_samples_larger_spheres-6907424969.svg",
     "/notes/revisioned/aliasing/uniform_spheres_1_05px-777279d15d.png",
     "/notes/revisioned/aliasing/uniform_spheres_1px-9a1b889fc3.png",
-    "/notes/revisioned/assets/favicon-24ae7fa3eb.ico",
-    "/notes/revisioned/assets/maps/style-c17e379ff3.css.map",
-    "/notes/revisioned/assets/style-71440a4164.css",
+    "/notes/revisioned/assets/favicon-034aad3767.png",
+    "/notes/revisioned/assets/maps/style-5e2e7f9713.css.map",
+    "/notes/revisioned/assets/style-b73f0bb1ee.css",
     "/notes/revisioned/assets/sw-loader-649419f22f.js",
     "/notes/revisioned/mail/gmail_archive-63756bcc13.png",
+    "/notes/revisioned/multi_website/inheritance-d21bc7ee7c.png",
+    "/notes/revisioned/multi_website/published_unpublished-197a5a0926.png",
+    "/notes/revisioned/multi_website/website_selector-fb2100c036.png",
     "/notes/revisioned/nat_traversal/graphs/flow_alice_bob-c7f5262a7f.png",
     "/notes/revisioned/nat_traversal/graphs/flow_alice_broker_bob-d71e1cfe54.png",
     "/notes/revisioned/nat_traversal/graphs/flow_alice_register-b1dd2f01a0.png",
     "/notes/revisioned/nat_traversal/graphs/flow_bob_alice-e1d6f68f30.png",
     "/notes/revisioned/nat_traversal/graphs/flow_bob_register-f34455a377.png",
-    "/notes/revisioned/nat_traversal/graphs/flow_full-3c45bc4331.png"
+    "/notes/revisioned/nat_traversal/graphs/flow_full-3c45bc4331.png",
 ];
 
 self.addEventListener("install", event => {

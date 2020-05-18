@@ -34,18 +34,22 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org1f11ac7">1. Website selection</a></li>
-<li><a href="#orgbb29292">2. Copy-on-write (COW)</a></li>
-<li><a href="#org4d3dc9a">3. Mixins</a>
+<li><a href="#orgad58595">1. Website selection</a></li>
+<li><a href="#orgd7e3510">2. Copy-on-write (COW)</a>
 <ul>
-<li><a href="#org611e248">3.1. website.published.multi.mixin</a></li>
-<li><a href="#orgcb37d58">3.2. website.published.mixin</a></li>
-<li><a href="#org77ae687">3.3. website.multi.mixin</a></li>
+<li><a href="#orgd38d4a9">2.1. Rendering</a></li>
 </ul>
 </li>
-<li><a href="#org3de56c6">4. Themes</a></li>
-<li><a href="#orgb92089b">5. Sessions</a></li>
-<li><a href="#org39f96e2">6. Assets</a></li>
+<li><a href="#org1e85868">3. Mixins</a>
+<ul>
+<li><a href="#org1b60eba">3.1. website.published.multi.mixin</a></li>
+<li><a href="#org351296c">3.2. website.published.mixin</a></li>
+<li><a href="#orgc1c2bf4">3.3. website.multi.mixin</a></li>
+</ul>
+</li>
+<li><a href="#orgb5ba7e4">4. Themes</a></li>
+<li><a href="#org4c67d5d">5. Sessions</a></li>
+<li><a href="#org137ac0d">6. Assets</a></li>
 </ul>
 </div>
 </nav>
@@ -56,8 +60,8 @@ focusing on v12 in this document, but everything should be applicable
 to v13 as well.
 </p>
 
-<div id="outline-container-org1f11ac7" class="outline-2">
-<h2 id="org1f11ac7"><span class="section-number-2">1</span> Website selection</h2>
+<div id="outline-container-orgad58595" class="outline-2">
+<h2 id="orgad58595"><span class="section-number-2">1</span> Website selection</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 What website to render is determined by <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L479">get_current_website()</a>. It
@@ -86,18 +90,18 @@ You can also do it manually with this GET parameter:
 </pre>
 
 <p>
-This is <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98">set on the session</a>, so it will persist for as long as the user
-is logged in. See <a href="#orgb92089b">this</a> for more info on sessions.
+This is <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98">set on the session</a> so it will persist as long as the user is
+logged in. See <a href="#org4c67d5d">this</a> for more info on sessions.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgbb29292" class="outline-2">
-<h2 id="orgbb29292"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
+<div id="outline-container-orgd7e3510" class="outline-2">
+<h2 id="orgd7e3510"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Multi-website is implemented in a way that keeps module upgrades and
-migrations easy. If a bugfix in a view is merged it makes sure that
+migrations easy. If a bug fix in a view is merged it makes sure that
 this view change is applied to all websites. It also makes sure that
 we retain the ability for a user to create a brand new, unmodified
 website at all times (with e.g. an unmodified Contact Us page).
@@ -108,48 +112,49 @@ When naively duplicating views for each website you clutter the
 database with a lot of unnecessary records. In most cases Odoo will
 use a <a href="https://en.wikipedia.org/wiki/Copy-on-write">copy-on-write</a> mechanism. It defers duplicating views until
 necessary. Views are created without a <code>website_id</code> and rendered as
-usual. When a user modifies it a website specific copy is created with
-the appropriate <code>website_id</code> and the same <code>key</code>. This only happens for
-writes that happen via the frontend (not in /web). With this mechanism
-bugfixes to non-edited views are applied as usual and newly created
-websites will contain all the necessary views.
+usual. When a user modifies a view a website specific copy is created
+with the appropriate <code>website_id</code> and the same <code>key</code>. This only
+happens for writes that happen via the frontend (not in /web). With
+this mechanism bug fixes to non-edited views are applied as usual and
+newly created websites will contain all the necessary views. Also this
+way we keep the original views without a <code>website_id</code> which can be
+used for new websites. The <code>key</code> field mentioned above is used instead
+of the XML ID, since multiple records with the same XML ID are not
+allowed.
 </p>
 
 <p>
-From a technical POV this is mostly implemented in the <code>write</code> of
-<code>ir.ui.view</code> in the website module, note that it will also handle:
+From a technical POV this is mostly implemented in <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_ui_view.py#L34">the write of
+ir.ui.view in the website module</a>, note that it will also handle:
 </p>
 
 <ul class="org-ul">
 <li>creating website-specific inherited views if they exist,</li>
-<li>creating website-specific inactive views (used for <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/views/website_templates.xml#L299">customize_show
-views</a>),</li>
+<li>creating website-specific inactive views (used for <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/views/website_templates.xml#L299">customize_show_views</a>),</li>
 <li>creating website-specific pages for these views,</li>
 </ul>
 
 <p>
-Also this way new websites contain default views.
-</p>
-
-<p>
-This means that it's possible there are multiple views with the same
-XML ID. Since this isn't possible we instead use the <code>key</code> field as
-identifiers for the views.
+On top of this there is a mechanism that duplicates writes during
+module updates. It's implemented in <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126">_load_records_write()</a>. During a
+module upgrade it will duplicate view writes to website-specific
+views. This only happens when the field on the website-specific view
+was not edited. This means that fixes can be applied to COWed views,
+but only in the rare case where the field value being updated does not
+differ from the original value. For example: if a view was COWed
+because <code>arch_db</code> was updated then no bug fixes to <code>arch_db</code> will be
+copied over but bug fixes to access rights still will.
 </p>
 
 <p>
 For unlinking a Copy-on-unlink <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161">is implemented</a>. Website-specific copies
 are created when a generic view is deleted from the frontend.
 </p>
+</div>
 
-<p>
-On top of this there is a mechanism that duplicates writes during
-module updates. It's implemented in <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126">_load_records_write()</a>. During a
-module upgrade it will duplicate writes on views to website-specific
-views. This only happens when the field on on the website-specific
-view was not edited.
-</p>
-
+<div id="outline-container-orgd38d4a9" class="outline-3">
+<h3 id="orgd38d4a9"><span class="section-number-3">2.1</span> Rendering</h3>
+<div class="outline-text-3" id="text-2-1">
 <p>
 When views are rendered <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205">filter_duplicate()</a> ensures that for each <code>key</code>
 a website specific view is preferred over a generic one if it
@@ -165,7 +170,7 @@ exists. Here's an example:
 <p>
 The label in each node corresponds to the <code>key</code> of the view. If a
 <code>website_id</code> is configured it's shown between square brackets. The
-arrow defines <code>inherit_id</code>, child views will point to their parents.
+arrow defines <code>inherit_id</code>, so child views point to their parents.
 </p>
 
 <p>
@@ -191,26 +196,27 @@ A render of website 2 will consist of:
 </ul>
 </div>
 </div>
+</div>
 
-<div id="outline-container-org4d3dc9a" class="outline-2">
-<h2 id="org4d3dc9a"><span class="section-number-2">3</span> Mixins</h2>
+<div id="outline-container-org1e85868" class="outline-2">
+<h2 id="org1e85868"><span class="section-number-2">3</span> Mixins</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Multiple mixins are available to publish models on the website:
 </p>
 </div>
 
-<div id="outline-container-org611e248" class="outline-3">
-<h3 id="org611e248"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
+<div id="outline-container-org1b60eba" class="outline-3">
+<h3 id="org1b60eba"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
-This inherits both <code>website.published.mixin</code> and <code>website.multi.mixin</code>
+<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L966">This</a> inherits both <code>website.published.mixin</code> and <code>website.multi.mixin</code>
 and is probably what you want to use in most cases. It allows records
 in a model to be published on all or one website. When rendering a
 QWeb view on the website make sure to wrap it in <code>website.layout</code> and
 set <code>main_object</code> in the rendering context. It should be the main
 record you're rendering, the website module will use this record to
-make the publish/unpublish work:
+make the publish/unpublish feature work:
 </p>
 
 
@@ -222,7 +228,7 @@ make the publish/unpublish work:
 <p>
 Unfortunately you need to manually check in your controllers whether
 or not the record is accessible from the current website. This mixin
-provides <code>can_access_from_current_website()</code> for that:
+provides <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922">can_access_from_current_website()</a> for that:
 </p>
 
 <pre class="example">
@@ -234,27 +240,25 @@ if not record.can_access_from_current_website():
 </div>
 </div>
 
-<div id="outline-container-orgcb37d58" class="outline-3">
-<h3 id="orgcb37d58"><span class="section-number-3">3.2</span> website.published.mixin</h3>
+<div id="outline-container-org351296c" class="outline-3">
+<h3 id="org351296c"><span class="section-number-3">3.2</span> website.published.mixin</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-This makes it possible to publish/unpublish your model through
-<code>website_publish_button()</code>. It only supports publishing your record on
+<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L931">This</a> makes it possible to publish/unpublish your model through
+<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L946">website_publish_button()</a>. It only supports publishing your record on
 all websites. Records using this will also be publishable from the
 website via the toggle.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org77ae687" class="outline-3">
-<h3 id="org77ae687"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
+<div id="outline-container-orgc1c2bf4" class="outline-3">
+<h3 id="orgc1c2bf4"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 In practice this only provides a <code>website_id</code> field and the
-<code>can_access_from_current_website</code> function.  Use this if you want to
-restrict the visibility of records in a model to one specific website,
-but you want to handle this manually via
-<code>can_access_from_current_website()</code> in a controller manually and you
+<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922">can_access_from_current_website()</a> function. Use this if you want to
+restrict the visibility of records to one specific website, but you
 don't want users to be able to publish/unpublish these records
 themselves via the frontend.
 </p>
@@ -262,22 +266,23 @@ themselves via the frontend.
 </div>
 </div>
 
-<div id="outline-container-org3de56c6" class="outline-2">
-<h2 id="org3de56c6"><span class="section-number-2">4</span> Themes</h2>
+<div id="outline-container-orgb5ba7e4" class="outline-2">
+<h2 id="orgb5ba7e4"><span class="section-number-2">4</span> Themes</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-Themes are complex, they have both upstream and downstream
-dependencies. An upstream dependency is a module the theme directly or
-indirectly depends on. E.g. <code>theme_common</code>, <code>theme_loftspace</code> and
-<code>theme_beauty</code> for <code>theme_beauty_sale</code>. Downstream dependencies are
-modules that depend on it. It's also worth noting that themes can
-depend on other themes, as shown above. Themes can activate optional
-features on the website by activating <code>website_sale</code> views
-(e.g. <code>website_sale.categories</code> to activate eCommerce
-categories). Themes also have their own <code>ir.attachment</code> records which
-contain default images and themes that depend on them can modify
-them. Lastly, themes are often auto-installed (e.g. <code>theme_*_sale</code>
-modules when <code>website_sale</code> is installed).
+Themes are regular Odoo modules but they are more complex than you
+might expect. They have both upstream and downstream dependencies. An
+upstream dependency is a module the theme directly or indirectly
+depends on. E.g. <code>theme_common</code>, <code>theme_loftspace</code> and <code>theme_beauty</code>
+for <code>theme_beauty_sale</code>. Downstream dependencies are modules that
+depend on it. As you may have noticed above: themes can depend on
+other themes. Themes can activate optional features on the website by
+activating <code>website_sale</code> views (e.g. <code>website_sale.categories</code> to
+activate eCommerce categories). Themes also have their own
+<code>ir.attachment</code> records which contain default images and other themes
+that depend on them can modify them. Lastly, themes are often
+auto-installed (e.g. <code>theme_*_sale</code> modules when <code>website_sale</code> is
+installed).
 </p>
 
 <p>
@@ -288,9 +293,9 @@ it would break website B.
 </p>
 
 <p>
-Because of this themes are handled in a special way. Relying on only
-COW is too complex so instead data related to themes is stored in
-template models:
+Because of all this complexity themes are handled in a special
+way. Relying on only COW is too complex so instead data related to
+themes is stored in <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website_theme_install/models/theme_models.py">template models</a>:
 </p>
 
 <ul class="org-ul">
@@ -309,23 +314,24 @@ to the theme.
 
 <p>
 You can upgrade a theme on all websites with <code>odoo-bin -u</code> or upgrade
-a theme on only one website via the backend, by going to the
-appropriate url.
+a theme on only one website via the backend by going to the
+website's URL.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgb92089b" class="outline-2">
-<h2 id="orgb92089b"><span class="section-number-2">5</span> Sessions</h2>
+<div id="outline-container-org4c67d5d" class="outline-2">
+<h2 id="org4c67d5d"><span class="section-number-2">5</span> Sessions</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Sessions are based on <a href="https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/">Werkzeug sessions</a>. When a user visits Odoo a
 session cookie is created and stored in their browser. It's a unique
 ID that links every requests that browser makes to a session in
-Odoo. The session is persistent and is written to disk (by default
-<code>~/.local/share/Odoo/sessions/</code>). This contains data that needs to
-persist (e.g. whether or not the user is logged in). The session files
-are pickled, if you want to inspect them use:
+Odoo. On the server side the session is persistent and is written to
+disk (by default <code>~/.local/share/Odoo/sessions/</code>). It contains data
+different data that needs to persist (e.g. whether or not the user is
+logged in). The session files are pickled, if you want to inspect them
+you can use:
 </p>
 
 <pre class="example">
@@ -341,8 +347,8 @@ you need to login again.
 </div>
 </div>
 
-<div id="outline-container-org39f96e2" class="outline-2">
-<h2 id="org39f96e2"><span class="section-number-2">6</span> Assets</h2>
+<div id="outline-container-org137ac0d" class="outline-2">
+<h2 id="org137ac0d"><span class="section-number-2">6</span> Assets</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 JS and SCSS assets in Odoo are compiled, minimized and combined into
@@ -350,7 +356,7 @@ asset bundles. In the case of SCSS it's a necessary step; it needs to
 be compiled to CSS for the browser to understand. But this is not the
 only reason, reducing the number of files the browser needs to load
 also reduces the amount of HTTP requests. On top of that the
-minimization reduces the filesize which speeds up each HTTP
+minimization reduces the file size which speeds up each HTTP
 request. To skip the minimization and bundling you can use
 <code>?debug=assets</code>. It's useful when working on the frontend and also
 demonstrates how much faster the asset bundling process makes Odoo.
@@ -369,7 +375,7 @@ ORDER BY id;
 </pre>
 
 <p>
-New bundles are defined in templates as regular QWEB templates and
+New bundles are defined in templates as regular QWeb templates and
 called in the appropriate locations as follows:
 </p>
 
@@ -378,15 +384,15 @@ called in the appropriate locations as follows:
 </pre>
 
 <p>
-This leads to <code>_get_asset_nodes</code> being called which eventually calls
-<code>get_asset_bundle</code>. This creates objects that inherit from
-<code>AssetsBundle</code> (like <code>JavascriptAsset</code> and <code>StylesheetAsset</code>). The
-unique key of the asset is computed in the <code>checksum</code> property and is
-a hash of:
+This leads to <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L304">_get_asset_nodes()</a> being called which eventually calls
+<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L285">get_asset_bundle()</a>. This creates objects that inherit from
+<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L86">AssetsBundle</a> (like <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L688">JavascriptAsset</a> and <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L711">StylesheetAsset</a>). The unique
+key of the asset is computed in the <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L193">checksum</a> property and is a hash
+of:
 </p>
 
 <ul class="org-ul">
-<li>the metadata of the files (filename, type, url, &#x2026;) it contains, and</li>
+<li>the metadata (filename, type, url, &#x2026;) of the files it contains, and</li>
 <li>the last time a file in the asset bundle was modified</li>
 </ul>
 
@@ -400,10 +406,10 @@ or new files are added. This checksum is saved in the URL of the
 <code>/web/content/1002-0d0afe0/web.assets_common.js</code>
 </p>
 
-<dl class="org-dl">
-<dt><code>1002</code></dt><dd>the <code>ir.attachment</code> ID</dd>
-<dt><code>0d0afe0</code></dt><dd>the first 7 characters of the <code>checksum</code></dd>
-</dl>
+<ul class="org-ul">
+<li><code>1002</code>: the <code>ir.attachment</code> ID</li>
+<li><code>0d0afe0</code>: the first 7 characters of the <code>checksum</code></li>
+</ul>
 
 <p>
 This leads to issues with &gt;1 website, because every website will have
@@ -415,9 +421,9 @@ its own assets. To avoid the assets constantly recompiling the
 <code>/web/content/1012-0d0afe0/2/web.assets_common.0.js</code>
 </p>
 
-<dl class="org-dl">
-<dt><code>2</code></dt><dd>the website ID</dd>
-</dl>
+<ul class="org-ul">
+<li><code>2</code>: the website ID</li>
+</ul>
 
 <p>
 This allows Odoo to maintain separate compiled asset bundles per

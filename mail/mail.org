@@ -1,4 +1,5 @@
 #+TITLE: Mail
+#+DATE: <2019-10-22 Tue>
 #+EXPORT_FILE_NAME: index.html
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
 #+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>

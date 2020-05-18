@@ -46,12 +46,12 @@ You can also do it manually with this GET parameter:
 ?fw=2
 #+END_EXAMPLE
 
-This is [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98][set on the session]], so it will persist for as long as the user
-is logged in. See [[*Sessions][this]] for more info on sessions.
+This is [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98][set on the session]] so it will persist as long as the user is
+logged in. See [[*Sessions][this]] for more info on sessions.
 
 * Copy-on-write (COW)
 Multi-website is implemented in a way that keeps module upgrades and
-migrations easy. If a bugfix in a view is merged it makes sure that
+migrations easy. If a bug fix in a view is merged it makes sure that
 this view change is applied to all websites. It also makes sure that
 we retain the ability for a user to create a brand new, unmodified
 website at all times (with e.g. an unmodified Contact Us page).
@@ -60,35 +60,37 @@ When naively duplicating views for each website you clutter the
 database with a lot of unnecessary records. In most cases Odoo will
 use a [[https://en.wikipedia.org/wiki/Copy-on-write][copy-on-write]] mechanism. It defers duplicating views until
 necessary. Views are created without a =website_id= and rendered as
-usual. When a user modifies it a website specific copy is created with
-the appropriate =website_id= and the same =key=. This only happens for
-writes that happen via the frontend (not in /web). With this mechanism
-bugfixes to non-edited views are applied as usual and newly created
-websites will contain all the necessary views.
+usual. When a user modifies a view a website specific copy is created
+with the appropriate =website_id= and the same =key=. This only
+happens for writes that happen via the frontend (not in /web). With
+this mechanism bug fixes to non-edited views are applied as usual and
+newly created websites will contain all the necessary views. Also this
+way we keep the original views without a =website_id= which can be
+used for new websites. The =key= field mentioned above is used instead
+of the XML ID, since multiple records with the same XML ID are not
+allowed.
 
-From a technical POV this is mostly implemented in the =write= of
-=ir.ui.view= in the website module, note that it will also handle:
+From a technical POV this is mostly implemented in [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_ui_view.py#L34][the write of
+ir.ui.view in the website module]], note that it will also handle:
 
 - creating website-specific inherited views if they exist,
-- creating website-specific inactive views (used for [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/views/website_templates.xml#L299][customize_show
-  views]]),
+- creating website-specific inactive views (used for [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/views/website_templates.xml#L299][customize_show_views]]),
 - creating website-specific pages for these views,
 
-Also this way new websites contain default views.
-
-This means that it's possible there are multiple views with the same
-XML ID. Since this isn't possible we instead use the =key= field as
-identifiers for the views.
+On top of this there is a mechanism that duplicates writes during
+module updates. It's implemented in [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126][_load_records_write()]]. During a
+module upgrade it will duplicate view writes to website-specific
+views. This only happens when the field on the website-specific view
+was not edited. This means that fixes can be applied to COWed views,
+but only in the rare case where the field value being updated does not
+differ from the original value. For example: if a view was COWed
+because =arch_db= was updated then no bug fixes to =arch_db= will be
+copied over but bug fixes to access rights still will.
 
 For unlinking a Copy-on-unlink [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161][is implemented]]. Website-specific copies
 are created when a generic view is deleted from the frontend.
 
-On top of this there is a mechanism that duplicates writes during
-module updates. It's implemented in [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126][_load_records_write()]]. During a
-module upgrade it will duplicate writes on views to website-specific
-views. This only happens when the field on on the website-specific
-view was not edited.
-
+** Rendering
 When views are rendered [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205][filter_duplicate()]] ensures that for each =key=
 a website specific view is preferred over a generic one if it
 exists. Here's an example:
@@ -97,7 +99,7 @@ exists. Here's an example:
 
 The label in each node corresponds to the =key= of the view. If a
 =website_id= is configured it's shown between square brackets. The
-arrow defines =inherit_id=, child views will point to their parents.
+arrow defines =inherit_id=, so child views point to their parents.
 
 When website 1 is rendered it will consist of:
 
@@ -117,19 +119,19 @@ A render of website 2 will consist of:
 Multiple mixins are available to publish models on the website:
 
 ** website.published.multi.mixin
-This inherits both =website.published.mixin= and =website.multi.mixin=
+[[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L966][This]] inherits both =website.published.mixin= and =website.multi.mixin=
 and is probably what you want to use in most cases. It allows records
 in a model to be published on all or one website. When rendering a
 QWeb view on the website make sure to wrap it in =website.layout= and
 set =main_object= in the rendering context. It should be the main
 record you're rendering, the website module will use this record to
-make the publish/unpublish work:
+make the publish/unpublish feature work:
 
 [[/notes/multi_website/published_unpublished.png]]
 
 Unfortunately you need to manually check in your controllers whether
 or not the record is accessible from the current website. This mixin
-provides =can_access_from_current_website()= for that:
+provides [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922][can_access_from_current_website()]] for that:
 
 #+BEGIN_EXAMPLE
 from werkzeug.exceptions import NotFound
@@ -139,42 +141,41 @@ if not record.can_access_from_current_website():
 #+END_EXAMPLE
 
 ** website.published.mixin
-This makes it possible to publish/unpublish your model through
-=website_publish_button()=. It only supports publishing your record on
+[[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L931][This]] makes it possible to publish/unpublish your model through
+[[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L946][website_publish_button()]]. It only supports publishing your record on
 all websites. Records using this will also be publishable from the
 website via the toggle.
 
 ** website.multi.mixin
 In practice this only provides a =website_id= field and the
-=can_access_from_current_website= function.  Use this if you want to
-restrict the visibility of records in a model to one specific website,
-but you want to handle this manually via
-=can_access_from_current_website()= in a controller manually and you
+[[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922][can_access_from_current_website()]] function. Use this if you want to
+restrict the visibility of records to one specific website, but you
 don't want users to be able to publish/unpublish these records
 themselves via the frontend.
 
 * Themes
-Themes are complex, they have both upstream and downstream
-dependencies. An upstream dependency is a module the theme directly or
-indirectly depends on. E.g. =theme_common=, =theme_loftspace= and
-=theme_beauty= for =theme_beauty_sale=. Downstream dependencies are
-modules that depend on it. It's also worth noting that themes can
-depend on other themes, as shown above. Themes can activate optional
-features on the website by activating =website_sale= views
-(e.g. =website_sale.categories= to activate eCommerce
-categories). Themes also have their own =ir.attachment= records which
-contain default images and themes that depend on them can modify
-them. Lastly, themes are often auto-installed (e.g. =theme_*_sale=
-modules when =website_sale= is installed).
+Themes are regular Odoo modules but they are more complex than you
+might expect. They have both upstream and downstream dependencies. An
+upstream dependency is a module the theme directly or indirectly
+depends on. E.g. =theme_common=, =theme_loftspace= and =theme_beauty=
+for =theme_beauty_sale=. Downstream dependencies are modules that
+depend on it. As you may have noticed above: themes can depend on
+other themes. Themes can activate optional features on the website by
+activating =website_sale= views (e.g. =website_sale.categories= to
+activate eCommerce categories). Themes also have their own
+=ir.attachment= records which contain default images and other themes
+that depend on them can modify them. Lastly, themes are often
+auto-installed (e.g. =theme_*_sale= modules when =website_sale= is
+installed).
 
 It leads to complex scenarios. Imagine theme B depends on theme A. The
 user has installed theme A on website A and theme B on website B. If
 theme A is uninstalled on website A it cannot be fully removed because
 it would break website B.
 
-Because of this themes are handled in a special way. Relying on only
-COW is too complex so instead data related to themes is stored in
-template models:
+Because of all this complexity themes are handled in a special
+way. Relying on only COW is too complex so instead data related to
+themes is stored in [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website_theme_install/models/theme_models.py][template models]]:
 
 - =theme.ir.ui.view=
 - =theme.ir.attachment=
@@ -187,17 +188,18 @@ will have a =website_id= and a =theme_template_id= to link them back
 to the theme.
 
 You can upgrade a theme on all websites with =odoo-bin -u= or upgrade
-a theme on only one website via the backend, by going to the
-appropriate url.
+a theme on only one website via the backend by going to the
+website's URL.
 
 * Sessions
 Sessions are based on [[https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/][Werkzeug sessions]]. When a user visits Odoo a
 session cookie is created and stored in their browser. It's a unique
 ID that links every requests that browser makes to a session in
-Odoo. The session is persistent and is written to disk (by default
-=~/.local/share/Odoo/sessions/=). This contains data that needs to
-persist (e.g. whether or not the user is logged in). The session files
-are pickled, if you want to inspect them use:
+Odoo. On the server side the session is persistent and is written to
+disk (by default =~/.local/share/Odoo/sessions/=). It contains data
+different data that needs to persist (e.g. whether or not the user is
+logged in). The session files are pickled, if you want to inspect them
+you can use:
 
 #+BEGIN_EXAMPLE
 $ python3 -m pickle ~/.local/share/Odoo/sessions/werkzeug_861d25cb*.sess
@@ -214,7 +216,7 @@ asset bundles. In the case of SCSS it's a necessary step; it needs to
 be compiled to CSS for the browser to understand. But this is not the
 only reason, reducing the number of files the browser needs to load
 also reduces the amount of HTTP requests. On top of that the
-minimization reduces the filesize which speeds up each HTTP
+minimization reduces the file size which speeds up each HTTP
 request. To skip the minimization and bundling you can use
 =?debug=assets=. It's useful when working on the frontend and also
 demonstrates how much faster the asset bundling process makes Odoo.
@@ -229,20 +231,20 @@ WHERE name LIKE '/web/content%'
 ORDER BY id;
 #+END_EXAMPLE
 
-New bundles are defined in templates as regular QWEB templates and
+New bundles are defined in templates as regular QWeb templates and
 called in the appropriate locations as follows:
 
 #+BEGIN_EXAMPLE
 <t t-call-assets="web.assets_common"...
 #+END_EXAMPLE
 
-This leads to =_get_asset_nodes= being called which eventually calls
-=get_asset_bundle=. This creates objects that inherit from
-=AssetsBundle= (like =JavascriptAsset= and =StylesheetAsset=). The
-unique key of the asset is computed in the =checksum= property and is
-a hash of:
+This leads to [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L304][_get_asset_nodes()]] being called which eventually calls
+[[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L285][get_asset_bundle()]]. This creates objects that inherit from
+[[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L86][AssetsBundle]] (like [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L688][JavascriptAsset]] and [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L711][StylesheetAsset]]). The unique
+key of the asset is computed in the [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L193][checksum]] property and is a hash
+of:
 
-- the metadata of the files (filename, type, url, ...) it contains, and
+- the metadata (filename, type, url, ...) of the files it contains, and
 - the last time a file in the asset bundle was modified
 
 This causes recompilation of an asset bundle when a file in it changes
@@ -251,8 +253,8 @@ or new files are added. This checksum is saved in the URL of the
 
 =/web/content/1002-0d0afe0/web.assets_common.js=
 
-- =1002= :: the =ir.attachment= ID
-- =0d0afe0= :: the first 7 characters of the =checksum=
+- =1002=: the =ir.attachment= ID
+- =0d0afe0=: the first 7 characters of the =checksum=
 
 This leads to issues with >1 website, because every website will have
 its own assets. To avoid the assets constantly recompiling the
@@ -260,7 +262,7 @@ its own assets. To avoid the assets constantly recompiling the
 
 =/web/content/1012-0d0afe0/2/web.assets_common.0.js=
 
-- =2= :: the website ID
+- =2=: the website ID
 
 This allows Odoo to maintain separate compiled asset bundles per
 website.
