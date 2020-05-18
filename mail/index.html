@@ -81,23 +81,23 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgb60021c">1. GMail has become slow</a></li>
-<li><a href="#org5355d65">2. Have you accepted GNU Emacs as your lord and savior?</a></li>
-<li><a href="#org6d1f452">3. Approach</a>
+<li><a href="#org21a6fb1">1. GMail has become slow</a></li>
+<li><a href="#org090dfe2">2. Have you accepted GNU Emacs as your lord and savior?</a></li>
+<li><a href="#org6cc6b7c">3. Approach</a>
 <ul>
-<li><a href="#org671c9d5">3.1. OfflineIMAP</a></li>
-<li><a href="#orgfbfe8b6">3.2. Indexing</a></li>
-<li><a href="#org6321cca">3.3. Tagging</a></li>
-<li><a href="#org79162b9">3.4. Avoiding the huge INBOX of death</a></li>
+<li><a href="#orgf30f94e">3.1. OfflineIMAP</a></li>
+<li><a href="#orgf77cea9">3.2. Indexing</a></li>
+<li><a href="#orgcb0ef7f">3.3. Tagging</a></li>
+<li><a href="#org61651cc">3.4. Avoiding the huge INBOX of death</a></li>
 </ul>
 </li>
-<li><a href="#org2bb213f">4. Putting it all together</a></li>
-<li><a href="#orgfd3cab5">5. GNU Emacs</a></li>
+<li><a href="#org4e421c8">4. Putting it all together</a></li>
+<li><a href="#org57c4838">5. GNU Emacs</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-orgb60021c" class="outline-2">
-<h2 id="orgb60021c"><span class="section-number-2">1</span> GMail has become slow</h2>
+<div id="outline-container-org21a6fb1" class="outline-2">
+<h2 id="org21a6fb1"><span class="section-number-2">1</span> GMail has become slow</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The <a href="https://www.theverge.com/2018/4/25/17277360/gmail-redesign-live-features-google-update">GMail redesign was a while ago</a>. I don't care much about the visual
@@ -125,8 +125,8 @@ The rest of this page describes my personal email setup.
 </div>
 </div>
 
-<div id="outline-container-org5355d65" class="outline-2">
-<h2 id="org5355d65"><span class="section-number-2">2</span> Have you accepted GNU Emacs as your lord and savior?</h2>
+<div id="outline-container-org090dfe2" class="outline-2">
+<h2 id="org090dfe2"><span class="section-number-2">2</span> Have you accepted GNU Emacs as your lord and savior?</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 I have and therefore decided on using <a href="https://notmuchmail.org/">Notmuch</a><sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. It has an
@@ -138,12 +138,12 @@ most popular choice for this is probably <a href="https://www.offlineimap.org/">
 </div>
 </div>
 
-<div id="outline-container-org6d1f452" class="outline-2">
-<h2 id="org6d1f452"><span class="section-number-2">3</span> Approach</h2>
+<div id="outline-container-org6cc6b7c" class="outline-2">
+<h2 id="org6cc6b7c"><span class="section-number-2">3</span> Approach</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org671c9d5" class="outline-3">
-<h3 id="org671c9d5"><span class="section-number-3">3.1</span> OfflineIMAP</h3>
+<div id="outline-container-orgf30f94e" class="outline-3">
+<h3 id="orgf30f94e"><span class="section-number-3">3.1</span> OfflineIMAP</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 OfflineIMAP will synchronize mail between GMail and a local
@@ -178,8 +178,8 @@ in my <code>~/.gnupg</code> file.
 </div>
 </div>
 
-<div id="outline-container-orgfbfe8b6" class="outline-3">
-<h3 id="orgfbfe8b6"><span class="section-number-3">3.2</span> Indexing</h3>
+<div id="outline-container-orgf77cea9" class="outline-3">
+<h3 id="orgf77cea9"><span class="section-number-3">3.2</span> Indexing</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 Now that OfflineIMAP has downloaded a copy of my mail into a local
@@ -193,8 +193,8 @@ $ notmuch new
 </div>
 </div>
 
-<div id="outline-container-org6321cca" class="outline-3">
-<h3 id="org6321cca"><span class="section-number-3">3.3</span> Tagging</h3>
+<div id="outline-container-orgcb0ef7f" class="outline-3">
+<h3 id="orgcb0ef7f"><span class="section-number-3">3.3</span> Tagging</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 In Notmuch email is organized by tags. We can tell Notmuch to tag all
@@ -220,8 +220,8 @@ the GMail webclient it will sync locally as well. Hence the
 </div>
 </div>
 
-<div id="outline-container-org79162b9" class="outline-3">
-<h3 id="org79162b9"><span class="section-number-3">3.4</span> Avoiding the huge INBOX of death</h3>
+<div id="outline-container-org61651cc" class="outline-3">
+<h3 id="org61651cc"><span class="section-number-3">3.4</span> Avoiding the huge INBOX of death</h3>
 <div class="outline-text-3" id="text-3-4">
 <p>
 Notmuch does not modify your local mail<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>. You may be removing
@@ -244,8 +244,8 @@ maildir folder</li>
 </div>
 </div>
 
-<div id="outline-container-org2bb213f" class="outline-2">
-<h2 id="org2bb213f"><span class="section-number-2">4</span> Putting it all together</h2>
+<div id="outline-container-org4e421c8" class="outline-2">
+<h2 id="org4e421c8"><span class="section-number-2">4</span> Putting it all together</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 I implement the previous concepts in a Bash script. Whenever I want to
@@ -293,8 +293,8 @@ revision number. By storing the revision number before running
 </div>
 </div>
 
-<div id="outline-container-orgfd3cab5" class="outline-2">
-<h2 id="orgfd3cab5"><span class="section-number-2">5</span> GNU Emacs</h2>
+<div id="outline-container-org57c4838" class="outline-2">
+<h2 id="org57c4838"><span class="section-number-2">5</span> GNU Emacs</h2>
 <div class="outline-text-2" id="text-5">
 <script src="https://gist.github.com/jorenvo/b7e1f8907dae1a8e8e37d5a4dbfe1e89.js"></script>
 
