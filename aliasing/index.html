@@ -19,10 +19,10 @@
 <div class="top">
   <a href="/notes/">notes</a> / aliasing
   <div class="right">
-      github:&nbsp;<a href="https://github.com/jorenvo">jorenvo</a> |
-      email:&nbsp;<a href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
+      github:&nbsp;<a target="_blank" href="https://github.com/jorenvo">jorenvo</a> |
+      email:&nbsp;<a target="_blank" href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
       PGP:&nbsp;<a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
-      keybase:&nbsp;<a href="https://keybase.io/jvo">jvo</a>
+      keybase:&nbsp;<a target="_blank" href="https://keybase.io/jvo">jvo</a>
   </div>
   <div class="right"><i>Published on March 21 2019</i></div>
 </div>
@@ -34,21 +34,21 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org2a40e38">1. Introduction</a></li>
-<li><a href="#org7977f38">2. Different sampling methods</a></li>
-<li><a href="#org6e57626">3. Aliasing artifacts</a></li>
-<li><a href="#orgba7dff5">4. Analysis</a>
+<li><a href="#orgca1d11e">1. Introduction</a></li>
+<li><a href="#orgbff3afb">2. Different sampling methods</a></li>
+<li><a href="#orgc65de7f">3. Aliasing artifacts</a></li>
+<li><a href="#org412f067">4. Analysis</a>
 <ul>
-<li><a href="#org752dc12">4.1. Uniform</a></li>
-<li><a href="#org240923a">4.2. Jittered</a></li>
+<li><a href="#org1ff8afe">4.1. Uniform</a></li>
+<li><a href="#org9b27901">4.2. Jittered</a></li>
 </ul>
 </li>
-<li><a href="#orgdf7b021">5. Conclusion</a></li>
+<li><a href="#org0c2e447">5. Conclusion</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org2a40e38" class="outline-2">
-<h2 id="org2a40e38"><span class="section-number-2">1</span> Introduction</h2>
+<div id="outline-container-orgca1d11e" class="outline-2">
+<h2 id="orgca1d11e"><span class="section-number-2">1</span> Introduction</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Imagine the following scene:
@@ -73,8 +73,8 @@ Reducing the size of each circle to 1px gives a predictable result. The resultin
 </figure>
 </div>
 </div>
-<div id="outline-container-org7977f38" class="outline-2">
-<h2 id="org7977f38"><span class="section-number-2">2</span> Different sampling methods</h2>
+<div id="outline-container-orgbff3afb" class="outline-2">
+<h2 id="orgbff3afb"><span class="section-number-2">2</span> Different sampling methods</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Depending on the sampling method used the lines may not have a uniform color. The same scene rendered with jittered sampling results in:
@@ -92,15 +92,15 @@ The end result however is still an image with vertical lines containing either s
 </p>
 </div>
 </div>
-<div id="outline-container-org6e57626" class="outline-2">
-<h2 id="org6e57626"><span class="section-number-2">3</span> Aliasing artifacts</h2>
+<div id="outline-container-orgc65de7f" class="outline-2">
+<h2 id="orgc65de7f"><span class="section-number-2">3</span> Aliasing artifacts</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 When the size of the circles varies slightly from the sampling frequency, aliasing artifacts occur. E.g. sampling 1.05px circles uniformly (1 sample/px):
 </p>
 
 
-<figure id="orged28bd0">
+<figure id="org7c4f276">
 <img src="/notes/revisioned/aliasing/uniform_spheres_1_05px-777279d15d.png" alt="uniform_spheres_1_05px.png">
 
 <figcaption><span class="figure-number">Figure 4: </span>Aliasing artifacts with circles with a 1.05px diameter, rendered with uniform sampling (1 sample/px)</figcaption>
@@ -115,19 +115,19 @@ Jittered sampling is quite effective at eliminating most forms of aliasing. Alth
 </p>
 
 
-<figure id="org5ed4cd5">
+<figure id="org06549c2">
 <img src="/notes/revisioned/aliasing/jittered_spheres_1_05px-8e01b9a8b7.png" alt="jittered_spheres_1_05px.png">
 
 <figcaption><span class="figure-number">Figure 5: </span>Aliasing artifacts with circles with a 1.05px diameter, rendered with jittered sampling (16 samples/px)</figcaption>
 </figure>
 </div>
 </div>
-<div id="outline-container-orgba7dff5" class="outline-2">
-<h2 id="orgba7dff5"><span class="section-number-2">4</span> Analysis</h2>
+<div id="outline-container-org412f067" class="outline-2">
+<h2 id="org412f067"><span class="section-number-2">4</span> Analysis</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-org752dc12" class="outline-3">
-<h3 id="org752dc12"><span class="section-number-3">4.1</span> Uniform</h3>
+<div id="outline-container-org1ff8afe" class="outline-3">
+<h3 id="org1ff8afe"><span class="section-number-3">4.1</span> Uniform</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 When sampling circles of 1px the sampling occurs in in lockstep:
@@ -150,19 +150,19 @@ When the circle is slightly larger than the pixel size (1.05px) the sampling no 
 </p>
 
 
-<figure id="org37c4e30">
+<figure id="org4acd768">
 <img src="/notes/revisioned/aliasing/uniform_samples_larger_spheres-4d8ebdfcac.png" alt="uniform_samples_larger_spheres.png">
 
 <figcaption><span class="figure-number">Figure 7: </span>Non-lockstep uniform sampling (1 sample/px), sample points are given in blue</figcaption>
 </figure>
 
 <p>
-With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure <a href="#orged28bd0">4</a>. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure <a href="#org37c4e30">7</a> happens in the bottom right pixels.
+With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure <a href="#org7c4f276">4</a>. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure <a href="#org4acd768">7</a> happens in the bottom right pixels.
 </p>
 </div>
 </div>
-<div id="outline-container-org240923a" class="outline-3">
-<h3 id="org240923a"><span class="section-number-3">4.2</span> Jittered</h3>
+<div id="outline-container-org9b27901" class="outline-3">
+<h3 id="org9b27901"><span class="section-number-3">4.2</span> Jittered</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 The core issue with this pattern is that every sampled <i>pixel</i> will contain a varying amount of red and green. From left to right the pixels will contain:
@@ -178,7 +178,7 @@ The core issue with this pattern is that every sampled <i>pixel</i> will contain
 </ol>
 
 <p>
-The jittered sampling in Figure <a href="#org5ed4cd5">5</a> gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These <i>noisy bands</i> occur when the pixels are being sampled as described in steps 2, 3 and 4.
+The jittered sampling in Figure <a href="#org06549c2">5</a> gets rid of the symmetric black spots but still has some aliasing artifacts. There are multiple vertical bands of noise. These <i>noisy bands</i> occur when the pixels are being sampled as described in steps 2, 3 and 4.
 </p>
 
 <p>
@@ -198,8 +198,8 @@ The core issue remains the same, namely that going left to right pixels contain 
 </div>
 </div>
 </div>
-<div id="outline-container-orgdf7b021" class="outline-2">
-<h2 id="orgdf7b021"><span class="section-number-2">5</span> Conclusion</h2>
+<div id="outline-container-org0c2e447" class="outline-2">
+<h2 id="org0c2e447"><span class="section-number-2">5</span> Conclusion</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Avoiding these vertical noise bands is not straight-forward. An ideal solution would necessarily have to result in uniform noise. There is simply not enough available resolution to do better. Therefore it is best to avoid this situation all together by either:
@@ -232,14 +232,14 @@ The same bands appear, but because the square size decreases rapidly as the dist
 <div id="text-footnotes">
 
 <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
-By Portsmouth (Own work) [Public domain], <a href="https://commons.wikimedia.org/wiki/File:Reconstruction-Mitchell-Checkerboard.png">via Wikimedia Commons</a>
+By Portsmouth (Own work) [Public domain], <a target="_blank" href="https://commons.wikimedia.org/wiki/File:Reconstruction-Mitchell-Checkerboard.png">via Wikimedia Commons</a>
 </p></div></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="author">Author: Joren Van Onder</p>
+<p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="author">Author: Joren Van Onder</p>
 </div>
 </body>
 </html>

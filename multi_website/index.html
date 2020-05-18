@@ -19,10 +19,10 @@
 <div class="top">
   <a href="/notes/">notes</a> / multi website
   <div class="right">
-      github:&nbsp;<a href="https://github.com/jorenvo">jorenvo</a> |
-      email:&nbsp;<a href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
+      github:&nbsp;<a target="_blank" href="https://github.com/jorenvo">jorenvo</a> |
+      email:&nbsp;<a target="_blank" href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
       PGP:&nbsp;<a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
-      keybase:&nbsp;<a href="https://keybase.io/jvo">jvo</a>
+      keybase:&nbsp;<a target="_blank" href="https://keybase.io/jvo">jvo</a>
   </div>
   <div class="right"><i>Published on May 14 2020</i></div>
 </div>
@@ -34,22 +34,22 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org46e129a">1. Website selection</a></li>
-<li><a href="#org53cbc57">2. Copy-on-write (COW)</a>
+<li><a href="#orga08518f">1. Website selection</a></li>
+<li><a href="#org49dfde6">2. Copy-on-write (COW)</a>
 <ul>
-<li><a href="#org7b8087b">2.1. Rendering</a></li>
+<li><a href="#orgfb805f4">2.1. Rendering</a></li>
 </ul>
 </li>
-<li><a href="#org1864575">3. Mixins</a>
+<li><a href="#orgff84ed3">3. Mixins</a>
 <ul>
-<li><a href="#org1a3a6d4">3.1. website.published.multi.mixin</a></li>
-<li><a href="#org4faf3eb">3.2. website.published.mixin</a></li>
-<li><a href="#orgfa7416d">3.3. website.multi.mixin</a></li>
+<li><a href="#org7556579">3.1. website.published.multi.mixin</a></li>
+<li><a href="#org4e40fc6">3.2. website.published.mixin</a></li>
+<li><a href="#org01d8d69">3.3. website.multi.mixin</a></li>
 </ul>
 </li>
-<li><a href="#org36ac5c9">4. Themes</a></li>
-<li><a href="#org3215e90">5. Sessions</a></li>
-<li><a href="#orgbc634de">6. Assets</a></li>
+<li><a href="#org12fc41d">4. Themes</a></li>
+<li><a href="#orgd020df8">5. Sessions</a></li>
+<li><a href="#orgec9a9ca">6. Assets</a></li>
 </ul>
 </div>
 </nav>
@@ -60,11 +60,11 @@ focusing on v12 in this document, but everything should be applicable
 to v13 as well.
 </p>
 
-<div id="outline-container-org46e129a" class="outline-2">
-<h2 id="org46e129a"><span class="section-number-2">1</span> Website selection</h2>
+<div id="outline-container-orga08518f" class="outline-2">
+<h2 id="orga08518f"><span class="section-number-2">1</span> Website selection</h2>
 <div class="outline-text-2" id="text-1">
 <p>
-What website to render is determined by <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L479">get_current_website()</a>. It
+What website to render is determined by <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L479">get_current_website()</a>. It
 matches websites based on their domain name and possibly geoip. This
 is also the function that should be used when you want to determine
 the website you're on in Python.
@@ -90,14 +90,14 @@ You can also do it manually with this GET parameter:
 </pre>
 
 <p>
-This is <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98">set on the session</a> so it will persist as long as the user is
-logged in. See <a href="#org3215e90">this</a> for more info on sessions.
+This is <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98">set on the session</a> so it will persist as long as the user is
+logged in. See <a href="#orgd020df8">this</a> for more info on sessions.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org53cbc57" class="outline-2">
-<h2 id="org53cbc57"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
+<div id="outline-container-org49dfde6" class="outline-2">
+<h2 id="org49dfde6"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Multi-website is implemented in a way that keeps module upgrades and
@@ -110,7 +110,7 @@ website at all times (with e.g. an unmodified Contact Us page).
 <p>
 When naively duplicating views for each website you clutter the
 database with a lot of unnecessary records. In most cases Odoo will
-use a <a href="https://en.wikipedia.org/wiki/Copy-on-write">copy-on-write</a> mechanism. It defers duplicating views until
+use a <a target="_blank" href="https://en.wikipedia.org/wiki/Copy-on-write">copy-on-write</a> mechanism. It defers duplicating views until
 necessary. Views are created without a <code>website_id</code> and rendered as
 usual. When a user modifies a view a website specific copy is created
 with the appropriate <code>website_id</code> and the same <code>key</code>. This only
@@ -124,19 +124,19 @@ allowed.
 </p>
 
 <p>
-From a technical POV this is mostly implemented in <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_ui_view.py#L34">the write of
+From a technical POV this is mostly implemented in <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_ui_view.py#L34">the write of
 ir.ui.view in the website module</a>, note that it will also handle:
 </p>
 
 <ul class="org-ul">
 <li>creating website-specific inherited views if they exist,</li>
-<li>creating website-specific inactive views (used for <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/views/website_templates.xml#L299">customize_show_views</a>),</li>
+<li>creating website-specific inactive views (used for <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/views/website_templates.xml#L299">customize_show_views</a>),</li>
 <li>creating website-specific pages for these views,</li>
 </ul>
 
 <p>
 On top of this there is a mechanism that duplicates writes during
-module updates. It's implemented in <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126">_load_records_write()</a>. During a
+module updates. It's implemented in <a target="_blank" href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126">_load_records_write()</a>. During a
 module upgrade it will duplicate view writes to website-specific
 views. This only happens when the field on the website-specific view
 was not edited. This means that fixes can be applied to COWed views,
@@ -147,16 +147,16 @@ copied over but bug fixes to access rights still will.
 </p>
 
 <p>
-For unlinking a Copy-on-unlink <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161">is implemented</a>. Website-specific copies
+For unlinking a Copy-on-unlink <a target="_blank" href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161">is implemented</a>. Website-specific copies
 are created when a generic view is deleted from the frontend.
 </p>
 </div>
 
-<div id="outline-container-org7b8087b" class="outline-3">
-<h3 id="org7b8087b"><span class="section-number-3">2.1</span> Rendering</h3>
+<div id="outline-container-orgfb805f4" class="outline-3">
+<h3 id="orgfb805f4"><span class="section-number-3">2.1</span> Rendering</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
-When views are rendered <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205">filter_duplicate()</a> ensures that for each <code>key</code>
+When views are rendered <a target="_blank" href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205">filter_duplicate()</a> ensures that for each <code>key</code>
 a website specific view is preferred over a generic one if it
 exists. Here's an example:
 </p>
@@ -198,19 +198,19 @@ A render of website 2 will consist of:
 </div>
 </div>
 
-<div id="outline-container-org1864575" class="outline-2">
-<h2 id="org1864575"><span class="section-number-2">3</span> Mixins</h2>
+<div id="outline-container-orgff84ed3" class="outline-2">
+<h2 id="orgff84ed3"><span class="section-number-2">3</span> Mixins</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Multiple mixins are available to publish models on the website:
 </p>
 </div>
 
-<div id="outline-container-org1a3a6d4" class="outline-3">
-<h3 id="org1a3a6d4"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
+<div id="outline-container-org7556579" class="outline-3">
+<h3 id="org7556579"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
-<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L966">This</a> inherits both <code>website.published.mixin</code> and <code>website.multi.mixin</code>
+<a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L966">This</a> inherits both <code>website.published.mixin</code> and <code>website.multi.mixin</code>
 and is probably what you want to use in most cases. It allows records
 in a model to be published on all or one website. When rendering a
 QWeb view on the website make sure to wrap it in <code>website.layout</code> and
@@ -228,7 +228,7 @@ make the publish/unpublish feature work:
 <p>
 Unfortunately you need to manually check in your controllers whether
 or not the record is accessible from the current website. This mixin
-provides <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922">can_access_from_current_website()</a> for that:
+provides <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922">can_access_from_current_website()</a> for that:
 </p>
 
 <pre class="example">
@@ -240,24 +240,24 @@ if not record.can_access_from_current_website():
 </div>
 </div>
 
-<div id="outline-container-org4faf3eb" class="outline-3">
-<h3 id="org4faf3eb"><span class="section-number-3">3.2</span> website.published.mixin</h3>
+<div id="outline-container-org4e40fc6" class="outline-3">
+<h3 id="org4e40fc6"><span class="section-number-3">3.2</span> website.published.mixin</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L931">This</a> makes it possible to publish/unpublish your model through
-<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L946">website_publish_button()</a>. It only supports publishing your record on
+<a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L931">This</a> makes it possible to publish/unpublish your model through
+<a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L946">website_publish_button()</a>. It only supports publishing your record on
 all websites. Records using this will also be publishable from the
 website via the toggle.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgfa7416d" class="outline-3">
-<h3 id="orgfa7416d"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
+<div id="outline-container-org01d8d69" class="outline-3">
+<h3 id="org01d8d69"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 In practice this only provides a <code>website_id</code> field and the
-<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922">can_access_from_current_website()</a> function. Use this if you want to
+<a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L922">can_access_from_current_website()</a> function. Use this if you want to
 restrict the visibility of records to one specific website, but you
 don't want users to be able to publish/unpublish these records
 themselves via the frontend.
@@ -266,8 +266,8 @@ themselves via the frontend.
 </div>
 </div>
 
-<div id="outline-container-org36ac5c9" class="outline-2">
-<h2 id="org36ac5c9"><span class="section-number-2">4</span> Themes</h2>
+<div id="outline-container-org12fc41d" class="outline-2">
+<h2 id="org12fc41d"><span class="section-number-2">4</span> Themes</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Themes are regular Odoo modules but they are more complex than you
@@ -295,7 +295,7 @@ it would break website B.
 <p>
 Because of all this complexity themes are handled in a special
 way. Relying on only COW is too complex so instead data related to
-themes is stored in <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website_theme_install/models/theme_models.py">template models</a>:
+themes is stored in <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website_theme_install/models/theme_models.py">template models</a>:
 </p>
 
 <ul class="org-ul">
@@ -307,7 +307,7 @@ themes is stored in <a href="https://github.com/odoo/odoo/blob/9eb2875498044518b
 
 <p>
 When themes are installed these template models are converted to their
-normal counterparts with <a href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website_theme_install/models/theme_models.py#L36">_convert_to_base_model()</a>. Each one of these
+normal counterparts with <a target="_blank" href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website_theme_install/models/theme_models.py#L36">_convert_to_base_model()</a>. Each one of these
 will have a <code>website_id</code> and a <code>theme_template_id</code> to link them back
 to the theme.
 </p>
@@ -320,11 +320,11 @@ website's URL.
 </div>
 </div>
 
-<div id="outline-container-org3215e90" class="outline-2">
-<h2 id="org3215e90"><span class="section-number-2">5</span> Sessions</h2>
+<div id="outline-container-orgd020df8" class="outline-2">
+<h2 id="orgd020df8"><span class="section-number-2">5</span> Sessions</h2>
 <div class="outline-text-2" id="text-5">
 <p>
-Sessions are based on <a href="https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/">Werkzeug sessions</a>. When a user visits Odoo a
+Sessions are based on <a target="_blank" href="https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/">Werkzeug sessions</a>. When a user visits Odoo a
 session cookie is created and stored in their browser. It's a unique
 ID that links every requests that browser makes to a session in
 Odoo. On the server side the session is persistent and is written to
@@ -347,8 +347,8 @@ you need to login again.
 </div>
 </div>
 
-<div id="outline-container-orgbc634de" class="outline-2">
-<h2 id="orgbc634de"><span class="section-number-2">6</span> Assets</h2>
+<div id="outline-container-orgec9a9ca" class="outline-2">
+<h2 id="orgec9a9ca"><span class="section-number-2">6</span> Assets</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 JS and SCSS assets in Odoo are compiled, minimized and combined into
@@ -384,10 +384,10 @@ called in the appropriate locations as follows:
 </pre>
 
 <p>
-This leads to <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L304">_get_asset_nodes()</a> being called which eventually calls
-<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L285">get_asset_bundle()</a>. This creates objects that inherit from
-<a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L86">AssetsBundle</a> (like <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L688">JavascriptAsset</a> and <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L711">StylesheetAsset</a>). The unique
-key of the asset is computed in the <a href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L193">checksum</a> property and is a hash
+This leads to <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L304">_get_asset_nodes()</a> being called which eventually calls
+<a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/ir_qweb.py#L285">get_asset_bundle()</a>. This creates objects that inherit from
+<a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L86">AssetsBundle</a> (like <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L688">JavascriptAsset</a> and <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L711">StylesheetAsset</a>). The unique
+key of the asset is computed in the <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/odoo/addons/base/models/assetsbundle.py#L193">checksum</a> property and is a hash
 of:
 </p>
 
@@ -433,7 +433,7 @@ website.
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="author">Author: Joren Van Onder</p>
+<p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="author">Author: Joren Van Onder</p>
 </div>
 </body>
 </html>
