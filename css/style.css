@@ -37,10 +37,6 @@ body {
     background: #D6EDFF;
 }
 
-p {
-    margin: 0 auto;
-}
-
 ol, ul {
     margin: 0 auto;
 }
@@ -273,7 +269,7 @@ kbd {
     font-family: $monospace;
 }
 
-.contact {
+.right {
     float: right;
 }
 

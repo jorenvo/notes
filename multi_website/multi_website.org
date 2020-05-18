@@ -12,7 +12,7 @@
 #+OPTIONS: ^:nil
 #+HTML_DOCTYPE: html5
 #+HTML_CONTAINER: div
-#+DESCRIPTION: NAT traversal
+#+DESCRIPTION: Multi-website in Odoo v12
 #+KEYWORDS:
 #+HTML_LINK_HOME:
 #+HTML_LINK_UP:
@@ -24,14 +24,173 @@
 #+AUTHOR: Joren Van Onder
 #+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
 #+LATEX_HEADER:
-* Multi-website
 The goal of this document is to give a thorough technical
 understanding of the standard multi-website feature in ≥v12. I will be
 focusing on v12 in this document, but everything should be applicable
 to v13 as well.
 
-** Basics
-*** Session
+* Website selection
+What website to render is determined by [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L479][get_current_website()]]. It
+matches websites based on their domain name and possibly geoip. This
+is also the function that should be used when you want to determine
+the website you're on in Python.
+
+Odoo can be forced to load a specific website, regardless of the
+current domain or geoip via the website selector in the frontend:
+
+[[/notes/multi_website/website_selector.png]]
+
+You can also do it manually with this GET parameter:
+
+#+BEGIN_EXAMPLE
+?fw=2
+#+END_EXAMPLE
+
+This is [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98][set on the session]], so it will persist for as long as the user
+is logged in. See [[*Sessions][this]] for more info on sessions.
+
+* Copy-on-write (COW)
+Multi-website is implemented in a way that keeps module upgrades and
+migrations easy. If a bugfix in a view is merged it makes sure that
+this view change is applied to all websites. It also makes sure that
+we retain the ability for a user to create a brand new, unmodified
+website at all times (with e.g. an unmodified Contact Us page).
+
+When naively duplicating views for each website you clutter the
+database with a lot of unnecessary records. In most cases Odoo will
+use a [[https://en.wikipedia.org/wiki/Copy-on-write][copy-on-write]] mechanism. It defers duplicating views until
+necessary. Views are created without a =website_id= and rendered as
+usual. When a user modifies it a website specific copy is created with
+the appropriate =website_id= and the same =key=. This only happens for
+writes that happen via the frontend (not in /web). With this mechanism
+bugfixes to non-edited views are applied as usual and newly created
+websites will contain all the necessary views.
+
+From a technical POV this is mostly implemented in the =write= of
+=ir.ui.view= in the website module, note that it will also handle:
+
+- creating website-specific inherited views if they exist,
+- creating website-specific inactive views (used for [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/views/website_templates.xml#L299][customize_show
+  views]]),
+- creating website-specific pages for these views,
+
+Also this way new websites contain default views.
+
+This means that it's possible there are multiple views with the same
+XML ID. Since this isn't possible we instead use the =key= field as
+identifiers for the views.
+
+For unlinking a Copy-on-unlink [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161][is implemented]]. Website-specific copies
+are created when a generic view is deleted from the frontend.
+
+On top of this there is a mechanism that duplicates writes during
+module updates. It's implemented in [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126][_load_records_write()]]. During a
+module upgrade it will duplicate writes on views to website-specific
+views. This only happens when the field on on the website-specific
+view was not edited.
+
+When views are rendered [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205][filter_duplicate()]] ensures that for each =key=
+a website specific view is preferred over a generic one if it
+exists. Here's an example:
+
+[[/notes/multi_website/inheritance.png]]
+
+The label in each node corresponds to the =key= of the view. If a
+=website_id= is configured it's shown between square brackets. The
+arrow defines =inherit_id=, child views will point to their parents.
+
+When website 1 is rendered it will consist of:
+
+- website.layout
+- website.layout_logo_show [website 1] (this view can be inactive)
+- website.sale_header
+- custom.sale_header
+
+A render of website 2 will consist of:
+
+- website.layout
+- website.layout_logo_show [website 2] (this view can be inactive)
+- website.sale_header
+- theme_treehouse.preheader [website 2]
+
+* Mixins
+Multiple mixins are available to publish models on the website:
+
+** website.published.multi.mixin
+This inherits both =website.published.mixin= and =website.multi.mixin=
+and is probably what you want to use in most cases. It allows records
+in a model to be published on all or one website. When rendering a
+QWeb view on the website make sure to wrap it in =website.layout= and
+set =main_object= in the rendering context. It should be the main
+record you're rendering, the website module will use this record to
+make the publish/unpublish work:
+
+[[/notes/multi_website/published_unpublished.png]]
+
+Unfortunately you need to manually check in your controllers whether
+or not the record is accessible from the current website. This mixin
+provides =can_access_from_current_website()= for that:
+
+#+BEGIN_EXAMPLE
+from werkzeug.exceptions import NotFound
+# ...
+if not record.can_access_from_current_website():
+    raise NotFound()
+#+END_EXAMPLE
+
+** website.published.mixin
+This makes it possible to publish/unpublish your model through
+=website_publish_button()=. It only supports publishing your record on
+all websites. Records using this will also be publishable from the
+website via the toggle.
+
+** website.multi.mixin
+In practice this only provides a =website_id= field and the
+=can_access_from_current_website= function.  Use this if you want to
+restrict the visibility of records in a model to one specific website,
+but you want to handle this manually via
+=can_access_from_current_website()= in a controller manually and you
+don't want users to be able to publish/unpublish these records
+themselves via the frontend.
+
+* Themes
+Themes are complex, they have both upstream and downstream
+dependencies. An upstream dependency is a module the theme directly or
+indirectly depends on. E.g. =theme_common=, =theme_loftspace= and
+=theme_beauty= for =theme_beauty_sale=. Downstream dependencies are
+modules that depend on it. It's also worth noting that themes can
+depend on other themes, as shown above. Themes can activate optional
+features on the website by activating =website_sale= views
+(e.g. =website_sale.categories= to activate eCommerce
+categories). Themes also have their own =ir.attachment= records which
+contain default images and themes that depend on them can modify
+them. Lastly, themes are often auto-installed (e.g. =theme_*_sale=
+modules when =website_sale= is installed).
+
+It leads to complex scenarios. Imagine theme B depends on theme A. The
+user has installed theme A on website A and theme B on website B. If
+theme A is uninstalled on website A it cannot be fully removed because
+it would break website B.
+
+Because of this themes are handled in a special way. Relying on only
+COW is too complex so instead data related to themes is stored in
+template models:
+
+- =theme.ir.ui.view=
+- =theme.ir.attachment=
+- =theme.website.menu=
+- =theme.website.page=
+
+When themes are installed these template models are converted to their
+normal counterparts with [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website_theme_install/models/theme_models.py#L36][_convert_to_base_model()]]. Each one of these
+will have a =website_id= and a =theme_template_id= to link them back
+to the theme.
+
+You can upgrade a theme on all websites with =odoo-bin -u= or upgrade
+a theme on only one website via the backend, by going to the
+appropriate url.
+
+* Sessions
 Sessions are based on [[https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/][Werkzeug sessions]]. When a user visits Odoo a
 session cookie is created and stored in their browser. It's a unique
 ID that links every requests that browser makes to a session in
@@ -41,7 +200,7 @@ persist (e.g. whether or not the user is logged in). The session files
 are pickled, if you want to inspect them use:
 
 #+BEGIN_EXAMPLE
-$ python3 -m pickle ~/.local/share/Odoo/sessions/werkzeug_861d25cbe84e9841b907cad27bcca6dae543400d.sess
+$ python3 -m pickle ~/.local/share/Odoo/sessions/werkzeug_861d25cb*.sess
 #+END_EXAMPLE
 
 Stale sessions are automatically removed. A session is considered
@@ -49,7 +208,7 @@ stale if it hasn't been modified for one week. The expiration date for
 the cookie on the browser side is 3 months. This is why after 3 months
 you need to login again.
 
-*** Assets
+* Assets
 JS and SCSS assets in Odoo are compiled, minimized and combined into
 asset bundles. In the case of SCSS it's a necessary step; it needs to
 be compiled to CSS for the browser to understand. But this is not the
@@ -105,108 +264,3 @@ its own assets. To avoid the assets constantly recompiling the
 
 This allows Odoo to maintain separate compiled asset bundles per
 website.
-
-** Website Selection
-*** Forced
-You can force Odoo to load a specific website ID with a GET parameter,
-like is done by the website switcher:
-
-#+BEGIN_EXAMPLE
-?fw=2
-#+END_EXAMPLE
-
-This is set on the session, so it will persist for as long as the user
-is logged in.
-*** Normal
-To figure out what website you're on always use
-=self.env["website"].get_current_website()=. There's a lot of cases
-that are handled by it (fw= overrides, geoip, domain names, ...).
-
-** Copy-on-write (COW)
-Multi-website was implemented in a way that keeps module upgrades and
-migrations easy. What do we do when a bugfix in a view was merged? It
-needs to ensure this view change is applied to all websites. It also
-makes sure that we retain the ability for a user to create a brand
-new, unmodified website at all times (with e.g. an unmodified Contact
-Us page). When naively duplicating views for each website you clutter
-the database with a lot of unnecessary records.
-
-In most cases Odoo will use a [[https://en.wikipedia.org/wiki/Copy-on-write][copy-on-write]] mechanism. It defers
-duplicating views until necessary. Views are created without a
-=website_id= and rendered as usual. When a user modifies it a website
-specific copy is created with the appropriate =website_id= and the
-same =key=. This only happens for writes that happen via the frontend
-(not in /web). With this mechanism bugfixes to non-edited views are
-applied as usual and newly created websites will contain all the
-necessary views.
-
-From a technical POV this is mostly implemented in the =write= of
-=ir.ui.view= in the website module, note that it will also handle:
-
-- creating website-specific inherited views if they exist,
-- creating website-specific inactive views (TODO options website),
-- creating website-specific pages for these views,
-
-Also this way new websites contain default views.
-
-THis means that it's possible there are multiple views with the same
-XML ID. Since this isn't possible we instead use the =key= field as
-identifiers for the views.
-
-For unlinking a Copy-on-unlink [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L161][is implemented]]. Website-specific copies
-are created when a generic view is deleted from the frontend.
-
-On top of this there is a mechanism that duplicates writes during
-module updates. It's implemented in [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L126][_load_records_write()]]. During a
-module upgrade it will duplicate writes on views to website-specific
-views. This only happens when the field on on the website-specific
-view was not edited.
-
-When views are rendered [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205][filter_duplicate()]] ensures that for each =key=
-a website specific view is preferred over a generic one if it exists.
-
-** Mixins
-Multiple mixins are available to publish models on the website:
-
-*** website.published.multi.mixin
-This inherits both =website.published.mixin= and =website.multi.mixin=
-and is probably what you want to use in most cases. It allows records
-in a model to be published on all or one website. When rendering a
-QWeb view on the website make sure to wrap it in =website.layout= and
-set =main_object= in the rendering context. It should be the main
-record you're rendering, the website module will use this record to
-make the publish/unpublish work:
-
-[[/notes/multi_website/published_unpublished.png]]
-
-Unfortunately you need to manually check in your controllers whether
-or not the record is accessible from the current website. This mixin
-provides =can_access_from_current_website()= for that:
-
-#+BEGIN_EXAMPLE
-from werkzeug.exceptions import NotFound
-# ...
-if not record.can_access_from_current_website():
-    raise NotFound()
-#+END_EXAMPLE
-
-*** website.published.mixin
-This makes it possible to publish/unpublish your model through
-=website_publish_button()=. It only supports publishing your record on
-all websites. Records using this will also be publishable from the
-website via the toggle.
-
-*** website.multi.mixin
-In practice this only provides a =website_id= field and the
-=can_access_from_current_website= function.  Use this if you want to
-restrict the visibility of records in a model to one specific website,
-but you want to handle this manually via
-=can_access_from_current_website()= in a controller manually and you
-don't want users to be able to publish/unpublish these records
-themselves via the frontend.
-
-** Themes
-Themes are handled in a special way. 
-
-automatically required via auto_install
-upgrade all vs upgrade only current

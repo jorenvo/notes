@@ -1,0 +1,12 @@
+digraph d {
+        bgcolor="transparent";
+        rankdir="RL";
+
+        // "website.layout" [shape=circle,style=wedged,fillcolor="red:blue"];
+
+        "website.layout_logo_show [website 1]" -> "website.layout"; // website 1
+        "website.layout_logo_show [website 2]" -> "website.layout"; // website 2
+        "custom.sale_header [website 1]" -> "website_sale.header"; // website 1
+        "theme_treehouse.preheader [website 2]" -> "website.layout"; // website 2
+        "website_sale.header" -> "website.layout";
+}

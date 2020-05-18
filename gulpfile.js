@@ -103,12 +103,13 @@ function get_preamble(file_path) {
     return `
 <div class="top">
   <a href="/notes/">notes</a> / ${filename(file_path).replace(/_/g, " ")}
-  <div class="contact">
+  <div class="right">
       github:&nbsp;<a href="https://github.com/jorenvo">jorenvo</a> |
       email:&nbsp;<a href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
       PGP:&nbsp;<a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
       keybase:&nbsp;<a href="https://keybase.io/jvo">jvo</a>
   </div>
+  <div class="right"><i>Published on %d</i></div>
 </div>`;
 }
 
@@ -117,9 +118,11 @@ function get_emacs_org_preamble(file_path) {
     if (file_path.endsWith("index.org")) {
         return "t";
     } else {
-        return `(setq org-html-preamble-format '(("en" "${get_preamble(
+        return `(progn
+(setq org-html-metadata-timestamp-format "%B %e %Y")
+(setq org-html-preamble-format '(("en" "${get_preamble(
             file_path
-        ).replace(/"/g, '\\"')}")))`;
+        ).replace(/"/g, '\\"')}"))))`;
     }
 }
 
