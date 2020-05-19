@@ -376,8 +376,12 @@ p.verse {
     }
 }
 
-.creator {
+.publish-date {
     display: block;
+}
+
+pre {
+    overflow: scroll;
 }
 
 @media screen and (min-width: $medium-display) {

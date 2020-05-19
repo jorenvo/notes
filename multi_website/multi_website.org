@@ -153,6 +153,19 @@ restrict the visibility of records to one specific website, but you
 don't want users to be able to publish/unpublish these records
 themselves via the frontend.
 
+* Record rule
+=website= is added [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_rule.py#L10][to the eval context of record rules]] so you can
+easily write record rules that restrict based on the current website:
+
+#+BEGIN_EXAMPLE
+<record id="my_record_rule" model="ir.rule">
+    <field name="name">Show only on website 2</field>
+    <field name="model_id" ref="model_custom_model"/>
+    <field name="global" eval="True"/>
+    <field name="domain_force">[("website_id", "=", website.id)]</field>
+</record>
+#+END_EXAMPLE
+
 * Themes
 Themes are regular Odoo modules but they are more complex than you
 might expect. They have both upstream and downstream dependencies. An
@@ -174,7 +187,7 @@ theme A is uninstalled on website A it cannot be fully removed because
 it would break website B.
 
 Because of all this complexity themes are handled in a special
-way. Relying on only COW is too complex so instead data related to
+way. Only relying on COW is too complex so instead data related to
 themes is stored in [[https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website_theme_install/models/theme_models.py][template models]]:
 
 - =theme.ir.ui.view=
@@ -266,3 +279,4 @@ its own assets. To avoid the assets constantly recompiling the
 
 This allows Odoo to maintain separate compiled asset bundles per
 website.
+

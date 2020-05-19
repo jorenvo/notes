@@ -9,7 +9,7 @@
 <meta name="author" content="Joren Van Onder">
 <meta name="description" content="Multi-website in Odoo v12"
 >
-<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-b73f0bb1ee.css"/>
+<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-4d9b2919ec.css"/>
 <link rel="icon" href="/notes/revisioned/assets/favicon-034aad3767.png" type="image/x-icon"/>
 <script src="/notes/revisioned/assets/sw-loader-649419f22f.js" defer></script>
 </head>
@@ -23,8 +23,7 @@
       email:&nbsp;<a target="_blank" href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
       PGP:&nbsp;<a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
       keybase:&nbsp;<a target="_blank" href="https://keybase.io/jvo">jvo</a>
-  </div><br/>
-  <div class="right"><i>Published on May 14 2020</i></div>
+  </div>
 </div>
 </div>
 <div id="content">
@@ -34,22 +33,23 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgb554f41">1. Website selection</a></li>
-<li><a href="#org2cf2b0e">2. Copy-on-write (COW)</a>
+<li><a href="#org661f0ad">1. Website selection</a></li>
+<li><a href="#orgd0381cb">2. Copy-on-write (COW)</a>
 <ul>
-<li><a href="#orge70f0f5">2.1. Rendering</a></li>
+<li><a href="#org609efc2">2.1. Rendering</a></li>
 </ul>
 </li>
-<li><a href="#org20832f8">3. Mixins</a>
+<li><a href="#orgc8d3b97">3. Mixins</a>
 <ul>
-<li><a href="#org7d00264">3.1. website.published.multi.mixin</a></li>
-<li><a href="#org66eae0d">3.2. website.published.mixin</a></li>
-<li><a href="#org3c0c274">3.3. website.multi.mixin</a></li>
+<li><a href="#orga0bb33d">3.1. website.published.multi.mixin</a></li>
+<li><a href="#orgd270af4">3.2. website.published.mixin</a></li>
+<li><a href="#org4fa874c">3.3. website.multi.mixin</a></li>
 </ul>
 </li>
-<li><a href="#orge02b3f0">4. Themes</a></li>
-<li><a href="#org0ae5673">5. Sessions</a></li>
-<li><a href="#orga461f75">6. Assets</a></li>
+<li><a href="#org5351602">4. Record rule</a></li>
+<li><a href="#orge85f56c">5. Themes</a></li>
+<li><a href="#org6fbbbbb">6. Sessions</a></li>
+<li><a href="#orgb839b43">7. Assets</a></li>
 </ul>
 </div>
 </nav>
@@ -60,8 +60,8 @@ focusing on v12 in this document, but everything should be applicable
 to v13 as well.
 </p>
 
-<div id="outline-container-orgb554f41" class="outline-2">
-<h2 id="orgb554f41"><span class="section-number-2">1</span> Website selection</h2>
+<div id="outline-container-org661f0ad" class="outline-2">
+<h2 id="org661f0ad"><span class="section-number-2">1</span> Website selection</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 What website to render is determined by <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L479">get_current_website()</a>. It
@@ -91,13 +91,13 @@ You can also do it manually with this GET parameter:
 
 <p>
 This is <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98">set on the session</a> so it will persist as long as the user is
-logged in. See <a href="#org0ae5673">this</a> for more info on sessions.
+logged in. See <a href="#org6fbbbbb">this</a> for more info on sessions.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org2cf2b0e" class="outline-2">
-<h2 id="org2cf2b0e"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
+<div id="outline-container-orgd0381cb" class="outline-2">
+<h2 id="orgd0381cb"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Multi-website is implemented in a way that keeps module upgrades and
@@ -152,8 +152,8 @@ are created when a generic view is deleted from the frontend.
 </p>
 </div>
 
-<div id="outline-container-orge70f0f5" class="outline-3">
-<h3 id="orge70f0f5"><span class="section-number-3">2.1</span> Rendering</h3>
+<div id="outline-container-org609efc2" class="outline-3">
+<h3 id="org609efc2"><span class="section-number-3">2.1</span> Rendering</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 When views are rendered <a target="_blank" href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205">filter_duplicate()</a> ensures that for each <code>key</code>
@@ -198,16 +198,16 @@ A render of website 2 will consist of:
 </div>
 </div>
 
-<div id="outline-container-org20832f8" class="outline-2">
-<h2 id="org20832f8"><span class="section-number-2">3</span> Mixins</h2>
+<div id="outline-container-orgc8d3b97" class="outline-2">
+<h2 id="orgc8d3b97"><span class="section-number-2">3</span> Mixins</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Multiple mixins are available to publish models on the website:
 </p>
 </div>
 
-<div id="outline-container-org7d00264" class="outline-3">
-<h3 id="org7d00264"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
+<div id="outline-container-orga0bb33d" class="outline-3">
+<h3 id="orga0bb33d"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L966">This</a> inherits both <code>website.published.mixin</code> and <code>website.multi.mixin</code>
@@ -240,8 +240,8 @@ if not record.can_access_from_current_website():
 </div>
 </div>
 
-<div id="outline-container-org66eae0d" class="outline-3">
-<h3 id="org66eae0d"><span class="section-number-3">3.2</span> website.published.mixin</h3>
+<div id="outline-container-orgd270af4" class="outline-3">
+<h3 id="orgd270af4"><span class="section-number-3">3.2</span> website.published.mixin</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L931">This</a> makes it possible to publish/unpublish your model through
@@ -252,8 +252,8 @@ website via the toggle.
 </div>
 </div>
 
-<div id="outline-container-org3c0c274" class="outline-3">
-<h3 id="org3c0c274"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
+<div id="outline-container-org4fa874c" class="outline-3">
+<h3 id="org4fa874c"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 In practice this only provides a <code>website_id</code> field and the
@@ -266,9 +266,28 @@ themselves via the frontend.
 </div>
 </div>
 
-<div id="outline-container-orge02b3f0" class="outline-2">
-<h2 id="orge02b3f0"><span class="section-number-2">4</span> Themes</h2>
+<div id="outline-container-org5351602" class="outline-2">
+<h2 id="org5351602"><span class="section-number-2">4</span> Record rule</h2>
 <div class="outline-text-2" id="text-4">
+<p>
+<code>website</code> is added <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_rule.py#L10">to the eval context of record rules</a> so you can
+easily write record rules that restrict based on the current website:
+</p>
+
+<pre class="example">
+&lt;record id="my_record_rule" model="ir.rule"&gt;
+    &lt;field name="name"&gt;Show only on website 2&lt;/field&gt;
+    &lt;field name="model_id" ref="model_custom_model"/&gt;
+    &lt;field name="global" eval="True"/&gt;
+    &lt;field name="domain_force"&gt;[("website_id", "=", website.id)]&lt;/field&gt;
+&lt;/record&gt;
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orge85f56c" class="outline-2">
+<h2 id="orge85f56c"><span class="section-number-2">5</span> Themes</h2>
+<div class="outline-text-2" id="text-5">
 <p>
 Themes are regular Odoo modules but they are more complex than you
 might expect. They have both upstream and downstream dependencies. An
@@ -294,7 +313,7 @@ it would break website B.
 
 <p>
 Because of all this complexity themes are handled in a special
-way. Relying on only COW is too complex so instead data related to
+way. Only relying on COW is too complex so instead data related to
 themes is stored in <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website_theme_install/models/theme_models.py">template models</a>:
 </p>
 
@@ -320,9 +339,9 @@ website's URL.
 </div>
 </div>
 
-<div id="outline-container-org0ae5673" class="outline-2">
-<h2 id="org0ae5673"><span class="section-number-2">5</span> Sessions</h2>
-<div class="outline-text-2" id="text-5">
+<div id="outline-container-org6fbbbbb" class="outline-2">
+<h2 id="org6fbbbbb"><span class="section-number-2">6</span> Sessions</h2>
+<div class="outline-text-2" id="text-6">
 <p>
 Sessions are based on <a target="_blank" href="https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/">Werkzeug sessions</a>. When a user visits Odoo a
 session cookie is created and stored in their browser. It's a unique
@@ -347,9 +366,9 @@ you need to login again.
 </div>
 </div>
 
-<div id="outline-container-orga461f75" class="outline-2">
-<h2 id="orga461f75"><span class="section-number-2">6</span> Assets</h2>
-<div class="outline-text-2" id="text-6">
+<div id="outline-container-orgb839b43" class="outline-2">
+<h2 id="orgb839b43"><span class="section-number-2">7</span> Assets</h2>
+<div class="outline-text-2" id="text-7">
 <p>
 JS and SCSS assets in Odoo are compiled, minimized and combined into
 asset bundles. In the case of SCSS it's a necessary step; it needs to
@@ -433,7 +452,7 @@ website.
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="author">Author: Joren Van Onder</p>
+<p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="publish-date">Published on May 14 2020</p>
 </div>
 </body>
 </html>

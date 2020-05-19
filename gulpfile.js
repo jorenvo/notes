@@ -25,7 +25,7 @@ const files_css = "css/*.css";
 const css_build_dir = "assets";
 const revisioned_assets_dir = "revisioned";
 const emacs_eval_postamble =
-    '(setq org-html-postamble-format \'(("en" "<p class=\\"creator\\">%c</p><p class=\\"author\\">Author: %a</p>")))';
+    '(setq org-html-postamble-format \'(("en" "<p class=\\"creator\\">%c</p><p class=\\"publish-date\\">Published on %d</p>")))';
 
 $.task("default", $.series(clean, $.parallel(styles, render_org), rev));
 $.task("work", $.series("default", $.parallel(serve, watch)));
@@ -109,15 +109,14 @@ function get_preamble(file_path) {
       email:&nbsp;<a href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
       PGP:&nbsp;<a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
       keybase:&nbsp;<a href="https://keybase.io/jvo">jvo</a>
-  </div><br/>
-  <div class="right"><i>Published on %d</i></div>
+  </div>
 </div>`;
 }
 
 function get_emacs_org_preamble(file_path) {
     // don't show breadcrumb for index
     if (file_path.endsWith("index.org")) {
-        return "t";
+        return '(setq org-html-metadata-timestamp-format "%B %e %Y")';
     } else {
         return `(progn
 (setq org-html-metadata-timestamp-format "%B %e %Y")
