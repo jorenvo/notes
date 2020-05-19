@@ -1,7 +1,7 @@
 // when an asset changes:
 // - update urlsToCache
 // - update this cache name by appending a new date +%s
-const cacheName = "jvo-sh-notes-cache-1589846797";
+const cacheName = "jvo-sh-notes-cache-1589847386";
 const urlsToCache = [
     "/notes/",
     "/notes/aliasing/",
@@ -22,8 +22,8 @@ const urlsToCache = [
     "/notes/revisioned/aliasing/uniform_spheres_1_05px-777279d15d.png",
     "/notes/revisioned/aliasing/uniform_spheres_1px-9a1b889fc3.png",
     "/notes/revisioned/assets/favicon-034aad3767.png",
-    "/notes/revisioned/assets/maps/style-4471288dbd.css.map",
-    "/notes/revisioned/assets/style-4d9b2919ec.css",
+    "/notes/revisioned/assets/maps/style-67640e1828.css.map",
+    "/notes/revisioned/assets/style-94fcf72690.css",
     "/notes/revisioned/assets/sw-loader-649419f22f.js",
     "/notes/revisioned/mail/gmail_archive-63756bcc13.png",
     "/notes/revisioned/multi_website/inheritance-d21bc7ee7c.png",

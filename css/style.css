@@ -381,7 +381,7 @@ p.verse {
 }
 
 pre {
-    overflow: scroll;
+    overflow: auto;
 }
 
 @media screen and (min-width: $medium-display) {
