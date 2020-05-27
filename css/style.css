@@ -382,6 +382,7 @@ p.verse {
 
 pre {
     overflow: auto;
+    font-size: $smaller;
 }
 
 @media screen and (min-width: $medium-display) {
