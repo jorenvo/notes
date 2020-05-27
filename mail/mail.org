@@ -53,17 +53,50 @@ most popular choice for this is probably [[https://www.offlineimap.org/][Offline
  with GMail. Here's a basic configuration that downloads a couple of
  IMAP folders.
 
- #+BEGIN_EXPORT html
- <script src="https://gist.github.com/jorenvo/38747b3a321d629e23c081b86bc28503.js"></script>
- #+END_EXPORT
+#+BEGIN_EXAMPLE
+[general]
+accounts = Gmail
+pythonfile = ~/.config-git/mail/offlineimap.py
+
+[Account Gmail]
+localrepository = Local
+remoterepository = Remote
+
+[Repository Local]
+type = Maildir
+localfolders = ~/mail
+
+[Repository Remote]
+type = IMAP
+remotehost = imap.gmail.com
+remoteuser = user@example.com
+remotepasseval = get_password_authinfo("imap.gmail.com", "user@example.com")
+folderfilter = lambda foldername: foldername in ['INBOX', '[Gmail]/Trash', 'ArchivedMail', 'SentDir']
+ssl = yes
+
+# Work around https://github.com/OfflineIMAP/offlineimap/issues/573
+ssl_version = tls1_2
+
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+maxconnections = 3
+realdelete = no
+#+END_EXAMPLE
 
  The referenced Python file is responsible for parsing my PGP encrypted
  [[https://www.emacswiki.org/emacs/GnusAuthinfo][Gnus authinfo]] file. This contains the password used to connect to
  IMAP.
 
- #+BEGIN_EXPORT html
- <script src="https://gist.github.com/jorenvo/3b6b7689809db80374adb5490e0b495c.js"></script>
- #+END_EXPORT
+#+BEGIN_EXAMPLE
+#!/usr/bin/env python3
+import re
+import os
+
+def get_password_authinfo(machine, login):
+    s = 'machine %s login %s password ([^ ]*) port.*\n' % (machine, login)
+    p = re.compile(s)
+    authinfo = os.popen('gpg -q --no-tty -d ~/.authinfo.gpg').read()
+    return p.search(authinfo).group(1)
+#+END_EXAMPLE
 
  So I don't have to type my password often I set
 
@@ -118,9 +151,46 @@ In order to avoid this and keep our INBOX clean we can:
 I implement the previous concepts in a Bash script. Whenever I want to
 download mail I run the script manually.
 
-#+BEGIN_EXPORT html
-<script src="https://gist.github.com/jorenvo/7a03bdd44a32474af051fce558cc2968.js"></script>
-#+END_EXPORT
+#+BEGIN_EXAMPLE
+#!/usr/bin/env bash
+set -euo pipefail
+
+move_tagged_mail () {
+    TAG="${1}"
+    FOLDER="${2}"
+    SENTFOLDER="SentDir"
+
+    # -f in case mail was moved already
+    notmuch search --format text0 --output files tag:"${TAG}" and not folder:"${FOLDER}" and not folder:"${SENTFOLDER}" |\
+        xargs -0 -I {} mv -fv {} ~/mail/"${FOLDER}"/cur/
+}
+
+# move files in maildir to sync with changes to tags
+move_tagged_mail archived ArchivedMail
+move_tagged_mail inbox INBOX
+
+offlineimap
+
+# remove deleted email
+notmuch search --format=text0 --output=files tag:deleted | xargs -0 --no-run-if-empty rm -v
+
+NOTMUCH_DB_COUNTER_BEFORE=$(notmuch count --lastmod | cut -f3)
+notmuch new
+
+# using --input is more efficient than multiple invocations of notmuch tag
+# this syncs our tags based on what was done on IMAP
+notmuch tag --input <(echo "
+-inbox +archived -- lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. and folder:ArchivedMail
++inbox -archived -- lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. and folder:INBOX
++sent -- lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. and folder:sent
+")
+
+# tag groups
+notmuch tag --input <(echo "
++mailing-list -inbox --lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. tag:inbox and (to:mailinglist@example.com or to:mailinglist2@example.com)
++mailing-list -inbox --lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. tag:inbox and subject:[GitHub] A new public key was added to
+")
+#+END_EXAMPLE
 
 The script
 
@@ -150,9 +220,39 @@ revision number. By storing the revision number before running
 =notmuch new= we can make Notmuch tag only new mail.
 
 * GNU Emacs
-#+BEGIN_EXPORT html
-<script src="https://gist.github.com/jorenvo/b7e1f8907dae1a8e8e37d5a4dbfe1e89.js"></script>
-#+END_EXPORT
+#+BEGIN_EXAMPLE
+(defun replace-unicode-no-break-space ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward " " nil t)
+      (replace-match " "))))
+
+(use-package notmuch
+  :defer t
+  :config
+  (progn
+    (add-hook 'notmuch-show-hook 'replace-unicode-no-break-space)
+    (setq message-send-mail-function 'smtpmail-send-it
+          smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+          smtpmail-default-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-service 587
+          smtpmail-local-domain "gmail.com"
+          notmuch-archive-tags '("-inbox" "+archived")
+          notmuch-fcc-dirs "SentDir +sent"
+          notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full
+          notmuch-show-empty-saved-searches t
+          notmuch-saved-searches `((:name "inbox" :query "tag:inbox" :key ,(kbd "i"))
+                                   (:name "mailing-lists" :query "tag:mailing-list and not tag:archived" :key ,(kbd "m"))
+                                   (:name "archived" :query "tag:archived" :key ,(kbd "a")))
+          message-citation-line-format "On %a, %b %d, %Y at %R, %f wrote:"
+          message-citation-line-function 'message-insert-formatted-citation-line
+          message-kill-buffer-on-exit t
+          user-full-name "Joren Van Onder"
+          user-mail-address "email@example.com"
+          mm-decrypt-option 'always
+          mm-verify-option 'always)))
+#+END_EXAMPLE
 
 My Emacs configuration is not very special. We have software that
 sends email with non-break spaces which doesn't render nicely in
