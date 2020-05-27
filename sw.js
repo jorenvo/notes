@@ -40,7 +40,15 @@ const urlsToCache = [
 self.addEventListener("install", event => {
     self.skipWaiting();
     event.waitUntil(
-        caches.open(cacheName).then(cache => cache.addAll(urlsToCache))
+        caches.open(cacheName).then(cache => {
+            // cache: reload to always check the server, otherwise
+            // unrevisioned urls like /notes/multi_website can be
+            // fetched from a browser cache which will be out of date.
+            const requests = urlsToCache.map(
+                url => new Request(url, {cache: "reload"})
+            );
+            return cache.addAll(requests);
+        })
     );
 });
 
