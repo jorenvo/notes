@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- May 18 2020 -->
+<!-- May 26 2020 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mail</title>
@@ -10,7 +10,7 @@
 <meta name="description" content="NAT traversal"
 >
 <meta name="keywords" content="notmuch emacs gmail">
-<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-94fcf72690.css"/>
+<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-ea23070d5d.css"/>
 <link rel="icon" href="/notes/revisioned/assets/favicon-034aad3767.png" type="image/x-icon"/>
 <script src="/notes/revisioned/assets/sw-loader-649419f22f.js" defer></script>
 <script type="text/javascript">
@@ -80,23 +80,23 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org7d34b04">1. GMail has become slow</a></li>
-<li><a href="#org31528cc">2. Have you accepted GNU Emacs as your lord and savior?</a></li>
-<li><a href="#org840154e">3. Approach</a>
+<li><a href="#org10940eb">1. GMail has become slow</a></li>
+<li><a href="#org97eb9f2">2. Have you accepted GNU Emacs as your lord and savior?</a></li>
+<li><a href="#org4af0a3a">3. Approach</a>
 <ul>
-<li><a href="#org8354e89">3.1. OfflineIMAP</a></li>
-<li><a href="#org84de91c">3.2. Indexing</a></li>
-<li><a href="#orgc7d1b4c">3.3. Tagging</a></li>
-<li><a href="#org91af3e9">3.4. Avoiding the huge INBOX of death</a></li>
+<li><a href="#org0444edf">3.1. OfflineIMAP</a></li>
+<li><a href="#orge18f2e2">3.2. Indexing</a></li>
+<li><a href="#orgb77d541">3.3. Tagging</a></li>
+<li><a href="#orgb937e60">3.4. Avoiding the huge INBOX of death</a></li>
 </ul>
 </li>
-<li><a href="#orgdc32b88">4. Putting it all together</a></li>
-<li><a href="#org53bbb7e">5. GNU Emacs</a></li>
+<li><a href="#orga3cfac3">4. Putting it all together</a></li>
+<li><a href="#org6958e20">5. GNU Emacs</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org7d34b04" class="outline-2">
-<h2 id="org7d34b04"><span class="section-number-2">1</span> GMail has become slow</h2>
+<div id="outline-container-org10940eb" class="outline-2">
+<h2 id="org10940eb"><span class="section-number-2">1</span> GMail has become slow</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The <a target="_blank" href="https://www.theverge.com/2018/4/25/17277360/gmail-redesign-live-features-google-update">GMail redesign was a while ago</a>. I don't care much about the visual
@@ -124,8 +124,8 @@ The rest of this page describes my personal email setup.
 </div>
 </div>
 
-<div id="outline-container-org31528cc" class="outline-2">
-<h2 id="org31528cc"><span class="section-number-2">2</span> Have you accepted GNU Emacs as your lord and savior?</h2>
+<div id="outline-container-org97eb9f2" class="outline-2">
+<h2 id="org97eb9f2"><span class="section-number-2">2</span> Have you accepted GNU Emacs as your lord and savior?</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 I have and therefore decided on using <a target="_blank" href="https://notmuchmail.org/">Notmuch</a><sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. It has an
@@ -137,12 +137,12 @@ most popular choice for this is probably <a target="_blank" href="https://www.of
 </div>
 </div>
 
-<div id="outline-container-org840154e" class="outline-2">
-<h2 id="org840154e"><span class="section-number-2">3</span> Approach</h2>
+<div id="outline-container-org4af0a3a" class="outline-2">
+<h2 id="org4af0a3a"><span class="section-number-2">3</span> Approach</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org8354e89" class="outline-3">
-<h3 id="org8354e89"><span class="section-number-3">3.1</span> OfflineIMAP</h3>
+<div id="outline-container-org0444edf" class="outline-3">
+<h3 id="org0444edf"><span class="section-number-3">3.1</span> OfflineIMAP</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 OfflineIMAP will synchronize mail between GMail and a local
@@ -151,7 +151,34 @@ with GMail. Here's a basic configuration that downloads a couple of
 IMAP folders.
 </p>
 
-<script src="https://gist.github.com/jorenvo/38747b3a321d629e23c081b86bc28503.js"></script>
+<pre class="example">
+[general]
+accounts = Gmail
+pythonfile = ~/.config-git/mail/offlineimap.py
+
+[Account Gmail]
+localrepository = Local
+remoterepository = Remote
+
+[Repository Local]
+type = Maildir
+localfolders = ~/mail
+
+[Repository Remote]
+type = IMAP
+remotehost = imap.gmail.com
+remoteuser = user@example.com
+remotepasseval = get_password_authinfo("imap.gmail.com", "user@example.com")
+folderfilter = lambda foldername: foldername in ['INBOX', '[Gmail]/Trash', 'ArchivedMail', 'SentDir']
+ssl = yes
+
+# Work around https://github.com/OfflineIMAP/offlineimap/issues/573
+ssl_version = tls1_2
+
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+maxconnections = 3
+realdelete = no
+</pre>
 
 <p>
 The referenced Python file is responsible for parsing my PGP encrypted
@@ -159,7 +186,17 @@ The referenced Python file is responsible for parsing my PGP encrypted
 IMAP.
 </p>
 
-<script src="https://gist.github.com/jorenvo/3b6b7689809db80374adb5490e0b495c.js"></script>
+<pre class="example">
+#!/usr/bin/env python3
+import re
+import os
+
+def get_password_authinfo(machine, login):
+    s = 'machine %s login %s password ([^ ]*) port.*\n' % (machine, login)
+    p = re.compile(s)
+    authinfo = os.popen('gpg -q --no-tty -d ~/.authinfo.gpg').read()
+    return p.search(authinfo).group(1)
+</pre>
 
 <p>
 So I don't have to type my password often I set
@@ -177,8 +214,8 @@ in my <code>~/.gnupg</code> file.
 </div>
 </div>
 
-<div id="outline-container-org84de91c" class="outline-3">
-<h3 id="org84de91c"><span class="section-number-3">3.2</span> Indexing</h3>
+<div id="outline-container-orge18f2e2" class="outline-3">
+<h3 id="orge18f2e2"><span class="section-number-3">3.2</span> Indexing</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 Now that OfflineIMAP has downloaded a copy of my mail into a local
@@ -192,8 +229,8 @@ $ notmuch new
 </div>
 </div>
 
-<div id="outline-container-orgc7d1b4c" class="outline-3">
-<h3 id="orgc7d1b4c"><span class="section-number-3">3.3</span> Tagging</h3>
+<div id="outline-container-orgb77d541" class="outline-3">
+<h3 id="orgb77d541"><span class="section-number-3">3.3</span> Tagging</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 In Notmuch email is organized by tags. We can tell Notmuch to tag all
@@ -219,8 +256,8 @@ the GMail webclient it will sync locally as well. Hence the
 </div>
 </div>
 
-<div id="outline-container-org91af3e9" class="outline-3">
-<h3 id="org91af3e9"><span class="section-number-3">3.4</span> Avoiding the huge INBOX of death</h3>
+<div id="outline-container-orgb937e60" class="outline-3">
+<h3 id="orgb937e60"><span class="section-number-3">3.4</span> Avoiding the huge INBOX of death</h3>
 <div class="outline-text-3" id="text-3-4">
 <p>
 Notmuch does not modify your local mail<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>. You may be removing
@@ -243,15 +280,54 @@ maildir folder</li>
 </div>
 </div>
 
-<div id="outline-container-orgdc32b88" class="outline-2">
-<h2 id="orgdc32b88"><span class="section-number-2">4</span> Putting it all together</h2>
+<div id="outline-container-orga3cfac3" class="outline-2">
+<h2 id="orga3cfac3"><span class="section-number-2">4</span> Putting it all together</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 I implement the previous concepts in a Bash script. Whenever I want to
 download mail I run the script manually.
 </p>
 
-<script src="https://gist.github.com/jorenvo/7a03bdd44a32474af051fce558cc2968.js"></script>
+<pre class="example">
+#!/usr/bin/env bash
+set -euo pipefail
+
+move_tagged_mail () {
+    TAG="${1}"
+    FOLDER="${2}"
+    SENTFOLDER="SentDir"
+
+    # -f in case mail was moved already
+    notmuch search --format text0 --output files tag:"${TAG}" and not folder:"${FOLDER}" and not folder:"${SENTFOLDER}" |\
+        xargs -0 -I {} mv -fv {} ~/mail/"${FOLDER}"/cur/
+}
+
+# move files in maildir to sync with changes to tags
+move_tagged_mail archived ArchivedMail
+move_tagged_mail inbox INBOX
+
+offlineimap
+
+# remove deleted email
+notmuch search --format=text0 --output=files tag:deleted | xargs -0 --no-run-if-empty rm -v
+
+NOTMUCH_DB_COUNTER_BEFORE=$(notmuch count --lastmod | cut -f3)
+notmuch new
+
+# using --input is more efficient than multiple invocations of notmuch tag
+# this syncs our tags based on what was done on IMAP
+notmuch tag --input &lt;(echo "
+-inbox +archived -- lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. and folder:ArchivedMail
++inbox -archived -- lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. and folder:INBOX
++sent -- lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. and folder:sent
+")
+
+# tag groups
+notmuch tag --input &lt;(echo "
++mailing-list -inbox --lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. tag:inbox and (to:mailinglist@example.com or to:mailinglist2@example.com)
++mailing-list -inbox --lastmod:${NOTMUCH_DB_COUNTER_BEFORE}.. tag:inbox and subject:[GitHub] A new public key was added to
+")
+</pre>
 
 <p>
 The script
@@ -292,10 +368,42 @@ revision number. By storing the revision number before running
 </div>
 </div>
 
-<div id="outline-container-org53bbb7e" class="outline-2">
-<h2 id="org53bbb7e"><span class="section-number-2">5</span> GNU Emacs</h2>
+<div id="outline-container-org6958e20" class="outline-2">
+<h2 id="org6958e20"><span class="section-number-2">5</span> GNU Emacs</h2>
 <div class="outline-text-2" id="text-5">
-<script src="https://gist.github.com/jorenvo/b7e1f8907dae1a8e8e37d5a4dbfe1e89.js"></script>
+<pre class="example">
+(defun replace-unicode-no-break-space ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward " " nil t)
+      (replace-match " "))))
+
+(use-package notmuch
+  :defer t
+  :config
+  (progn
+    (add-hook 'notmuch-show-hook 'replace-unicode-no-break-space)
+    (setq message-send-mail-function 'smtpmail-send-it
+          smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+          smtpmail-default-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-service 587
+          smtpmail-local-domain "gmail.com"
+          notmuch-archive-tags '("-inbox" "+archived")
+          notmuch-fcc-dirs "SentDir +sent"
+          notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full
+          notmuch-show-empty-saved-searches t
+          notmuch-saved-searches `((:name "inbox" :query "tag:inbox" :key ,(kbd "i"))
+                                   (:name "mailing-lists" :query "tag:mailing-list and not tag:archived" :key ,(kbd "m"))
+                                   (:name "archived" :query "tag:archived" :key ,(kbd "a")))
+          message-citation-line-format "On %a, %b %d, %Y at %R, %f wrote:"
+          message-citation-line-function 'message-insert-formatted-citation-line
+          message-kill-buffer-on-exit t
+          user-full-name "Joren Van Onder"
+          user-mail-address "email@example.com"
+          mm-decrypt-option 'always
+          mm-verify-option 'always)))
+</pre>
 
 <p>
 My Emacs configuration is not very special. We have software that
