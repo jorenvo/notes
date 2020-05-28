@@ -1,0 +1,150 @@
+#+TITLE: Point Of Sale development in Odoo v12
+#+DATE: <2020-05-14 Thu>
+#+EXPORT_FILE_NAME: index.html
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
+#+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>
+#+HTML_HEAD: <script src="/notes/assets/sw-loader.js" defer></script>
+#+OPTIONS: html-scripts:nil
+#+OPTIONS: html-style:nil
+#+OPTIONS: html5-fancy:t
+#+OPTIONS: html-postamble:t
+#+OPTIONS: html-preamble:t
+#+OPTIONS: ^:nil
+#+HTML_DOCTYPE: html5
+#+HTML_CONTAINER: div
+#+DESCRIPTION: Point Of Sale development in Odoo v12
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+AUTHOR: Joren Van Onder
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
+#+LATEX_HEADER:
+This document will describe how to develop new features in the POS
+module. It will use Odoo v12 as an example, but everything should be
+applicable to all versions before v14.
+
+The POS is very different from the rest of Odoo because it had to work
+offline.
+
+* Backbone
+
+The POS uses a subset of [[https://backbonejs.org/][backbone.js]] to handle user interface updates
+and persistence. Let's go over the concepts of backbone.js that are
+relevant in Odoo.
+
+** Models
+
+The POS defines the following [[https://backbonejs.org/#Model][backbone models]]:
+
+IMG
+
+The arrows represent ownership, e.g. Order owns many Orderlines. Most
+of these have references back to Posmodel, but they have not been
+drawn to keep the diagram simple.
+
+Wrapped in collection
+
+** Backbone Events
+Backbone is used to monitor changes in datamodels. This is
+accomplished using the =on= function (sometimes the POS uses its old
+name: =bind=). This function allows us to specify a callback that's
+executed whenever a backbone model changes. Backbone tracks attributes
+on models that are created/modified using =set=. Regular JS properties
+are not tracked. =on= also accepts [[https://backbonejs.org/#Collection][Backbone.Collection]] objects as
+described above. Here's an abbreviated example from [[https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/models.js#L1986][the Order model]]:
+
+#+BEGIN_EXAMPLE
+exports.Order = Backbone.Model.extend({
+  initialize: function(attributes,options){
+    Backbone.Model.prototype.initialize.apply(this, arguments)
+    ...
+    this.set({ client: null });
+    ...
+    this.on('change', function(){ this.save_to_db("order:change"); }, this);
+    this.orderlines.on('change',   function(){ this.save_to_db("orderline:change"); }, this);
+    this.orderlines.on('add',      function(){ this.save_to_db("orderline:add"); }, this);
+    this.orderlines.on('remove',   function(){ this.save_to_db("orderline:remove"); }, this);
+    this.paymentlines.on('change', function(){ this.save_to_db("paymentline:change"); }, this);
+    this.paymentlines.on('add',    function(){ this.save_to_db("paymentline:add"); }, this);
+    this.paymentlines.on('remove', function(){ this.save_to_db("paymentline:rem"); }, this);
+    ...
+  }
+}
+#+END_EXAMPLE
+
+This will call the the specified function when the =client= attribute
+and the =orderlines= or =paymentlines= collection changes. Backbone
+[[https://backbonejs.org/#Events-catalog][will emit various events]] but in Odoo we mainly use =change= for
+attributes on the object itself and =add= and =remove= for
+collections [fn:1].
+
+The Backbone events drive two POS features: UI updates and
+persistence.
+
+*** Updating the UI
+The UI has to reflect changes that happened to the datamodels. Let's
+look at a specific example and following flow of events.
+
+Event based, stack trace doesn't work, that's why this. Buffered,
+rerender at end of function calls.
+
+ProductListWidget screens.js:899:21
+ProductScreenWidget screens.js:1064:62
+manual trigger: set_unit_price 2 models.js:1651:17
+manual trigger: orderline set_quantity models.js:1455:17
+manual trigger: set_unit_price 2 models.js:1651:17
+trigger add Orderline backbone.js:162:15
+trigger add collection backbone.js:162:15
+
+qweb render OrderWidget qweb2.js:445:21
+rendering orderline Whiteboard Pen screens.js:611:17
+qweb render Orderline qweb2.js:445:21
+rendering orderline Customizable Desk (Aluminium, Black) screens.js:611:17
+qweb render Orderline qweb2.js:445:21
+manual trigger: orderline set_selected models.js:1529:17
+trigger change Orderline backbone.js:162:15
+trigger change collection backbone.js:162:15
+rendering orderline Whiteboard Pen screens.js:611:17
+qweb render Orderline qweb2.js:445:21
+
+// duplicate because alt img
+manual trigger: orderline set_selected models.js:1529:17
+trigger change Orderline backbone.js:162:15
+trigger change collection backbone.js:162:15
+rendering orderline Customizable Desk (Aluminium, Black) screens.js:611:17
+qweb render Orderline qweb2.js:445:21
+
+*** Persistence
+
+
+ manual triggers
+
+ export_from_json <-> init_from_json
+
+ backbone (+ what backbone models there are in js)
+
+ loading models/fields
+
+ js modules
+
+ files -> use
+
+ PosBaseWidget
+
+ db/persistence
+
+ two supers
+
+ popups?
+
+ define_action_button
+
+ export to json
+
+[fn:1] It's also possible to watch for specific changes to a single
+attribute using e.g. =change:client=, but this is [[https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/models.js#L88][only]] [[https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/models.js#L102][used]] [[https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/chrome.js#L414][rarely]].

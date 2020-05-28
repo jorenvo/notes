@@ -29,4 +29,6 @@
 
 [[./mail/][Mail]]
 
-[[./multi_website/][Multi website in Odoo v12]]
+[[./multi_website/][Odoo: Multi Website]]
+
+[[./pos/][Odoo: Point Of Sale]]

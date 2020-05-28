@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- May 18 2020 -->
+<!-- May 21 2020 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Multi-website in Odoo v12</title>
@@ -33,23 +33,23 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orge15c006">1. Website selection</a></li>
-<li><a href="#org7d96fb7">2. Copy-on-write (COW)</a>
+<li><a href="#org9432bba">1. Website selection</a></li>
+<li><a href="#org40de00f">2. Copy-on-write (COW)</a>
 <ul>
-<li><a href="#org4e0379a">2.1. Rendering</a></li>
+<li><a href="#orgce03e12">2.1. Rendering</a></li>
 </ul>
 </li>
-<li><a href="#org7231971">3. Mixins</a>
+<li><a href="#orgced596a">3. Mixins</a>
 <ul>
-<li><a href="#org6e95ec3">3.1. website.published.multi.mixin</a></li>
-<li><a href="#orga331432">3.2. website.published.mixin</a></li>
-<li><a href="#org72b0779">3.3. website.multi.mixin</a></li>
+<li><a href="#orgd3c9bd0">3.1. website.published.multi.mixin</a></li>
+<li><a href="#orge76d95d">3.2. website.published.mixin</a></li>
+<li><a href="#org258fe20">3.3. website.multi.mixin</a></li>
 </ul>
 </li>
-<li><a href="#org6f7c0f8">4. Record rule</a></li>
-<li><a href="#orgd664f84">5. Themes</a></li>
-<li><a href="#org76498e0">6. Sessions</a></li>
-<li><a href="#org113a996">7. Assets</a></li>
+<li><a href="#org61ff538">4. Record rule</a></li>
+<li><a href="#orgca37ac6">5. Themes</a></li>
+<li><a href="#org8c611fb">6. Sessions</a></li>
+<li><a href="#org3bc4405">7. Assets</a></li>
 </ul>
 </div>
 </nav>
@@ -60,8 +60,8 @@ focusing on v12 in this document, but everything should be applicable
 to v13 as well.
 </p>
 
-<div id="outline-container-orge15c006" class="outline-2">
-<h2 id="orge15c006"><span class="section-number-2">1</span> Website selection</h2>
+<div id="outline-container-org9432bba" class="outline-2">
+<h2 id="org9432bba"><span class="section-number-2">1</span> Website selection</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 What website to render is determined by <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L479">get_current_website()</a>. It
@@ -91,13 +91,13 @@ You can also do it manually with this GET parameter:
 
 <p>
 This is <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_http.py#L98">set on the session</a> so it will persist as long as the user is
-logged in. See <a href="#org76498e0">this</a> for more info on sessions.
+logged in. See <a href="#org8c611fb">this</a> for more info on sessions.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org7d96fb7" class="outline-2">
-<h2 id="org7d96fb7"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
+<div id="outline-container-org40de00f" class="outline-2">
+<h2 id="org40de00f"><span class="section-number-2">2</span> Copy-on-write (COW)</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Multi-website is implemented in a way that keeps module upgrades and
@@ -152,8 +152,8 @@ are created when a generic view is deleted from the frontend.
 </p>
 </div>
 
-<div id="outline-container-org4e0379a" class="outline-3">
-<h3 id="org4e0379a"><span class="section-number-3">2.1</span> Rendering</h3>
+<div id="outline-container-orgce03e12" class="outline-3">
+<h3 id="orgce03e12"><span class="section-number-3">2.1</span> Rendering</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 When views are rendered <a target="_blank" href="https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b44c75d415e99b52d633a1/addons/website/models/ir_ui_view.py#L205">filter_duplicate()</a> ensures that for each <code>key</code>
@@ -198,16 +198,16 @@ A render of website 2 will consist of:
 </div>
 </div>
 
-<div id="outline-container-org7231971" class="outline-2">
-<h2 id="org7231971"><span class="section-number-2">3</span> Mixins</h2>
+<div id="outline-container-orgced596a" class="outline-2">
+<h2 id="orgced596a"><span class="section-number-2">3</span> Mixins</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Multiple mixins are available to publish models on the website:
 </p>
 </div>
 
-<div id="outline-container-org6e95ec3" class="outline-3">
-<h3 id="org6e95ec3"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
+<div id="outline-container-orgd3c9bd0" class="outline-3">
+<h3 id="orgd3c9bd0"><span class="section-number-3">3.1</span> website.published.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L966">This</a> inherits both <code>website.published.mixin</code> and <code>website.multi.mixin</code>
@@ -240,8 +240,8 @@ if not record.can_access_from_current_website():
 </div>
 </div>
 
-<div id="outline-container-orga331432" class="outline-3">
-<h3 id="orga331432"><span class="section-number-3">3.2</span> website.published.mixin</h3>
+<div id="outline-container-orge76d95d" class="outline-3">
+<h3 id="orge76d95d"><span class="section-number-3">3.2</span> website.published.mixin</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/website.py#L931">This</a> makes it possible to publish/unpublish your model through
@@ -252,8 +252,8 @@ website via the toggle.
 </div>
 </div>
 
-<div id="outline-container-org72b0779" class="outline-3">
-<h3 id="org72b0779"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
+<div id="outline-container-org258fe20" class="outline-3">
+<h3 id="org258fe20"><span class="section-number-3">3.3</span> website.multi.mixin</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 In practice this only provides a <code>website_id</code> field and the
@@ -266,8 +266,8 @@ themselves via the frontend.
 </div>
 </div>
 
-<div id="outline-container-org6f7c0f8" class="outline-2">
-<h2 id="org6f7c0f8"><span class="section-number-2">4</span> Record rule</h2>
+<div id="outline-container-org61ff538" class="outline-2">
+<h2 id="org61ff538"><span class="section-number-2">4</span> Record rule</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 <code>website</code> is added <a target="_blank" href="https://github.com/odoo/odoo/blob/9eb2875498044518bdfd8a473edb9cd174d26da5/addons/website/models/ir_rule.py#L10">to the eval context of record rules</a> so you can
@@ -285,8 +285,8 @@ easily write record rules that restrict based on the current website:
 </div>
 </div>
 
-<div id="outline-container-orgd664f84" class="outline-2">
-<h2 id="orgd664f84"><span class="section-number-2">5</span> Themes</h2>
+<div id="outline-container-orgca37ac6" class="outline-2">
+<h2 id="orgca37ac6"><span class="section-number-2">5</span> Themes</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Themes are regular Odoo modules but they are more complex than you
@@ -339,8 +339,8 @@ website's URL.
 </div>
 </div>
 
-<div id="outline-container-org76498e0" class="outline-2">
-<h2 id="org76498e0"><span class="section-number-2">6</span> Sessions</h2>
+<div id="outline-container-org8c611fb" class="outline-2">
+<h2 id="org8c611fb"><span class="section-number-2">6</span> Sessions</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Sessions are based on <a target="_blank" href="https://werkzeug.palletsprojects.com/en/0.16.x/contrib/sessions/">Werkzeug sessions</a>. When a user visits Odoo a
@@ -366,8 +366,8 @@ you need to login again.
 </div>
 </div>
 
-<div id="outline-container-org113a996" class="outline-2">
-<h2 id="org113a996"><span class="section-number-2">7</span> Assets</h2>
+<div id="outline-container-org3bc4405" class="outline-2">
+<h2 id="org3bc4405"><span class="section-number-2">7</span> Assets</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 JS and SCSS assets in Odoo are compiled, minimized and combined into
@@ -452,7 +452,7 @@ website.
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="publish-date">Published on May 14 2020</p>
+<p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="publish-date">Published on May 19 2020</p>
 </div>
 </body>
 </html>

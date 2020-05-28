@@ -1,0 +1,15 @@
+digraph d {
+        bgcolor="transparent";
+        // rankdir="RL";
+
+        // "website.layout" [shape=circle,style=wedged,fillcolor="red:blue"];
+
+        PosModel -> Order
+
+        Order -> Orderline;
+        Order -> Paymentline;
+        Order -> Packlotline;
+        Orderline -> Product;
+
+        // NumpadState ->
+}

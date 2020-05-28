@@ -1,0 +1,119 @@
+digraph d {
+        bgcolor="transparent";
+        // rankdir="RL";
+
+        // "website.layout" [shape=circle,style=wedged,fillcolor="red:blue"];
+
+        click_product [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>ProductScreenWidget</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/screens.js#L1087"><FONT FACE="monospace">
+click_product: function(product) {<BR/>
+   // ...<BR/>
+   }else{<BR/>
+       this.pos.get_order().add_product(product);<BR/>
+   }<BR/>
+}</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        add_product [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>Order</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L2353"><FONT FACE="monospace">
+add_product: function(product, options){<BR/>
+    // ...<BR/>
+    var line = new exports.Orderline({}, {pos: this.pos, order: this, product: product});<BR/>
+    // ...<BR/>
+    line.set_quantity(options.quantity);<BR/>
+    // ...<BR/>
+    else {<BR/>
+       <FONT FACE="monospace" COLOR="red">this.orderlines.add(line);</FONT><BR/>
+    }<BR/>
+}</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        orderline_initialize [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>Orderline</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L1342"><FONT FACE="monospace">
+initialize: function(attr,options){<BR/>
+    // ...<BR/>
+    this.set_quantity(1);<BR/>
+    // ...<BR/>
+    this.set_unit_price(this.product.get_price(this.order.pricelist, this.get_quantity()));<BR/>
+}</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        orderline_set_unit_price [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>Orderline</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L1645"><FONT FACE="monospace">
+set_unit_price: function(price){<BR/>
+    this.order.assert_editable();<BR/>
+    this.price = round_di(parseFloat(price) || 0, this.pos.dp['Product Price']);<BR/>
+   <FONT FACE="monospace" COLOR="red">this.trigger('change',this);</FONT><BR/>
+}</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        orderline_set_quantity [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>Orderline</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L1425"><FONT FACE="monospace">
+set_quantity: function(quantity, keep_price){<BR/>
+    // ...<BR/>
+   <FONT FACE="monospace" COLOR="red">this.trigger('change', this);</FONT><BR/>
+}</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        // rendering
+        render_orderwidget_bind [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>OrderWidget</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/screens.js#L594"><FONT FACE="monospace">
+bind_order_events: function() {
+    // ...
+    var lines = order.orderlines;
+    // ...
+    lines.bind('add', this.orderline_add, this);
+}</FONT></TD>
+</TR>
+    </TABLE>
+    >];
+
+    render_orderline_add [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>OrderWidget</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/screens.js#L581"><FONT FACE="monospace">
+orderline_add: function(){<BR/>
+    // ...<BR/>
+    this.renderElement('and_scroll_to_bottom');<BR/>
+}</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        click_product -> add_product [label="0."];
+        add_product -> orderline_initialize [label="1."];
+        orderline_initialize -> orderline_set_quantity [label="2."];
+        orderline_initialize -> orderline_set_unit_price [label="3."];
+        add_product -> orderline_set_quantity [label="4."];
+
+        
+}
