@@ -1,9 +1,12 @@
 digraph d {
         bgcolor="transparent";
+        graph [compound=true];
         // rankdir="RL";
 
         // "website.layout" [shape=circle,style=wedged,fillcolor="red:blue"];
 
+        subgraph cluster_events {
+        label="Backbone events";
         click_product [shape=none, label=<
         <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
            <TR><TD>ProductScreenWidget</TD></TR>
@@ -80,23 +83,31 @@ set_quantity: function(quantity, keep_price){<BR/>
         </TABLE>
         >];
 
-        // rendering
+        click_product -> add_product [label="2."];
+        add_product -> orderline_initialize [label="3."];
+        orderline_initialize -> orderline_set_quantity [label="4."];
+        orderline_initialize -> orderline_set_unit_price [label="5."];
+        add_product -> orderline_set_quantity [label="6."];
+        }
+
+        subgraph cluster_rendering {
+        label="UI rendering";
         render_orderwidget_bind [shape=none, label=<
         <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
-           <TR><TD>OrderWidget</TD></TR>
+           <TR><TD>1. OrderWidget</TD></TR>
            <TR>
              <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/screens.js#L594"><FONT FACE="monospace">
-bind_order_events: function() {
-    // ...
-    var lines = order.orderlines;
-    // ...
-    lines.bind('add', this.orderline_add, this);
+bind_order_events: function() {<BR/>
+    // ...<BR/>
+    var lines = order.orderlines;<BR/>
+    // ...<BR/>
+    lines.bind('add', this.orderline_add, this);<BR/>
 }</FONT></TD>
 </TR>
     </TABLE>
     >];
 
-    render_orderline_add [shape=none, label=<
+        render_orderline_add [shape=none, label=<
         <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
            <TR><TD>OrderWidget</TD></TR>
            <TR>
@@ -109,11 +120,40 @@ orderline_add: function(){<BR/>
         </TABLE>
         >];
 
-        click_product -> add_product [label="0."];
-        add_product -> orderline_initialize [label="1."];
-        orderline_initialize -> orderline_set_quantity [label="2."];
-        orderline_initialize -> orderline_set_unit_price [label="3."];
-        add_product -> orderline_set_quantity [label="4."];
+        render_element [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>OrderWidget</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/screens.js#L645"><FONT FACE="monospace">
+renderElement: function(scrollbottom){<BR/>
+    var el_str  = QWeb.render('OrderWidget',{widget:this, order:order, orderlines:orderlines});<BR/>
+    // ...<BR/>
+    for(var i = 0, len = orderlines.length; i &lt; len; i++){<BR/>
+        var orderline = this.render_orderline(orderlines[i]);<BR/>
+        list_container.appendChild(orderline);<BR/>
+    }<BR/>
+    // ...<BR/>
+},</FONT></TD>
+</TR>
+        </TABLE>
+        >];
 
-        
+        render_orderline [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>OrderWidget</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/screens.js#L610"><FONT FACE="monospace">
+render_orderline: function(orderline){<BR/>
+    var el_str  = QWeb.render('Orderline',{widget:this, line:orderline});<BR/>
+    // ...<BR/>
+}</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        render_orderline_add -> render_element [label="8."];
+        render_element -> render_orderline [label="9."];
+        }
+
+        click_product -> render_orderwidget_bind [label="7.", style="dotted", ltail=cluster_events, lhead=cluster_rendering];
 }
