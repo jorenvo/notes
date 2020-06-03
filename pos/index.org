@@ -41,7 +41,7 @@ relevant in Odoo.
 
 The POS defines the following [[https://backbonejs.org/#Model][backbone models]]:
 
-IMG
+[[/notes/pos/backbone.svg]]
 
 The arrows represent ownership, e.g. Order owns many Orderlines. Most
 of these have references back to Posmodel, but they have not been
@@ -81,70 +81,177 @@ This will call the the specified function when the =client= attribute
 and the =orderlines= or =paymentlines= collection changes. Backbone
 [[https://backbonejs.org/#Events-catalog][will emit various events]] but in Odoo we mainly use =change= for
 attributes on the object itself and =add= and =remove= for
-collections [fn:1].
+collections.
 
-The Backbone events drive two POS features: UI updates and
+These Backbone events drive two POS features: UI updates and
 persistence.
 
 *** Updating the UI
 The UI has to reflect changes that happened to the datamodels. Let's
-look at a specific example and following flow of events.
+look at a specific example and following flow of events. The diagram
+shows what happens after a user clicks on a product, adding it to the
+current order. Because this happens through events visualizing stack
+traces doesn't really work. The diagram shows the code triggering the
+event and the code responding to the event. Each event is ordered with
+a number.
 
-Event based, stack trace doesn't work, that's why this. Buffered,
-rerender at end of function calls.
+[[/notes/pos/backbone_sequence.svg]]
 
-ProductListWidget screens.js:899:21
-ProductScreenWidget screens.js:1064:62
-manual trigger: set_unit_price 2 models.js:1651:17
-manual trigger: orderline set_quantity models.js:1455:17
-manual trigger: set_unit_price 2 models.js:1651:17
-trigger add Orderline backbone.js:162:15
-trigger add collection backbone.js:162:15
+Note that triggering an event doesn't automatically cause the UI to update.
+It only happens after the current message in the JS runtime message
+queue is fully processed. Practically this means that triggering an
+event multiple times in response to the same click will result in only
+a single rerender, for more info read up on the [[https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop][JS event loop]].
 
-qweb render OrderWidget qweb2.js:445:21
-rendering orderline Whiteboard Pen screens.js:611:17
-qweb render Orderline qweb2.js:445:21
-rendering orderline Customizable Desk (Aluminium, Black) screens.js:611:17
-qweb render Orderline qweb2.js:445:21
-manual trigger: orderline set_selected models.js:1529:17
-trigger change Orderline backbone.js:162:15
-trigger change collection backbone.js:162:15
-rendering orderline Whiteboard Pen screens.js:611:17
-qweb render Orderline qweb2.js:445:21
+manual triggers
 
-// duplicate because alt img
-manual trigger: orderline set_selected models.js:1529:17
-trigger change Orderline backbone.js:162:15
-trigger change collection backbone.js:162:15
-rendering orderline Customizable Desk (Aluminium, Black) screens.js:611:17
-qweb render Orderline qweb2.js:445:21
+# ProductListWidget screens.js:899:21
+# ProductScreenWidget screens.js:1064:62
+# manual trigger: set_unit_price 2 models.js:1651:17
+# manual trigger: orderline set_quantity models.js:1455:17
+# manual trigger: set_unit_price 2 models.js:1651:17
+# trigger add Orderline backbone.js:162:15
+# trigger add collection backbone.js:162:15
+
+# qweb render OrderWidget qweb2.js:445:21
+# rendering orderline Whiteboard Pen screens.js:611:17
+# qweb render Orderline qweb2.js:445:21
+# rendering orderline Customizable Desk (Aluminium, Black) screens.js:611:17
+# qweb render Orderline qweb2.js:445:21
+# manual trigger: orderline set_selected models.js:1529:17
+# trigger change Orderline backbone.js:162:15
+# trigger change collection backbone.js:162:15
+# rendering orderline Whiteboard Pen screens.js:611:17
+# qweb render Orderline qweb2.js:445:21
+
+# // duplicate because alt img
+# manual trigger: orderline set_selected models.js:1529:17
+# trigger change Orderline backbone.js:162:15
+# trigger change collection backbone.js:162:15
+# rendering orderline Customizable Desk (Aluminium, Black) screens.js:611:17
+# qweb render Orderline qweb2.js:445:21
 
 *** Persistence
+As shown in [[*Backbone Events]] changes to orders, orderlines and
+paymentlines all trigger =save_to_db=. This calls =save_unpaid_order=
+which is part of the =point_of_sale.DB= module.
 
+This module is responsible for persistent storage in the POS. It uses
+=load()= and =save()= to store data like orders in [[https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage][localStorage]]. It
+uses [[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify][JSON.stringify()]] to serialize and [[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse][JSON.parse()]] to deserialize
+data it saves to localStorage.
 
- manual triggers
+[[/notes/pos/serialize.svg]]
 
- export_from_json <-> init_from_json
+A common mistake is to forget adding new properties to
+=init_from_JSON= and =export_from_JSON=. When possible the properties
+should be added as Backbone properties (using =set=). If they are
+added as regular JS properties then manual changes need to be
+triggered every time the property changes. A good way to test if
+properties are saved properly is to see if they survive a reload
+(F5). An example showcasing this is the =note= property on =Orderline=
+added [[https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/notes.js#L37][in pos_restaurant]]. Since it's a regular JS property changes are
+[[https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/notes.js#L20][manually triggered]].
 
- backbone (+ what backbone models there are in js)
+* Offline
+The POS is meant to work offline. It loads all it's data when the POS
+opens, after this it's capable of working without a connection to the
+Odoo server. When orders cannot be synced to Odoo the POS will retry
+later.
 
- loading models/fields
+If a new feature requires new fields to be available in the POS use
+the =load_fields= function in =point_of_sale.models=. If you require
+the POS to load a new model use =load_models= instead.
 
- js modules
+* Adding new features
+I highly recommend using an existing working module as a template. I
+recommend using the [[https://github.com/odoo/odoo/tree/d4255e01d67154a60cd0c31070ac62e581f50340/addons/pos_discount][pos_discount module]]. I won't describe every single
+detail but when you start from a working module you should be fine.
+** JS modules
+You should structure your code in modules. Here's how the
+=point_of_sale.models= module is defined:
 
- files -> use
+#+BEGIN_EXAMPLE
+odoo.define('point_of_sale.models', function (require) {
+  var exports = {};
+  exports.PosModel = Backbone.Model.extend({...
+  exports.load_fields = function(model_name, fields) {...
+  exports.load_models = function(models,options) {...
+  exports.Product = Backbone.Model.extend({...
+  exports.Orderline = Backbone.Model.extend({...
+  exports.Packlotline = Backbone.Model.extend({...
+  exports.Paymentline = Backbone.Model.extend({...
+  exports.Order = Backbone.Model.extend({...
+  exports.NumpadState = Backbone.Model.extend({...
+  
+  return exports;
+});
+#+END_EXAMPLE 
 
- PosBaseWidget
+The passed in =require= function can be used to require other
+modules. It will take care of dependency resolution
+automatically. What's exported from a module can be accessed via the
+return value of =require=. Here's an example of a new module using the
+exported =load_fields= function to load a new field on =res.partner=:
 
- db/persistence
+#+BEGIN_EXAMPLE
+odoo.define('pos_example.models', function (require) {
+  'use strict';
+  var models = require('point_of_sale.models');
 
- two supers
+  models.load_fields('res.partner, 'new_field_name');
+}
+#+END_EXAMPLE
 
- popups?
+** Adding buttons
+** Supers
+There's two main ways you can call the method you're inheriting
+(=super(MyClass, self).my_method()= in Python).
 
- define_action_button
+*** Backbone model
+If the model you're inheriting is a Backbone model
+(e.g. =Order= in =point_of_sale.models=) then you need to explicitly
+reference the parent function in some way. Usually this is done by
+referencing the original prototype, here's an example [[https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/floors.js#L734][extending Order
+in pos_restaurant]]:
 
- export to json
+#+BEGIN_EXAMPLE
+var _super_order = models.Order.prototype;
+models.Order = models.Order.extend({
+    initialize: function() {
+        _super_order.initialize.apply(this,arguments);
+#+END_EXAMPLE
 
-[fn:1] It's also possible to watch for specific changes to a single
-attribute using e.g. =change:client=, but this is [[https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/models.js#L88][only]] [[https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/models.js#L102][used]] [[https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/chrome.js#L414][rarely]].
+*** Odoo JS model (core.Class or web.Widget)
+These behave as regular Odoo JS classes and can be extended as
+described in the [[https://www.odoo.com/documentation/12.0/reference/javascript_reference.html][official documentation]]. In the POS you usually modify
+them using =include= and the original definition can be called with
+=_super=. Here's another example [[https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/floors.js#L959][from pos_restaurant]]:
+
+#+BEGIN_EXAMPLE
+screens.OrderWidget.include({
+    update_summary: function(){
+        this._super();
+        if (this.getParent().action_buttons &&
+            this.getParent().action_buttons.guests) {
+            this.getParent().action_buttons.guests.renderElement();
+        }
+    },
+});
+#+END_EXAMPLE
+
+** XML add JS
+** JS QWeb
+
+export_as_json <-> init_from_json
+backbone (+ what backbone models there are in js)
+loading models/fields
+js modules
+files -> use
+PosBaseWidget
+db/persistence
+two supers
+popups?
+define_action_button
+export to json
+customization example

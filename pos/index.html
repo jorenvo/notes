@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- May 21 2020 -->
+<!-- June  2 2020 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Point Of Sale development in Odoo v12</title>
@@ -17,7 +17,357 @@
 <div id="content">
 <header>
 <h1 class="title">Point Of Sale development in Odoo v12</h1>
-</header></div>
+</header><nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgedd64d7">1. Backbone</a>
+<ul>
+<li><a href="#org0451a2f">1.1. Models</a></li>
+<li><a href="#orgb6c9bea">1.2. Backbone Events</a>
+<ul>
+<li><a href="#org8be4f96">1.2.1. Updating the UI</a></li>
+<li><a href="#org4f05df1">1.2.2. Persistence</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgadf40f9">2. Offline</a></li>
+<li><a href="#orgd69c5c1">3. Adding new features</a>
+<ul>
+<li><a href="#org30df122">3.1. JS modules</a></li>
+<li><a href="#orgaff08e3">3.2. Adding buttons</a></li>
+<li><a href="#orgeb3c0bd">3.3. Supers</a>
+<ul>
+<li><a href="#orgaaee6bb">3.3.1. Backbone model</a></li>
+<li><a href="#org9cdb5f5">3.3.2. Odoo JS model (core.Class or web.Widget)</a></li>
+</ul>
+</li>
+<li><a href="#org847b3b8">3.4. XML add JS</a></li>
+<li><a href="#org3946c65">3.5. JS QWeb</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<p>
+This document will describe how to develop new features in the POS
+module. It will use Odoo v12 as an example, but everything should be
+applicable to all versions before v14.
+</p>
+
+<p>
+The POS is very different from the rest of Odoo because it had to work
+offline.
+</p>
+
+<div id="outline-container-orgedd64d7" class="outline-2">
+<h2 id="orgedd64d7"><span class="section-number-2">1</span> Backbone</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The POS uses a subset of <a target="_blank" href="https://backbonejs.org/">backbone.js</a> to handle user interface updates
+and persistence. Let's go over the concepts of backbone.js that are
+relevant in Odoo.
+</p>
+</div>
+
+<div id="outline-container-org0451a2f" class="outline-3">
+<h3 id="org0451a2f"><span class="section-number-3">1.1</span> Models</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+The POS defines the following <a target="_blank" href="https://backbonejs.org/#Model">backbone models</a>:
+</p>
+
+
+<figure>
+<object type="image/svg+xml" data="/notes/revisioned/pos/backbone-59b084ca07.svg" class="org-svg">
+Sorry, your browser does not support SVG.</object>
+
+</figure>
+
+<p>
+The arrows represent ownership, e.g. Order owns many Orderlines. Most
+of these have references back to Posmodel, but they have not been
+drawn to keep the diagram simple.
+</p>
+
+<p>
+Wrapped in collection
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb6c9bea" class="outline-3">
+<h3 id="orgb6c9bea"><span class="section-number-3">1.2</span> Backbone Events</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Backbone is used to monitor changes in datamodels. This is
+accomplished using the <code>on</code> function (sometimes the POS uses its old
+name: <code>bind</code>). This function allows us to specify a callback that's
+executed whenever a backbone model changes. Backbone tracks attributes
+on models that are created/modified using <code>set</code>. Regular JS properties
+are not tracked. <code>on</code> also accepts <a target="_blank" href="https://backbonejs.org/#Collection">Backbone.Collection</a> objects as
+described above. Here's an abbreviated example from <a target="_blank" href="https://github.com/odoo/odoo/blob/85fe44a7298ef9883160359814e74e39b7e10873/addons/point_of_sale/static/src/js/models.js#L1986">the Order model</a>:
+</p>
+
+<pre class="example">
+exports.Order = Backbone.Model.extend({
+  initialize: function(attributes,options){
+    Backbone.Model.prototype.initialize.apply(this, arguments)
+    ...
+    this.set({ client: null });
+    ...
+    this.on('change', function(){ this.save_to_db("order:change"); }, this);
+    this.orderlines.on('change',   function(){ this.save_to_db("orderline:change"); }, this);
+    this.orderlines.on('add',      function(){ this.save_to_db("orderline:add"); }, this);
+    this.orderlines.on('remove',   function(){ this.save_to_db("orderline:remove"); }, this);
+    this.paymentlines.on('change', function(){ this.save_to_db("paymentline:change"); }, this);
+    this.paymentlines.on('add',    function(){ this.save_to_db("paymentline:add"); }, this);
+    this.paymentlines.on('remove', function(){ this.save_to_db("paymentline:rem"); }, this);
+    ...
+  }
+}
+</pre>
+
+<p>
+This will call the the specified function when the <code>client</code> attribute
+and the <code>orderlines</code> or <code>paymentlines</code> collection changes. Backbone
+<a target="_blank" href="https://backbonejs.org/#Events-catalog">will emit various events</a> but in Odoo we mainly use <code>change</code> for
+attributes on the object itself and <code>add</code> and <code>remove</code> for
+collections.
+</p>
+
+<p>
+These Backbone events drive two POS features: UI updates and
+persistence.
+</p>
+</div>
+
+<div id="outline-container-org8be4f96" class="outline-4">
+<h4 id="org8be4f96"><span class="section-number-4">1.2.1</span> Updating the UI</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+The UI has to reflect changes that happened to the datamodels. Let's
+look at a specific example and following flow of events. The diagram
+shows what happens after a user clicks on a product, adding it to the
+current order. Because this happens through events visualizing stack
+traces doesn't really work. The diagram shows the code triggering the
+event and the code responding to the event. Each event is ordered with
+a number.
+</p>
+
+
+<figure>
+<object type="image/svg+xml" data="/notes/revisioned/pos/backbone_sequence-48f5bff6c9.svg" class="org-svg">
+Sorry, your browser does not support SVG.</object>
+
+</figure>
+
+<p>
+Note that triggering an event doesn't automatically cause the UI to update.
+It only happens after the current message in the JS runtime message
+queue is fully processed. Practically this means that triggering an
+event multiple times in response to the same click will result in only
+a single rerender, for more info read up on the <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop">JS event loop</a>.
+</p>
+
+<p>
+manual triggers
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4f05df1" class="outline-4">
+<h4 id="org4f05df1"><span class="section-number-4">1.2.2</span> Persistence</h4>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+As shown in <a href="#orgb6c9bea">1.2</a> changes to orders, orderlines and
+paymentlines all trigger <code>save_to_db</code>. This calls <code>save_unpaid_order</code>
+which is part of the <code>point_of_sale.DB</code> module.
+</p>
+
+<p>
+This module is responsible for persistent storage in the POS. It uses
+<code>load()</code> and <code>save()</code> to store data like orders in <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>. It
+uses <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify">JSON.stringify()</a> to serialize and <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse">JSON.parse()</a> to deserialize
+data it saves to localStorage.
+</p>
+
+
+<figure>
+<object type="image/svg+xml" data="/notes/revisioned/pos/serialize-538ca35c13.svg" class="org-svg">
+Sorry, your browser does not support SVG.</object>
+
+</figure>
+
+<p>
+A common mistake is to forget adding new properties to
+<code>init_from_JSON</code> and <code>export_from_JSON</code>. When possible the properties
+should be added as Backbone properties (using <code>set</code>). If they are
+added as regular JS properties then manual changes need to be
+triggered every time the property changes. A good way to test if
+properties are saved properly is to see if they survive a reload
+(F5). An example showcasing this is the <code>note</code> property on <code>Orderline</code>
+added <a target="_blank" href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/notes.js#L37">in pos_restaurant</a>. Since it's a regular JS property changes are
+<a target="_blank" href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/notes.js#L20">manually triggered</a>.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgadf40f9" class="outline-2">
+<h2 id="orgadf40f9"><span class="section-number-2">2</span> Offline</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+The POS is meant to work offline. It loads all it's data when the POS
+opens, after this it's capable of working without a connection to the
+Odoo server. When orders cannot be synced to Odoo the POS will retry
+later.
+</p>
+
+<p>
+If a new feature requires new fields to be available in the POS use
+the <code>load_fields</code> function in <code>point_of_sale.models</code>. If you require
+the POS to load a new model use <code>load_models</code> instead.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd69c5c1" class="outline-2">
+<h2 id="orgd69c5c1"><span class="section-number-2">3</span> Adding new features</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+I highly recommend using an existing working module as a template. I
+recommend using the <a target="_blank" href="https://github.com/odoo/odoo/tree/d4255e01d67154a60cd0c31070ac62e581f50340/addons/pos_discount">pos_discount module</a>. I won't describe every single
+detail but when you start from a working module you should be fine.
+</p>
+</div>
+<div id="outline-container-org30df122" class="outline-3">
+<h3 id="org30df122"><span class="section-number-3">3.1</span> JS modules</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+You should structure your code in modules. Here's how the
+<code>point_of_sale.models</code> module is defined:
+</p>
+
+<pre class="example">
+odoo.define('point_of_sale.models', function (require) {
+  var exports = {};
+  exports.PosModel = Backbone.Model.extend({...
+  exports.load_fields = function(model_name, fields) {...
+  exports.load_models = function(models,options) {...
+  exports.Product = Backbone.Model.extend({...
+  exports.Orderline = Backbone.Model.extend({...
+  exports.Packlotline = Backbone.Model.extend({...
+  exports.Paymentline = Backbone.Model.extend({...
+  exports.Order = Backbone.Model.extend({...
+  exports.NumpadState = Backbone.Model.extend({...
+  
+  return exports;
+});
+</pre>
+
+<p>
+The passed in <code>require</code> function can be used to require other
+modules. It will take care of dependency resolution
+automatically. What's exported from a module can be accessed via the
+return value of <code>require</code>. Here's an example of a new module using the
+exported <code>load_fields</code> function to load a new field on <code>res.partner</code>:
+</p>
+
+<pre class="example">
+odoo.define('pos_example.models', function (require) {
+  'use strict';
+  var models = require('point_of_sale.models');
+
+  models.load_fields('res.partner, 'new_field_name');
+}
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgaff08e3" class="outline-3">
+<h3 id="orgaff08e3"><span class="section-number-3">3.2</span> Adding buttons</h3>
+</div>
+<div id="outline-container-orgeb3c0bd" class="outline-3">
+<h3 id="orgeb3c0bd"><span class="section-number-3">3.3</span> Supers</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+There's two main ways you can call the method you're inheriting
+(<code>super(MyClass, self).my_method()</code> in Python).
+</p>
+</div>
+
+<div id="outline-container-orgaaee6bb" class="outline-4">
+<h4 id="orgaaee6bb"><span class="section-number-4">3.3.1</span> Backbone model</h4>
+<div class="outline-text-4" id="text-3-3-1">
+<p>
+If the model you're inheriting is a Backbone model
+(e.g. <code>Order</code> in <code>point_of_sale.models</code>) then you need to explicitly
+reference the parent function in some way. Usually this is done by
+referencing the original prototype, here's an example <a target="_blank" href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/floors.js#L734">extending Order
+in pos_restaurant</a>:
+</p>
+
+<pre class="example">
+var _super_order = models.Order.prototype;
+models.Order = models.Order.extend({
+    initialize: function() {
+        _super_order.initialize.apply(this,arguments);
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org9cdb5f5" class="outline-4">
+<h4 id="org9cdb5f5"><span class="section-number-4">3.3.2</span> Odoo JS model (core.Class or web.Widget)</h4>
+<div class="outline-text-4" id="text-3-3-2">
+<p>
+These behave as regular Odoo JS classes and can be extended as
+described in the <a target="_blank" href="https://www.odoo.com/documentation/12.0/reference/javascript_reference.html">official documentation</a>. In the POS you usually modify
+them using <code>include</code> and the original definition can be called with
+<code>_super</code>. Here's another example <a target="_blank" href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/pos_restaurant/static/src/js/floors.js#L959">from pos_restaurant</a>:
+</p>
+
+<pre class="example">
+screens.OrderWidget.include({
+    update_summary: function(){
+        this._super();
+        if (this.getParent().action_buttons &amp;&amp;
+            this.getParent().action_buttons.guests) {
+            this.getParent().action_buttons.guests.renderElement();
+        }
+    },
+});
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org847b3b8" class="outline-3">
+<h3 id="org847b3b8"><span class="section-number-3">3.4</span> XML add JS</h3>
+</div>
+<div id="outline-container-org3946c65" class="outline-3">
+<h3 id="org3946c65"><span class="section-number-3">3.5</span> JS QWeb</h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+export_as_json &lt;-&gt; init_from_json
+backbone (+ what backbone models there are in js)
+loading models/fields
+js modules
+files -&gt; use
+PosBaseWidget
+db/persistence
+two supers
+popups?
+define_action_button
+export to json
+customization example
+</p>
+</div>
+</div>
+</div>
+</div>
 <div id="postamble" class="status">
 <p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="publish-date">Published on May 14 2020</p>
 </div>

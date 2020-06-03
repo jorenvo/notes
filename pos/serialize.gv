@@ -1,0 +1,108 @@
+digraph d {
+        bgcolor="transparent";
+        graph [compound=true];
+        // rankdir="RL";
+
+        subgraph cluster_get_json {
+                "Order.export_as_JSON()"[href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L2106", fontcolor="blue"];
+                "Packlotline.export_as_JSON()"[href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L1863", fontcolor="blue"];
+                "Orderline.export_as_JSON()"[href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L1578", fontcolor="blue"];
+                "Paymentline.export_as_JSON()"[href="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L1960", fontcolor="blue"];
+
+                "Order.export_as_JSON()" -> "Orderline.export_as_JSON()";
+                "Orderline.export_as_JSON()" -> "Packlotline.export_as_JSON()"
+                "Order.export_as_JSON()" -> "Paymentline.export_as_JSON()";
+        }
+
+        bind [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>Order</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L2020"><FONT FACE="monospace">
+initialize: function(attributes,options){<BR/>
+    // ...<BR/>
+    this.on('change', function(){ this.save_to_db("order:change"); }, this);<BR/>
+    // ...<BR/>
+}<BR/>
+</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        save_to_db [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>Order</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/70fc0ff01386a04a33883293fa35d2233701a761/addons/point_of_sale/static/src/js/models.js#L2042"><FONT FACE="monospace">
+save_to_db: function(){<BR/>
+    // ...<BR/>
+    this.pos.db.save_unpaid_order(this);<BR/>
+},<BR/>
+</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        save_unpaid_order [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>PosDB</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/d4255e01d67154a60cd0c31070ac62e581f50340/addons/point_of_sale/static/src/js/db.js#L450"><FONT FACE="monospace">
+save_unpaid_order: function(order){<BR/>
+    // ...<BR/>
+    var orders = this.load('unpaid_orders',[]);<BR/>
+    var serialized = order.export_as_JSON();<BR/>
+    // ...<BR/>
+    this.save('unpaid_orders',orders);<BR/>
+    // ...<BR/>
+}
+</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        load [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>PosDB</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/d4255e01d67154a60cd0c31070ac62e581f50340/addons/point_of_sale/static/src/js/db.js#L135"><FONT FACE="monospace">
+load: function(store,deft){<BR/>
+    // omitting the caching mechanism for brevity...<BR/>
+    var data = localStorage[this.name + '_' + store];<BR/>
+    if(data !== undefined &amp;&amp; data !== ""){<BR/>
+        data = JSON.parse(data);<BR/>
+        // ...<BR/>
+        return data;<BR/>
+    }<BR/>
+    // ...<BR/>
+},<BR/>
+</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        save [shape=none, label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLPADDING="10" CELLSPACING="0">
+           <TR><TD>PosDB</TD></TR>
+           <TR>
+             <TD COLOR="blue" ALIGN="left" BALIGN="left" HREF="https://github.com/odoo/odoo/blob/d4255e01d67154a60cd0c31070ac62e581f50340/addons/point_of_sale/static/src/js/db.js#L149"><FONT FACE="monospace">
+save: function(store,data){<BR/>
+    localStorage[this.name + '_' + store] = JSON.stringify(data);<BR/>
+    // ...<BR/>
+}
+</FONT></TD>
+</TR>
+        </TABLE>
+        >];
+
+        backbone[label="Backbone trigger"];
+
+        backbone -> bind;
+        bind -> save_to_db[style="dotted"];
+        save_to_db -> save_unpaid_order;
+        save_unpaid_order -> "Order.export_as_JSON()";
+        save_unpaid_order -> load;
+        save_unpaid_order -> save;
+
+
+}
