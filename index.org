@@ -1,28 +1,16 @@
 #+TITLE: Notes
-#+DATE: <2020-05-14 Thu>
-#+EXPORT_FILE_NAME: index.html
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
-#+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>
-#+HTML_HEAD: <script src="/notes/assets/sw-loader.js" defer></script>
-#+OPTIONS: html-scripts:nil
-#+OPTIONS: html-style:nil
-#+OPTIONS: html5-fancy:t
-#+OPTIONS: html-postamble:t
-#+OPTIONS: html-preamble:t
-#+HTML_DOCTYPE: html5
-#+HTML_CONTAINER: div
-#+DESCRIPTION: Notes index
-#+KEYWORDS:
-#+HTML_LINK_HOME:
-#+HTML_LINK_UP:
-#+HTML_MATHJAX:
-#+HTML_HEAD:
-#+HTML_HEAD_EXTRA:
-#+SUBTITLE:
-#+INFOJS_OPT:
+#+SUBTITLE: Joren Van Onder
 #+AUTHOR: Joren Van Onder
-#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
-#+LATEX_HEADER:
+#+EMAIL: joren@jvo.sh
+#+LANGUAGE: en
+#+DATE: <2020-05-14 Thu>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/css/style.css"/>
+#+OPTIONS: toc:2 html-scripts:nil num:nil html-postamble:nil html-style:nil ^:nil
+#+EXPORT_FILE_NAME: index.html
+
+# This enables Safari reader view
+#+HTML_CONTAINER: p
+# ------------------------------------------------------------------------------
 [[./aliasing/][Aliasing]]
 
 [[./nat_traversal/][NAT Traversal]]

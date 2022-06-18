@@ -1,105 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- May 26 2020 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2022-06-17 Fri 20:24 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mail</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="Joren Van Onder">
-<meta name="description" content="NAT traversal"
->
-<meta name="keywords" content="notmuch emacs gmail">
-<link rel="stylesheet" type="text/css" href="/notes/revisioned/assets/style-ea23070d5d.css"/>
-<link rel="icon" href="/notes/revisioned/assets/favicon-034aad3767.png" type="image/x-icon"/>
-<script src="/notes/revisioned/assets/sw-loader-649419f22f.js" defer></script>
-<script type="text/javascript">
-/*
-@licstart  The following is the entire license notice for the
-JavaScript code in this tag.
-
-Copyright (C) 2012-2019 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
-@licend  The above is the entire license notice
-for the JavaScript code in this tag.
-*/
-<!--/*--><![CDATA[/*><!--*/
- function CodeHighlightOn(elem, id)
- {
-   var target = document.getElementById(id);
-   if(null != target) {
-     elem.cacheClassElem = elem.className;
-     elem.cacheClassTarget = target.className;
-     target.className = "code-highlighted";
-     elem.className   = "code-highlighted";
-   }
- }
- function CodeHighlightOff(elem, id)
- {
-   var target = document.getElementById(id);
-   if(elem.cacheClassElem)
-     elem.className = elem.cacheClassElem;
-   if(elem.cacheClassTarget)
-     target.className = elem.cacheClassTarget;
- }
-/*]]>*///-->
-</script>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Joren Van Onder" />
+<link rel="stylesheet" type="text/css" href="/notes/css/style.css"/>
 </head>
 <body>
-<div id="preamble" class="status">
-
-<div class="top">
-  <a href="/notes/">notes</a> / mail
-  <div class="right">
-      github:&nbsp;<a target="_blank" href="https://github.com/jorenvo">jorenvo</a> |
-      email:&nbsp;<a target="_blank" href="mailto:joren@jvo.sh">joren@jvo.sh</a> |
-      PGP:&nbsp;<a href="/publickey.txt">50A5 7A39 0DE1 1A6C</a> |
-      keybase:&nbsp;<a target="_blank" href="https://keybase.io/jvo">jvo</a>
-  </div>
-</div>
-</div>
 <div id="content">
-<header>
-<h1 class="title">Mail</h1>
-</header><nav id="table-of-contents">
+<h1 class="title">Mail
+<br />
+<span class="subtitle">Joren Van Onder</span>
+</h1>
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org10940eb">1. GMail has become slow</a></li>
-<li><a href="#org97eb9f2">2. Have you accepted GNU Emacs as your lord and savior?</a></li>
-<li><a href="#org4af0a3a">3. Approach</a>
+<li><a href="#org4445b3e">GMail has become slow</a></li>
+<li><a href="#org9ca0ec2">Have you accepted GNU Emacs as your lord and savior?</a></li>
+<li><a href="#org9290ec2">Approach</a>
 <ul>
-<li><a href="#org0444edf">3.1. OfflineIMAP</a></li>
-<li><a href="#orge18f2e2">3.2. Indexing</a></li>
-<li><a href="#orgb77d541">3.3. Tagging</a></li>
-<li><a href="#orgb937e60">3.4. Avoiding the huge INBOX of death</a></li>
+<li><a href="#org4a8d399">OfflineIMAP</a></li>
+<li><a href="#orgc3052b0">Indexing</a></li>
+<li><a href="#orge5046bd">Tagging</a></li>
+<li><a href="#org7801a61">Avoiding the huge INBOX of death</a></li>
 </ul>
 </li>
-<li><a href="#orga3cfac3">4. Putting it all together</a></li>
-<li><a href="#org6958e20">5. GNU Emacs</a></li>
+<li><a href="#org9e57370">Putting it all together</a></li>
+<li><a href="#org09972c1">GNU Emacs</a></li>
 </ul>
 </div>
-</nav>
-<div id="outline-container-org10940eb" class="outline-2">
-<h2 id="org10940eb"><span class="section-number-2">1</span> GMail has become slow</h2>
-<div class="outline-text-2" id="text-1">
+</div>
+<p id="outline-container-org4445b3e" class="outline-2">
+<h2 id="org4445b3e">GMail has become slow</h2>
+<div class="outline-text-2" id="text-org4445b3e">
 <p>
-The <a target="_blank" href="https://www.theverge.com/2018/4/25/17277360/gmail-redesign-live-features-google-update">GMail redesign was a while ago</a>. I don't care much about the visual
+The <a href="https://www.theverge.com/2018/4/25/17277360/gmail-redesign-live-features-google-update">GMail redesign was a while ago</a>. I don't care much about the visual
 changes. The main thing I dislike is how sluggish the interface has
 become. Interacting with it no longer feels snappy and regularly I run
 into blocking <code>beforeunload</code> handlers warning me I might lose data
@@ -107,11 +48,11 @@ when attempting to close the tab.
 </p>
 
 
-<figure>
-<img src="/notes/revisioned/mail/gmail_archive-63756bcc13.png" alt="gmail_archive.png">
-
-<figcaption><span class="figure-number">Figure 1: </span>Archiving an email seemingly takes about a second before you can close the tab</figcaption>
-</figure>
+<div id="orgf77ee56" class="figure">
+<p><img src="./gmail_archive.png" alt="gmail_archive.png" />
+</p>
+<p><span class="figure-number">Figure 1: </span>Archiving an email seemingly takes about a second before you can close the tab</p>
+</div>
 
 <p>
 Since the place I work at uses GSuite and there's a lot of email to go
@@ -122,28 +63,28 @@ through in the morning I decided to stop using the GMail webclient.
 The rest of this page describes my personal email setup.
 </p>
 </div>
-</div>
+</p>
 
-<div id="outline-container-org97eb9f2" class="outline-2">
-<h2 id="org97eb9f2"><span class="section-number-2">2</span> Have you accepted GNU Emacs as your lord and savior?</h2>
-<div class="outline-text-2" id="text-2">
+<p id="outline-container-org9ca0ec2" class="outline-2">
+<h2 id="org9ca0ec2">Have you accepted GNU Emacs as your lord and savior?</h2>
+<div class="outline-text-2" id="text-org9ca0ec2">
 <p>
-I have and therefore decided on using <a target="_blank" href="https://notmuchmail.org/">Notmuch</a><sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. It has an
+I have and therefore decided on using <a href="https://notmuchmail.org/">Notmuch</a><sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. It has an
 official GNU Emacs client and it's simplicity makes it interesting and
 fun to use and configure. Because it's pretty minimalist in it's
 design an additional program is needed to synchronize your mail. The
-most popular choice for this is probably <a target="_blank" href="https://www.offlineimap.org/">OfflineIMAP</a>.
+most popular choice for this is probably <a href="https://www.offlineimap.org/">OfflineIMAP</a>.
 </p>
 </div>
-</div>
+</p>
 
-<div id="outline-container-org4af0a3a" class="outline-2">
-<h2 id="org4af0a3a"><span class="section-number-2">3</span> Approach</h2>
-<div class="outline-text-2" id="text-3">
+<p id="outline-container-org9290ec2" class="outline-2">
+<h2 id="org9290ec2">Approach</h2>
+<div class="outline-text-2" id="text-org9290ec2">
 </div>
-<div id="outline-container-org0444edf" class="outline-3">
-<h3 id="org0444edf"><span class="section-number-3">3.1</span> OfflineIMAP</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-org4a8d399" class="outline-3">
+<h3 id="org4a8d399">OfflineIMAP</h3>
+<div class="outline-text-3" id="text-org4a8d399">
 <p>
 OfflineIMAP will synchronize mail between GMail and a local
 maildir. Plenty can be found online on how to configure OfflineIMAP
@@ -151,7 +92,7 @@ with GMail. Here's a basic configuration that downloads a couple of
 IMAP folders.
 </p>
 
-<pre class="example">
+<pre class="example" id="org791166c">
 [general]
 accounts = Gmail
 pythonfile = ~/.config-git/mail/offlineimap.py
@@ -182,11 +123,11 @@ realdelete = no
 
 <p>
 The referenced Python file is responsible for parsing my PGP encrypted
-<a target="_blank" href="https://www.emacswiki.org/emacs/GnusAuthinfo">Gnus authinfo</a> file. This contains the password used to connect to
+<a href="https://www.emacswiki.org/emacs/GnusAuthinfo">Gnus authinfo</a> file. This contains the password used to connect to
 IMAP.
 </p>
 
-<pre class="example">
+<pre class="example" id="orgc1ff9e2">
 #!/usr/bin/env python3
 import re
 import os
@@ -202,7 +143,7 @@ def get_password_authinfo(machine, login):
 So I don't have to type my password often I set
 </p>
 
-<pre class="example">
+<pre class="example" id="org4028ff0">
 # cache for 24 hours
 default-cache-ttl 86400
 max-cache-ttl 86400
@@ -214,30 +155,30 @@ in my <code>~/.gnupg</code> file.
 </div>
 </div>
 
-<div id="outline-container-orge18f2e2" class="outline-3">
-<h3 id="orge18f2e2"><span class="section-number-3">3.2</span> Indexing</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-orgc3052b0" class="outline-3">
+<h3 id="orgc3052b0">Indexing</h3>
+<div class="outline-text-3" id="text-orgc3052b0">
 <p>
 Now that OfflineIMAP has downloaded a copy of my mail into a local
 maildir we need to index it with Notmuch. This makes it
 searchable. Indexing is accomplished by simply running
 </p>
 
-<pre class="example">
+<pre class="example" id="org1d0108e">
 $ notmuch new
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgb77d541" class="outline-3">
-<h3 id="orgb77d541"><span class="section-number-3">3.3</span> Tagging</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-orge5046bd" class="outline-3">
+<h3 id="orge5046bd">Tagging</h3>
+<div class="outline-text-3" id="text-orge5046bd">
 <p>
 In Notmuch email is organized by tags. We can tell Notmuch to tag all
 emails that match some search query:
 </p>
 
-<pre class="example">
+<pre class="example" id="orgce053ae">
 $ notmuch tag +inbox -archived -- folder:INBOX
 </pre>
 
@@ -256,9 +197,9 @@ the GMail webclient it will sync locally as well. Hence the
 </div>
 </div>
 
-<div id="outline-container-orgb937e60" class="outline-3">
-<h3 id="orgb937e60"><span class="section-number-3">3.4</span> Avoiding the huge INBOX of death</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-org7801a61" class="outline-3">
+<h3 id="org7801a61">Avoiding the huge INBOX of death</h3>
+<div class="outline-text-3" id="text-org7801a61">
 <p>
 Notmuch does not modify your local mail<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>. You may be removing
 <code>inbox</code> tags from local emails but your remote inbox will never be
@@ -278,17 +219,17 @@ maildir folder</li>
 </ol>
 </div>
 </div>
-</div>
+</p>
 
-<div id="outline-container-orga3cfac3" class="outline-2">
-<h2 id="orga3cfac3"><span class="section-number-2">4</span> Putting it all together</h2>
-<div class="outline-text-2" id="text-4">
+<p id="outline-container-org9e57370" class="outline-2">
+<h2 id="org9e57370">Putting it all together</h2>
+<div class="outline-text-2" id="text-org9e57370">
 <p>
 I implement the previous concepts in a Bash script. Whenever I want to
 download mail I run the script manually.
 </p>
 
-<pre class="example">
+<pre class="example" id="org70628ae">
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -366,12 +307,12 @@ revision number. By storing the revision number before running
 <code>notmuch new</code> we can make Notmuch tag only new mail.
 </p>
 </div>
-</div>
+</p>
 
-<div id="outline-container-org6958e20" class="outline-2">
-<h2 id="org6958e20"><span class="section-number-2">5</span> GNU Emacs</h2>
-<div class="outline-text-2" id="text-5">
-<pre class="example">
+<p id="outline-container-org09972c1" class="outline-2">
+<h2 id="org09972c1">GNU Emacs</h2>
+<div class="outline-text-2" id="text-org09972c1">
+<pre class="example" id="orga80b445">
 (defun replace-unicode-no-break-space ()
   (save-excursion
     (goto-char (point-min))
@@ -424,25 +365,22 @@ removed for dubious "security" reasons. This way people know they're
 nowhere near as cool as you are when they are reading your mail.
 </p>
 </div>
-</div>
+</p>
 <div id="footnotes">
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
 <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
-Previously I tried out <a target="_blank" href="https://www.djcbsoftware.nl/code/mu/">mu</a>. It was okay but I wanted to try
+Previously I tried out <a href="https://www.djcbsoftware.nl/code/mu/">mu</a>. It was okay but I wanted to try
 something different.
 </p></div></div>
 
 <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
-Except for <a target="_blank" href="https://notmuchmail.org/howto/#sync_maildir_flags">maildir flags</a>.
+Except for <a href="https://notmuchmail.org/howto/#sync_maildir_flags">maildir flags</a>.
 </p></div></div>
 
 
 </div>
 </div></div>
-<div id="postamble" class="status">
-<p class="creator"><a target="_blank" href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a target="_blank" href="https://orgmode.org">Org</a> mode 9.1.9)</p><p class="publish-date">Published on October 22 2019</p>
-</div>
 </body>
 </html>
