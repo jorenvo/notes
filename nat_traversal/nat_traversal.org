@@ -7,6 +7,9 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/css/style.css"/>
 #+OPTIONS: toc:2 html-scripts:nil num:nil html-postamble:nil html-style:nil ^:nil
 #+EXPORT_FILE_NAME: index.html
+
+# This enables Safari reader view
+#+HTML_CONTAINER: p
 # ------------------------------------------------------------------------------
 * Introduction
 Most communication on the internet happens between an end-client and a
