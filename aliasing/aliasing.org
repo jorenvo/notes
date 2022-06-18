@@ -1,43 +1,31 @@
 #+TITLE: Aliasing
-#+DATE: <2019-03-21 Thu>
-#+EXPORT_FILE_NAME: index.html
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
-#+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>
-#+HTML_HEAD: <script src="/notes/assets/sw-loader.js" defer></script>
-#+OPTIONS: html-scripts:nil
-#+OPTIONS: html-style:nil
-#+OPTIONS: html5-fancy:t
-#+OPTIONS: html-postamble:t
-#+OPTIONS: html-preamble:t
-#+HTML_DOCTYPE: html5
-#+HTML_CONTAINER: div
-#+DESCRIPTION: Aliasing oddities
-#+KEYWORDS:
-#+HTML_LINK_HOME:
-#+HTML_LINK_UP:
-#+HTML_MATHJAX:
-#+HTML_HEAD:
-#+HTML_HEAD_EXTRA:
-#+SUBTITLE:
-#+INFOJS_OPT:
+#+SUBTITLE: Joren Van Onder
 #+AUTHOR: Joren Van Onder
-#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
-#+LATEX_HEADER:
+#+EMAIL: joren@jvo.sh
+#+LANGUAGE: en
+#+DATE: <2019-03-21 Thu>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/css/style.css"/>
+#+OPTIONS: toc:2 html-scripts:nil num:nil html-postamble:nil html-style:nil ^:nil
+#+EXPORT_FILE_NAME: index.html
+
+# This enables Safari reader view
+#+HTML_CONTAINER: p
+# ------------------------------------------------------------------------------
 * Introduction
 Imagine the following scene:
 
 #+CAPTION: 100x100px image with red and green alternating circles, each with a diameter of 10px
-[[/notes/aliasing/jittered_spheres_10px.png]]
+[[./jittered_spheres_10px.png]]
 
 Reducing the size of each circle to 1px gives a predictable result. The resulting image has alternating green and red vertical lines:
 
 #+CAPTION: 100x100px image with red and green alternating circles, each with a diameter of 1px (uniform sampling, 1 sample/px)
-[[/notes/aliasing/uniform_spheres_1px.png]]
+[[./uniform_spheres_1px.png]]
 * Different sampling methods
 Depending on the sampling method used the lines may not have a uniform color. The same scene rendered with jittered sampling results in:
 
 #+CAPTION: 1px circles rendered with jittered sampling (16 samples/px)
-[[/notes/aliasing/jittered_spheres_1px.png]]
+[[./jittered_spheres_1px.png]]
 
 The end result however is still an image with vertical lines containing either shades of green *or* shades of red i.e. a vertical green line contains no shades of red and vice versa.
 * Aliasing artifacts
@@ -45,7 +33,7 @@ When the size of the circles varies slightly from the sampling frequency, aliasi
 
 #+CAPTION: Aliasing artifacts with circles with a 1.05px diameter, rendered with uniform sampling (1 sample/px)
 #+NAME:    fig:uniform_spheres_1_05px.png
-[[/notes/aliasing/uniform_spheres_1_05px.png]]
+[[./uniform_spheres_1_05px.png]]
 
 This shows a clear pattern that *does not exist in the scene*. Although usually more subtle, this demonstrates clearly why most rendering methods use various anti-aliasing techniques to avoid this.
 
@@ -53,13 +41,13 @@ Jittered sampling is quite effective at eliminating most forms of aliasing. Alth
 
 #+CAPTION: Aliasing artifacts with circles with a 1.05px diameter, rendered with jittered sampling (16 samples/px)
 #+NAME:    fig:jittered_spheres_1_05px.png
-[[/notes/aliasing/jittered_spheres_1_05px.png]]
+[[./jittered_spheres_1_05px.png]]
 * Analysis
 ** Uniform
 When sampling circles of 1px the sampling occurs in in lockstep:
 
 #+CAPTION: Lockstep uniform sampling (1 sample/px)
-[[/notes/aliasing/uniform_samples.svg]]
+[[./uniform_samples.svg]]
 
 Although different sampling techniques might sample these individual pixels differently, there is only either green *or* red in each pixel.
 
@@ -67,7 +55,7 @@ When the circle is slightly larger than the pixel size (1.05px) the sampling no 
 
 #+CAPTION: Non-lockstep uniform sampling (1 sample/px), sample points are given in blue
 #+NAME:    fig:uniform_samples_larger_spheres.png
-[[/notes/aliasing/uniform_samples_larger_spheres.png]]
+[[./uniform_samples_larger_spheres.png]]
 
 With uniform sampling at 1 sample/px this results in the black symmetric spots in Figure [[fig:uniform_spheres_1_05px.png]]. The regular pattern of the scene results in the multiple areas where only the background is sampled. In figure [[fig:uniform_samples_larger_spheres.png]] happens in the bottom right pixels.
 ** Jittered
@@ -85,7 +73,7 @@ The jittered sampling in Figure [[fig:jittered_spheres_1_05px.png]] gets rid of 
 More advanced jittered sampling patterns like e.g. multi-jittered sampling won't do any better:
 
 #+CAPTION: Aliasing artifacts with circles with a 1.05px diameter, rendered with multi-jittered sampling (16 samples/px)
-[[/notes/aliasing/multi_jittered_spheres_1_05px.png]]
+[[./multi_jittered_spheres_1_05px.png]]
 
 The core issue remains the same, namely that going left to right pixels contain a varying amount of red and green.
 * Conclusion
@@ -98,7 +86,7 @@ Avoiding these vertical noise bands is not straight-forward. An ideal solution w
 Interestingly, the classic anti-aliasing checkerboard example side-steps this problem [fn:1]:
 
 #+CAPTION: Anti-aliased checkerboard
-[[/notes/aliasing/Reconstruction-Mitchell-Checkerboard.png]]
+[[./Reconstruction-Mitchell-Checkerboard.png]]
 
 The same bands appear, but because the square size decreases rapidly as the distance from the camera increases they are not noticeable.
 

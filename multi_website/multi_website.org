@@ -1,29 +1,16 @@
 #+TITLE: Multi-website in Odoo v12
-#+DATE: <2020-05-14 Thu>
-#+EXPORT_FILE_NAME: index.html
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
-#+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>
-#+HTML_HEAD: <script src="/notes/assets/sw-loader.js" defer></script>
-#+OPTIONS: html-scripts:nil
-#+OPTIONS: html-style:nil
-#+OPTIONS: html5-fancy:t
-#+OPTIONS: html-postamble:t
-#+OPTIONS: html-preamble:t
-#+OPTIONS: ^:nil
-#+HTML_DOCTYPE: html5
-#+HTML_CONTAINER: div
-#+DESCRIPTION: Multi-website in Odoo v12
-#+KEYWORDS:
-#+HTML_LINK_HOME:
-#+HTML_LINK_UP:
-#+HTML_MATHJAX:
-#+HTML_HEAD:
-#+HTML_HEAD_EXTRA:
-#+SUBTITLE:
-#+INFOJS_OPT:
+#+SUBTITLE: Joren Van Onder
 #+AUTHOR: Joren Van Onder
-#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
-#+LATEX_HEADER:
+#+EMAIL: joren@jvo.sh
+#+LANGUAGE: en
+#+DATE: <2020-05-14 Thu>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/css/style.css"/>
+#+OPTIONS: toc:2 html-scripts:nil num:nil html-postamble:nil html-style:nil ^:nil
+#+EXPORT_FILE_NAME: index.html
+
+# This enables Safari reader view
+#+HTML_CONTAINER: p
+# ------------------------------------------------------------------------------
 The goal of this document is to give a thorough technical
 understanding of the standard multi-website feature in ≥v12. I will be
 focusing on v12 in this document, but everything should be applicable
@@ -38,7 +25,7 @@ the website you're on in Python.
 Odoo can be forced to load a specific website, regardless of the
 current domain or geoip via the website selector in the frontend:
 
-[[/notes/multi_website/website_selector.png]]
+[[./website_selector.png]]
 
 You can also do it manually with this GET parameter:
 
@@ -95,7 +82,7 @@ When views are rendered [[https://github.com/odoo/odoo/blob/dd40fb63b4ebdd4dd7b4
 a website specific view is preferred over a generic one if it
 exists. Here's an example:
 
-[[/notes/multi_website/inheritance.png]]
+[[./inheritance.png]]
 
 The label in each node corresponds to the =key= of the view. If a
 =website_id= is configured it's shown between square brackets. The
@@ -127,7 +114,7 @@ set =main_object= in the rendering context. It should be the main
 record you're rendering, the website module will use this record to
 make the publish/unpublish feature work:
 
-[[/notes/multi_website/published_unpublished.png]]
+[[./published_unpublished.png]]
 
 Unfortunately you need to manually check in your controllers whether
 or not the record is accessible from the current website. This mixin

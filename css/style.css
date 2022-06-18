@@ -1,392 +1,354 @@
-@import "normalize";
+/*
+ * Cascading stylesheet for GNU Emacs org mode
+ * Nicolas P. Rougier - September 2020
+ * Released under a Creative Commons CC-BY 4.0 licence
+ */
 
-$sans: Helvetica, sans-serif;
-$serif: Georgia, serif;
-$monospace: Lucida Console, monospace;
-$smaller: 85%;
+@charset "utf-8";
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,500'); 
 
-/* based on bootstrap's md */
-$medium-display: 768px;
-
-/* based on bootstrap's lg */
-$large-display: 992px;
 
 body {
-    width: 95%;
-    margin: 2% auto;
+    font-family: "Roboto Mono", monospace;
     font-size: 14px;
+    font-weight: 300;
+    color:  rgba(51, 51, 51, 1.00);
     line-height: 1.4em;
-    font-family: $serif;
-    color: #333;
+    font-weight: light;
+    counter-reset: section;
+    counter-reset: toc-section;
+    counter-increment: toc-section;
 }
 
-@media screen and (min-width: $medium-display) {
-    body {
-        font-size: 18px;
-    }
-}
-
-/* add borders in case screen is large enough */
-@media screen and (min-width: $large-display) {
-    body {
-        width: 900px;
-    }
-}
-
-::selection {
-    background: #D6EDFF;
-}
-
-ol, ul {
-    margin: 0 auto;
-}
-
-dl {
-    margin: 0 auto;
-}
-
-.title {
-    text-align: center;
-    margin: 0.8em auto;
-    color: black;
-}
-
-.subtitle {
-    text-align: center;
-    font-size: 1.1em;
-    line-height: 1.4;
-    font-weight: bold;
-    margin: 1em auto;
-}
-
-.abstract {
-    margin: auto;
-    width: 80%;
-    font-style: italic;
-}
-
-.abstract p:last-of-type:before {
-    content: "    ";
-    white-space: pre;
-}
-
-[class^="section-number-"] {
-    margin-right: .5em;
-}
-
-[id^="orgheadline"] {
-    clear: both;
-}
-
-#footnotes {
-    font-size: $smaller;
-}
-
-.footpara {
-    display: inline;
-    margin: .2em auto;
-}
-
-.footdef {
-    margin-bottom: 1em;
-
-    sup {
-        padding-right: .5em;
-    }
-}
-
-a {
-    color: #527d9a;
+a, a:visited {
     text-decoration: none;
-
+    color: rgba(48,63,159, 1.00);
+}
+.org-bold {
+    font-weight: 400;
+}
+i, i a {
+    color: #999999;
+    font-style: normal;
+}
+.org-italic, .org-org-meta-line {
+    color: rgba(48,63,159, 0.75);
+    font-style: normal;
+}
+.org-face-salient {
+    font-weight: 400;
 }
 
-figure {
-    padding: 0px;
-    margin: 1em auto;
-    text-align: center;
 
-    > figcaption {
-        font-size: $smaller;
-    }
+/* Blinking cursor when strike-through */
+.custom { animation: blinker 1s linear infinite; }
+@keyframes blinker { 50% { opacity: 0; } }
+
+
+/* --- Side notes --- */
+div.side-note::before {
+    content: "Note";
+    color: rgba(0,0,0,.75);
+    font-weight: 400;
+}
+div.side-note {
+    color: rgba(0,0,0,.5);
+    float: left;
+    font-size: .85em;
+    line-height: 1.25em;
+    margin-left: -24em;
+    width: 20em;
 }
 
-img,.org-svg {
-    max-width: 95%;
-    vertical-align: middle;
+/* --- Table of contents --- */
+#table-of-contents {
+    padding-top: 0em;
+    margin-top: 0em;
+    text-transform: uppercase;
 }
-
-.MathJax_Display {
-    margin: 0!important;
-    width: $smaller!important;
+#table-of-contents ul {
+    padding: 0;
+    font-weight: 400;
+    list-style: none;
+    counter-reset: list 0;
 }
-
-h1, h2, h3, h4, h5, h6 {
-    color: #A5573E;
-    line-height: 1em;
-    font-family: $sans;
+#table-of-contents ul ul {
+    padding-left:0em;
+    font-weight: 300;
+    font-size: 90%;
+    line-height: 1.5em;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    padding-left: 2em;
 }
-
-h1, h2, h3 {
-    line-height: 1.4em;
+#table-of-contents h2:before {
+    content: "";
+    counter-reset: section;
 }
-
-h4, h5, h6 {
+#table-of-contents ul li {
+    vertical-align: top;
+    display: inline-block;
+    width: 32%;
+}
+#table-of-contents ul li:before {
+    display: inline-block;
+    counter-increment: list;
+    content: counters(list, ".") ".";
+    /* width: 2.0em; */
+    /* margin-left: -2.0em; */
+    text-align: right;
+    text-transform: uppercase;
+    color:#2255bb;
+}
+#table-of-contents ul li ul,
+#table-of-contents ul li ul li {
+    display: static;
+    width: 100%;
+    padding-left: 0;
+    line-height: 1.35em;
+}
+#table-of-contents ul li ul li:before {
+    content: ""
+}
+#table-of-contents h2 {
     font-size: 1em;
+    font-weight: 400;
+    padding-top: 5em;
+}
+#table-of-contents h2:before {
+    content: "⌘";
 }
 
-@media screen and (min-width: $medium-display) {
-    h1 {
-        font-size: 2em;
-    }
-    h2 {
-        font-size: 1.5em;
-    }
-    h3 {
-        font-size: 1.3em;
-    }
-    h1,h2,h3 {
-        line-height: 1.4em;
-    }
-    h4,h5,h6 {
-        font-size: 1.1em;
-    }
-}
 
-dt {
-    font-weight: bold;
-}
-
-table:not(.js-file-line-container) {
-    margin: 1em auto;
-    border-top: 2px solid;
-    border-bottom: 2px solid;
-    border-collapse: collapse;
-
-    thead {
-        border-bottom: 2px solid;
-    }
-
-    tr {
-        border-top: 1px solid lightgray;
-    }
-
-    td + td, th + th {
-        border-left: 1px solid gray;
-    }
-
-    td, th {
-        padding: 0.3em 0.6em;
-        vertical-align: middle;
-    }
-
-    th {
-        .org-right {
-            text-align: center;
-        }
-
-        .org-left {
-            text-align: center;
-        }
-
-        .org-center {
-            text-align: center;
-        }
-    }
-
-    td {
-        .org-right {
-            text-align: right;
-        }
-
-        .org-left {
-            text-align: left;
-        }
-
-        .org-center {
-            text-align: center;
-        }
-    }
-}
-
-.gist {
-    margin-top: 10px;
-}
-
-caption {
-    margin-bottom: 0.3em;
-
-    .t-above {
-        caption-side: top;
-    }
-
-    .t-bottom {
-        caption-side: bottom;
-    }
-}
-
-figcaption {
-    margin-top: 0.3em;
-}
 
 blockquote {
-    margin: 1em 2em;
+    color: #999999;
+    padding-top: 0;
+    margin-left: 1em;
     padding-left: 1em;
-    border-left: 3px solid #ccc;
+    border-left: 3px solid #cccccc;
 }
 
-kbd {
-    background-color: #f7f7f7;
-    font-size: $smaller;
-    margin: 0 .1em;
-    padding: .1em .6em;
+ul.org-ul {
+    padding-left: 0
+}
+ul.org-ul li  {
+    list-style-type: none;
+    margin-bottom: .5em;
 }
 
-.todo {
-    background-color: red;
-    color: white;
-    padding: .1em 0.3em;
-    border-radius: 3px;
-    background-clip: padding-box;
-    font-size: $smaller;
-    font-family: $monospace;
-    line-height: 1;
+ul.org-ul li p {
+    display: inline-block;
+    margin-top: 0em;
+    margin-bottom: 0em;
 }
 
-.done {
-    background-color: green;
-    color: white;
-    padding: .1em 0.3em;
-    border-radius: 3px;
-    background-clip: padding-box;
-    font-size: $smaller;
-    font-family: $monospace;
-    line-height: 1;
+ul.org-ul li::before {
+    display: inline-block;
+    content: "— ";
+    color: #999999;
+    width: 1em;
+    margin-left: -1em;
 }
 
-.priority {
-    color: orange;
-    font-family: $monospace;
+ol.org-ol {
+    padding-left: 0;
+    margin-left: 2em;
+    list-style: none;
+    counter-reset: li;
+}
+.org-ol li  {
+    counter-increment: li;
+    margin-bottom: .25em;
+}
+.org-ol li::before {
+    content: counter(li) ". ";
+    color: #999999;
+    display: inline-block;
+    width: 2em;
+    margin-left: -2em;
 }
 
-.right {
-    float: right;
+
+
+#content, #postamble {
+    margin: 0 auto;
+    max-width: 720px;
+    margin-top: 2.5%;
+    margin-bottom: 2.5%;
 }
 
-/* Because tag span is set to float.  This is more like a hacking.  Maybe we
-   need a cleaner solution. */
-#table-of-contents li {
-    clear: both;
+#postamble {
+/*    border-top: 1px solid #999999; */
+    padding-top: 1.5em;
 }
-
-.tag {
-    font-family: $monospace;
-    font-size: 0.7em;
-    font-weight: normal;
-
-    span {
-        padding: 0.3em 0.3em;
-        float: right;
-        margin-right: .5em;
-        border: 1px solid #bbb;
-        border-radius: 3px;
-        background-clip: padding-box;
-        color: #333;
-        background-color: #eee;
-        line-height: 1;
-    }
-}
-
-.timestamp {
-    color: #bebebe;
-    font-size: $smaller;
-}
-
-.timestamp-kwd {
-    color: #5f9ea0;
-}
-
-.org-right {
-    margin-left: auto;
-    margin-right: 0px;
+#postamble p, #postamble a {
+    color: #999999;
+    line-height: 1.25em;
+    margin: 0;
     text-align: right;
 }
 
-.org-left {
-    margin-left: 0px;
-    margin-right: auto;
+h1.title {
+    font-size: 1.5em;
+    margin-top: 4em;
+    margin-bottom: 0em;
+    font-weight: 400;
     text-align: left;
 }
 
-.org-center {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
+span.subtitle {
+    display: inline-block;
+    margin-top: .25em;
+    font-size: 74.5%;
+    font-weight: 300;
+    color: #999999;
 }
 
-.underline {
-    text-decoration: underline;
-}
 
-#postamble p, .top {
-    font-size: $smaller;
-    margin: .2em;
+h3 { padding-top: .5em; }
+h1, h2, h3, h4 {
+    color: black;
+    font-size: 1em;
+    font-weight: 400;
+    /* font-variant: all-small-caps; */
+    text-transform: uppercase;
 }
+h2 { padding-top: 5em; }
+h3 { padding-top: 3em; }
 
-p.verse {
-    margin-left: 3%;
+body {
+  counter-reset: section;
 }
-
-:not(pre) > code {
-    padding: 2px 5px;
-    margin: auto 1px;
-    border: 1px solid #DDD;
-    border-radius: 3px;
-    background-clip: padding-box;
-    color: #333;
-    font-size: $smaller;
+h2 {
+  counter-reset: subsection;
 }
-
-.inlinetask {
-    background: #ffffcc;
-    border: 2px solid gray;
-    margin: 10px;
-    padding: 10px;
-}
-
-#org-div-home-and-up {
-    font-size: 70%;
+h2::before {
+    color: #cccccc;
+    float: left;
     text-align: right;
-    white-space: nowrap;
+    font-weight: 300;
+    width: 7.5em;
+    margin-left: -8.0em;
+    counter-increment: section;
+    content: "Chapter " counter(section) " ";
 }
 
-.linenr {
-    font-size: $smaller;
+
+h3::before {
+    color: #cccccc;
+    float: left;
+    text-align: right;
+    font-weight: 300;
+    width: 2.5em;
+    margin-left: -3.0em;
+    counter-increment: subsection;
+    content: counter(section) "." counter(subsection) " ";
 }
 
-.code-highlighted {
-    background-color: #ffff00;
+
+
+code {
+    background-color: #f9f9f9;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 400;
 }
 
-#bibliography {
-    font-size: $smaller;
-
-    table {
-        width: 100%;
-    }
+pre::before {
+    color: #cccccc;
+    float: left;
+    text-align: right;
+    font-weight: 300;
+    width: 3.0em;
+    margin-left: -4.25em;
+    font-variant: small-caps;
+    content: "";
 }
-
-.publish-date {
-    display: block;
-}
+pre.src-lisp::before { content: "lisp"; }
+pre.src-org::before { content: "org"; }
 
 pre {
+    color: #00008b;
+    background-color: #fbfbfb;
     overflow: auto;
-    font-size: $smaller;
+    margin: 0em;
+    padding: 0.25em;
+    padding-left: 0.5em;
+    line-height: 1.35em;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 300;
+    border-left: 2px dotted #00008b;
+}
+pre.src {
+    position: relative;
+    overflow: visible;
 }
 
-@media screen and (min-width: $medium-display) {
-    .creator {
-        float: right;
-    }
+/* --- Code folding --- */
+details {
+    color: rgba(48,63,159, 1.00);
+    background: #fbfbfb;
+    border: 1px solid rgba(48,63,159, 1.00);
+    border-radius: 3px;
+    padding:  0.25em;
+    margin-bottom: 1.0em;
 }
+details pre {
+    border: 0;
+}
+details pre.src-lisp::before { content: ""; }
+summary {
+    outline: 0;
+    color: rgba(48,63,159, 1.00);
+}
+summary::after {
+    font-size: 0.85em;
+    color: rgba(48,63,159, 0.25);
+    display: inline-block;
+    float: right;
+    content: "Click to fold/unfold";
+    padding-right:  0.5em;
+}
+
+/* --- Table --- */
+table { min-width: 100%; }
+table, tbody, td, tr, th, colgroup, thead {
+    border: 0;
+/*    padding: 0;*/
+}
+table {
+    margin-top: 1em;
+}
+thead {
+    border-bottom: 1px dashed black;
+}
+th {
+    text-align: left;
+    font-weight: 400;
+    padding: 0;
+    margin-bottom: 0.25em;
+    padding-bottom: 0.25em;
+}
+td { padding: 0; }
+
+tr:nth-child(even) {background: #f9f9f9;}
+tr:nth-child(odd) {background: #ffffff;}
+tbody {
+/* border-bottom: 1px solid black; */
+}
+
+/* --- Description list --- */
+dd {
+    margin-top: 0.25em;
+    margin-bottom: 0.50em;
+}
+
+/* --- Back links in header --- */
+div.back a {
+    float: right;
+    font-weight: 300;
+    color: #cccccc;
+    font-variant: small-caps;
+    margin-top: -2.5em;
+}
+/* h2 { border-bottom: .5px solid #999999; } */

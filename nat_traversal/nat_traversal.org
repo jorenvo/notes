@@ -1,29 +1,16 @@
 #+TITLE: NAT Traversal
-#+DATE: <2018-11-04 Su>
-#+EXPORT_FILE_NAME: index.html
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/assets/style.css"/>
-#+HTML_HEAD: <link rel="icon" href="/notes/assets/favicon.png" type="image/x-icon"/>
-#+HTML_HEAD: <script src="/notes/assets/sw-loader.js" defer></script>
-#+OPTIONS: html-scripts:nil
-#+OPTIONS: html-style:nil
-#+OPTIONS: html5-fancy:t
-#+OPTIONS: html-postamble:t
-#+OPTIONS: html-preamble:t
-#+OPTIONS: ^:nil
-#+HTML_DOCTYPE: html5
-#+HTML_CONTAINER: div
-#+DESCRIPTION: NAT traversal
-#+KEYWORDS:
-#+HTML_LINK_HOME:
-#+HTML_LINK_UP:
-#+HTML_MATHJAX:
-#+HTML_HEAD:
-#+HTML_HEAD_EXTRA:
-#+SUBTITLE:
-#+INFOJS_OPT:
+#+SUBTITLE: Joren Van Onder
 #+AUTHOR: Joren Van Onder
-#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)
-#+LATEX_HEADER:
+#+EMAIL: joren@jvo.sh
+#+LANGUAGE: en
+#+DATE: <2018-11-04 Su>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/notes/css/style.css"/>
+#+OPTIONS: toc:2 html-scripts:nil num:nil html-postamble:nil html-style:nil ^:nil
+#+EXPORT_FILE_NAME: index.html
+
+# This enables Safari reader view
+#+HTML_CONTAINER: p
+# ------------------------------------------------------------------------------
 * Introduction
 Most communication on the internet happens between an end-client and a
 server with an IP address accessible from the internet. Even
@@ -149,7 +136,7 @@ Bob sends a =REGISTER= message to the broker. This is possible because
 the broker is not behind NAT. The broker will remember Bob's username,
 external IP and port. 
 
-[[/notes/nat_traversal/graphs/flow_bob_register.png]]
+[[./graphs/flow_bob_register.png]]
 
 <<broker_can_talk_to_bob>>
 Note that this message goes through Bob's NAT. This causes an entry to
@@ -162,7 +149,7 @@ he's all alone.
 *** Alice registers
 Alice registers with the broker:
 
-[[/notes/nat_traversal/graphs/flow_alice_register.png]]
+[[./graphs/flow_alice_register.png]]
 
 Just like before, the message goes through Alice's NAT. This means the
 broker can now reply back to Alice.
@@ -174,7 +161,7 @@ Alice wants to set up a connection to Bob. The first thing she does is
 send a message to Bob using the external IP and port returned by the
 broker.
 
-[[/notes/nat_traversal/graphs/flow_alice_bob.png]]
+[[./graphs/flow_alice_bob.png]]
 
 Doing this establishes an entry in Alice's NAT that allows incoming
 packets coming from Bob's external IP and port.
@@ -187,7 +174,8 @@ packets from Alice. For this Alice will use an =ASK= message to tell
 the broker to ask Bob to send a message to her. Remember that [[broker_can_talk_to_bob][the
 broker can send messages directly to Bob]].
 
-[[/notes/nat_traversal/graphs/flow_alice_broker_bob.png]]
+[[./graphs/flow_alice_broker_bob.png]]
+
 *** Bob talks to Alice
 When Bob receives the request from the broker to talk to Alice he
 sends her a message. He uses her external IP and port that were
@@ -196,7 +184,7 @@ in Bob's NAT that will allow incoming packets from Alice. The message
 will also successfully reach Alice, [[sec:bob_entry_alice_nat][since an entry allowing packets
 from Bob was added before]].
 
-[[/notes/nat_traversal/graphs/flow_bob_alice.png]]
+[[./graphs/flow_bob_alice.png]]
 
 At this point the connection is set up and Bob and Alice can continue
 sending messages directly to each other.
@@ -204,7 +192,7 @@ sending messages directly to each other.
 For completeness here's a (quite confusing) flowchart of messages,
 edges with the same number contain the same message.
 
-[[/notes/nat_traversal/graphs/flow_full.png]]
+[[./graphs/flow_full.png]]
 * Conclusion
 The proposed solution successfully traverses NATs to set up a
 connection between two clients. It also works when clients are behind
