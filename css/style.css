@@ -94,8 +94,8 @@ div.side-note {
     display: inline-block;
     counter-increment: list;
     content: counters(list, ".") ".";
-    width: 2.0em;
-    margin-left: -2.0em;
+    /* width: 2.0em; */
+    /* margin-left: -2.0em; */
     text-align: right;
     text-transform: uppercase;
     color:#2255bb;
